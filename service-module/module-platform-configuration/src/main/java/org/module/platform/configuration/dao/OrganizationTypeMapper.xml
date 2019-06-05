@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationTypeMapper">
+
+  <!-- 删除机构类型 -->
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.OrganizationType">
+    delete from base_organization_type
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增机构类型 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.OrganizationType" keyProperty="id" useGeneratedKeys="true">
+    insert into base_organization_type (name, role, 
+      create_date)
+    values (#{name}, #{role}, 
+      #{createDate})
+  </insert>
+  
+  <!-- 修改机构类型 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.OrganizationType">
+    update base_organization_type SET id=#{id}
+      <if test="name!=null and name!=''">
+     ,name = #{name}
+     </if>
+     <if test="role!=null and role!=''">
+      ,role = #{role}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 查询重复数据库 -->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.OrganizationType" resultType="map">
+    select id, name, role, create_date createDate
+    from base_organization_type
+    where name = #{name}
+  </select>
+  
+  <!-- 查询机构类型详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.OrganizationType" resultType="map">
+    select id, name, role, create_date createDate
+    from base_organization_type
+    where id = #{id}
+  </select>
+  
+  <!-- 查询机构类型列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.OrganizationType" resultType="map">
+    select id, name, role, create_date createDate
+    from base_organization_type
+    <where>
+		  <if test="name!=null and name!=''">
+		     name  like CONCAT(CONCAT('%', #{name}), '%')
+		  </if>
+		  <if test="role!=null and role!=''">
+		   and  role  like CONCAT(CONCAT('%', #{role}), '%')
+		  </if>
+		</where>
+  </select>
+</mapper>

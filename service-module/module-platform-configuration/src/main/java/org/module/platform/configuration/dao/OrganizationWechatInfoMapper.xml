@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationWechatInfoMapper">
+
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo">
+    delete from base_organization_wechat_info
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增机构微信公总号 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo">
+    insert into base_organization_wechat_info (organization_id, merchant_number, 
+      pay_key, wechat_id, wechat_key, 
+      create_date,wechat_name,app_id,app_secret,ver_type)
+    values (#{organizationId}, #{merchantNumber}, 
+      #{payKey}, #{wechatId}, #{wechatKey}, 
+      #{createDate},#{wechatName},#{appId},#{appSecret},#{verType})
+  </insert>
+  
+  <!-- 修改机构微信公众号 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo">
+    update base_organization_wechat_info SET id=#{id}
+     <if test="organizationId!=null ">
+     ,organization_id = #{organizationId}
+     </if>
+     <if test="merchantNumber !=null and merchantNumber !=''">
+      ,merchant_number = #{merchantNumber}
+      </if>
+     <if test="payKey!=null and payKey!=''">
+      ,pay_key = #{payKey}
+      </if>
+     <if test="wechatId!=null and wechatId!=''">
+      ,wechat_id = #{wechatId}
+      </if>
+     <if test="wechatKey!=null and wechatKey!=''">
+      ,wechat_key = #{wechatKey}
+      </if>
+      <if test="wechatName!=null and wechatName!=''">
+      ,wechat_name = #{wechatName}
+      </if>
+       <if test="verType!=null and verType!=''">
+      ,ver_type = #{verType}
+      </if>
+      <if test="appId!=null and appId!=''">
+      ,app_id = #{appId}
+      </if>
+      <if test="appSecret!=null and appSecret!=''">
+      ,app_secret = #{appSecret}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 机构微信公众号详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo" resultType="map">
+    SELECT
+		bowi.id,
+		bowi.organization_id organizationId,
+		bowi.merchant_number merchantNumber,
+		bowi.pay_key payKey,
+		bowi.wechat_id wechatId,
+		bowi.wechat_key wechatKey,
+		bowi.create_date createDate,
+		bowi.wechat_name wechatName,
+		bowi.app_id appId,
+		bowi.app_secret appSecret,
+		bowi.ver_type verType,
+		bo.`name` organizationName
+	FROM
+		base_organization_wechat_info bowi
+	LEFT JOIN base_organization bo ON bo.id = bowi.organization_id
+	WHERE
+		bowi.id = #{id}
+  </select>
+  
+  <!-- 机构微信公众号重复数据-->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo" resultType="map">
+    SELECT
+		bowi.id,
+		bowi.organization_id organizationId,
+		bowi.merchant_number merchantNumber,
+		bowi.pay_key payKey,
+		bowi.wechat_id wechatId,
+		bowi.wechat_key wechatKey,
+		bowi.create_date createDate,
+		bowi.wechat_name wechatName,
+		bowi.app_id appId,
+		bowi.app_secret appSecret,
+		bo.`name` organizationName
+	FROM
+		base_organization_wechat_info bowi
+	LEFT JOIN base_organization bo ON bo.id = bowi.organization_id
+	WHERE
+		bowi.organization_id = #{organizationId}
+  </select>
+  
+  <!-- 查询机构微信公众号列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.OrganizationWechatInfo" resultType="map">
+    SELECT
+		bowi.id,
+		bowi.organization_id organizationId,
+		bowi.merchant_number merchantNumber,
+		bowi.pay_key payKey,
+		bowi.wechat_id wechatId,
+		bowi.wechat_key wechatKey,
+		bowi.create_date createDate,
+		bowi.wechat_name wechatName,
+		bowi.app_id appId,
+		bowi.app_secret appSecret,
+		bowi.ver_type verType,
+		bo.`name` organizationName
+	FROM
+		base_organization_wechat_info bowi
+	LEFT JOIN base_organization bo ON bo.id = bowi.organization_id
+	<where> 
+		<if test="organizationId != null">
+			bowi.organization_id = #{organizationId}
+		</if>
+	</where>
+  </select>
+</mapper>

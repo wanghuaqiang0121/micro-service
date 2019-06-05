@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationServicePackageLogMapper">
+  
+  <!-- 删除机构服务包日志 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationServicePackageLog">
+    DELETE FROM base_organization_service_package_log
+    WHERE id = #{id}
+  </delete>
+  
+  <!--新增机构服务包日志  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationServicePackageLog" useGeneratedKeys="true" keyProperty="id">
+    INSERT into base_organization_service_package_log 
+    	( organization_service_package_id, audit_organization_id, organization_user_id,status, create_date, remark
+      )
+    VALUES
+     ( #{organizationServicePackageId}, #{auditOrganizationId}, #{organizationUserId},  #{status}, #{createDate}, #{remark}
+      )
+  </insert> 
+  <!--查询机构服务包日志列表  -->
+  <select id="selectAll" parameterType="org.module.organization.configure.domain.OrganizationServicePackageLog"  resultType="map">
+    SELECT 
+    	id, 
+	    organization_service_package_id organizationServicePackageId, 
+	    audit_organization_id auditOrganizationId, 
+	    organization_user_id organizationUserId, 
+	    status, 
+	    create_date createDate, 
+	    remark
+    FROM base_organization_service_package_log
+  </select>
+</mapper>

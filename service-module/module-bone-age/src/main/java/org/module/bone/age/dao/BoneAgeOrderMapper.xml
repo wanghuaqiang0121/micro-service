@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.BoneAgeOrderMapper">
+
+<!--新增骨龄检测工单  -->
+<insert id="insert" parameterType="org.module.bone.age.domain.BoneAgeOrder" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO
+	base_bone_age_order(group_user_id,user_id,organization_team_id,organization_user_id,status,height,weight,
+	x_ray,x_ray_no,algorithm,radius_level ,ulna_level
+	,metacarpal_1_level,metacarpal_3_level,metacarpal_5_level,near_phalanges_1_level,
+	near_phalanges_3_level,near_phalanges_5_level,in_phalanges_3_level,in_phalanges_5_level,far_phalanges_1_level,far_phalanges_3_level,
+	far_phalanges_5_level,bone_age,forecast_height,doctor_forecast_height,min_forecast_height,doctor_min_forecast_height,max_forecast_height,
+	doctor_max_forecast_height,result,advise,create_date,menarche_age,menarche_type,head_bone_level,hamate_level,pyramidal_bone_level,moon_bone_level,scaphoid_level,most_of_the_horns_level,small_polyhorns_level)
+	VALUES
+	(#{groupUserId},#{userId},#{organizationTeamId},#{organizationUserId},#{status},#{height},#{weight},#{xRay},#{xRayNo},#{algorithm},#{radiusLevel},#{ulnaLevel},
+	#{metacarpal1Level},#{metacarpal3Level},#{metacarpal5Level},#{nearPhalanges1Level},#{nearPhalanges3Level},#{nearPhalanges5Level},
+	#{inPhalanges3Level},#{inPhalanges5Level},#{farPhalanges1Level},#{farPhalanges3Level},#{farPhalanges5Level},#{boneAge},#{forecastHeight},
+	#{doctorForecastHeight},#{minForecastHeight},#{doctorMinForecastHeight},#{maxForecastHeight},#{doctorMaxForecastHeight},
+	#{result},#{advise},#{createDate},#{menarcheAge},#{menarcheType},#{headBoneLevel},#{hamateLevel},#{pyramidalBoneLevel},#{moonBoneLevel},#{scaphoidLevel},#{mostOfTheHornsLevel},#{smallPolyhornsLevel})
+</insert>
+
+<!-- 修改骨龄检测工单 -->
+<update id="update" parameterType="org.module.bone.age.domain.BoneAgeOrder">
+	UPDATE base_bone_age_order SET id=#{id}
+		<if test="groupUserId!=null">
+			,group_user_id=#{groupUserId}
+		</if>
+		<if test="userId!=null">
+			,user_id=#{userId}
+		</if>
+		<if test="organizationTeamId!=null">
+			,organization_team_id=#{organizationTeamId}
+		</if>
+		<if test="organizationUserId!=null">
+			,organization_user_id=#{organizationUserId}
+		</if>
+		<if test="status!=null">
+			,status=#{status}
+		</if>
+		<if test="height!=null">
+			,height=#{height}
+		</if>
+		<if test="weight!=null">
+			,weight=#{weight}
+		</if>
+		<if test="xRay!=null and xRay!=''">
+			,x_ray=#{xRay}
+		</if>
+		<if test="xRayNo!=null and xRayNo!=''">
+			,x_ray_no=#{xRayNo}
+		</if>
+		<if test="algorithm!=null">
+			,algorithm=#{algorithm}
+		</if>
+		<if test="radiusLevel!=null and radiusLevel!=''">
+			,radius_level=#{radiusLevel}
+		</if>
+		<if test="ulnaLevel!=null and ulnaLevel!=''">
+			,ulna_level=#{ulnaLevel}
+		</if>
+		<if test="metacarpal1Level!=null and metacarpal1Level!=''">
+			,metacarpal_1_level=#{metacarpal1Level}
+		</if>
+		<if test="metacarpal3Level!=null and metacarpal3Level!=''">
+			,metacarpal_3_level=#{metacarpal3Level}
+		</if>
+		<if test="metacarpal5Level!=null and metacarpal5Level!=''">
+			,metacarpal_5_level=#{metacarpal5Level}
+		</if>
+		<if test="nearPhalanges1Level!=null and nearPhalanges1Level!=''">
+			,near_phalanges_1_level=#{nearPhalanges1Level}
+		</if>
+		<if test="nearPhalanges3Level!=null and nearPhalanges3Level!=''">
+			,near_phalanges_3_level=#{nearPhalanges3Level}
+		</if>
+		<if test="nearPhalanges5Level!=null and nearPhalanges5Level!=''">
+			,near_phalanges_5_level=#{nearPhalanges5Level}
+		</if>
+		<if test="inPhalanges3Level!=null and inPhalanges3Level!=''">
+			,in_phalanges_3_level=#{inPhalanges3Level}
+		</if>
+		<if test="inPhalanges5Level!=null and inPhalanges5Level!=''">
+			,in_phalanges_5_level=#{inPhalanges5Level}
+		</if>
+		<if test="farPhalanges1Level!=null and farPhalanges1Level!=''">
+			,far_phalanges_1_level=#{farPhalanges1Level}
+		</if>
+		<if test="farPhalanges3Level!=null and farPhalanges3Level!=''">
+			,far_phalanges_3_level=#{farPhalanges3Level}
+		</if>
+		<if test="farPhalanges5Level!=null and farPhalanges5Level!=''">
+			,far_phalanges_5_level=#{farPhalanges5Level}
+		</if>
+		<if test="boneAge!=null">
+			,bone_age=#{boneAge}
+		</if>
+		<if test="forecastHeight!=null">
+			,forecast_height=#{forecastHeight}
+		</if>
+		<if test="doctorForecastHeight!=null">
+			,doctor_forecast_height=#{doctorForecastHeight}
+		</if>
+		<if test="minForecastHeight!=null">
+			,min_forecast_height=#{minForecastHeight}
+		</if>
+		<if test="doctorMinForecastHeight!=null">
+			,doctor_min_forecast_height=#{doctorMinForecastHeight}
+		</if>
+		<if test="maxForecastHeight!=null">
+			,max_forecast_height=#{maxForecastHeight}
+		</if>
+		<if test="doctorMaxForecastHeight!=null">
+			,doctor_max_forecast_height=#{doctorMaxForecastHeight}
+		</if>
+		<if test="result!=null and result!=''">
+			,result=#{result}
+		</if>
+		<if test="advise!=null and advise!=''">
+			,advise=#{advise}
+		</if>
+		<if test="menarcheType!=null and menarcheType!=''">
+			,menarche_type=#{menarcheType}
+		</if>
+		<if test="createDate!=null">
+			,create_date=#{createDate}
+		</if>
+		<if test="menarcheAge!=null">
+			,menarche_age=#{menarcheAge}
+		</if>
+		<if test="menarcheType!=null and menarcheType!=''">
+			,menarche_type=#{menarcheType}
+		</if>
+		<if test="headBoneLevel!=null and headBoneLevel!=''">
+			,head_bone_level=#{headBoneLevel}
+		</if>
+		<if test="hamateLevel!=null and hamateLevel!=''">
+			,hamate_level=#{hamateLevel}
+		</if>
+		<if test="pyramidalBoneLevel!=null and pyramidalBoneLevel!=''">
+			,pyramidal_bone_level=#{pyramidalBoneLevel}
+		</if>
+		<if test="moonBoneLevel!=null and moonBoneLevel!=''">
+			,moon_bone_level=#{moonBoneLevel}
+		</if>
+		<if test="scaphoidLevel!=null and scaphoidLevel!=''">
+			,scaphoid_level=#{scaphoidLevel}
+		</if>
+		<if test="mostOfTheHornsLevel!=null and mostOfTheHornsLevel!=''">
+			,most_of_the_horns_level=#{mostOfTheHornsLevel}
+		</if>
+		<if test="smallPolyhornsLevel!=null and smallPolyhornsLevel!=''">
+			,small_polyhorns_level=#{smallPolyhornsLevel}
+		</if>
+	WHERE id=#{id}
+</update> 
+
+<!--工单列表  -->
+<select id="getList" parameterType="org.module.bone.age.domain.BoneAgeOrder" resultType="map">
+SELECT
+	bbao.id,
+	bbao.user_id userId,
+	bbao.organization_team_id organizationTeamId,
+	bbao.organization_user_id organizationUserId,
+	bbao.`status`,
+	bbao.height,
+	bbao.weight,
+	bbao.x_ray xRay,
+	bbao.x_ray_no xRayNo,
+	bbao.`algorithm`,
+	bbao.bone_age boneAge,
+	bbao.menarche_age menarcheAge,
+	bbao.menarche_type menarcheType,
+	bbao.forecast_height forecastHeight,
+	bbao.doctor_forecast_height doctorForecastHeight,
+	bbao.min_forecast_height minForecastHeight,
+	bbao.doctor_min_forecast_height doctorMinForecastHeight,
+	bbao.max_forecast_height maxForecastHeight,
+	bbao.doctor_max_forecast_height doctorMaxForecastHeight,
+	bbao.advise,
+	bbao.create_date createDate,
+	bu.`name` userName,
+	bu.phone,
+    bu.sex,
+    bu.birthday,
+    ROUND((DATEDIFF(bbao.create_date,bu.birthday))/365,2) age
+FROM
+	base_bone_age_order bbao
+LEFT JOIN base_user bu ON bbao.user_id = bu.id
+<where>
+   bbao.organization_team_id =#{organizationTeamId}
+   <if test="status!=null">
+   and  bbao.`status`=#{status}
+   </if>
+   <if test="filed!=null and filed!=''">
+   and (bu.`name`  like CONCAT(CONCAT('%', #{filed}), '%')  or groupbu.phone like CONCAT(CONCAT('%', #{filed}), '%') or bbao.x_ray_no like CONCAT(CONCAT('%', #{filed}), '%'))
+   </if>
+   <if test="createDate!=null">
+   and  bbao.create_date &gt; #{createDate} AND bbao.create_date &lt; date_add(#{createDate}, interval 1 day)
+   </if>
+   <if test="userId!=null">
+   and bbao.user_id = #{userId}
+   </if>
+</where>
+ORDER BY bbao.create_date DESC
+</select>
+
+<!--查询用户当前工单创建时间即之前的工单列表  -->
+<select id="getBoneAgeUserScoreList" parameterType="org.module.bone.age.domain.BoneAgeOrder" resultType="map">
+SELECT
+	bbao.id,
+	bbao.group_user_id groupUserId,
+	bbao.user_id userId,
+	bbao.organization_team_id organizationTeamId,
+	bbao.organization_user_id organizationUserId,
+	bbao.`status`,
+	bbao.height,
+	bbao.weight,
+	bbao.x_ray xRay,
+	bbao.x_ray_no xRayNo,
+	bbao.`algorithm`,
+	bbao.radius_level radiusLevel,
+	bbao.ulna_level ulnaLevel,
+	bbao.metacarpal_1_level metacarpal1Level,
+	bbao.metacarpal_3_level metacarpal3Level,
+	bbao.metacarpal_5_level metacarpal5Level,
+	bbao.near_phalanges_1_level nearPhalanges1Level,
+	bbao.near_phalanges_3_level nearPhalanges3Level,
+	bbao.near_phalanges_5_level nearPhalanges5Level,
+	bbao.in_phalanges_3_level inPhalanges3Level,
+	bbao.in_phalanges_5_level inPhalanges5Level,
+	bbao.far_phalanges_1_level farPhalanges1Level,
+	bbao.far_phalanges_3_level farPhalanges3Level,
+	bbao.far_phalanges_5_level farPhalanges5Level,
+	bbao.bone_age boneAge,
+	bbao.menarche_age menarcheAge,
+	bbao.menarche_type menarcheType,
+	bbao.forecast_height forecastHeight,
+	bbao.doctor_forecast_height doctorForecastHeight,
+	bbao.min_forecast_height minForecastHeight,
+	bbao.doctor_min_forecast_height doctorMinForecastHeight,
+	bbao.max_forecast_height maxForecastHeight,
+	bbao.doctor_max_forecast_height doctorMaxForecastHeight,
+	bbao.result,
+	bbao.advise,
+	bbao.create_date createDate,
+	bbao.head_bone_level headBoneLevel,
+	bbao.hamate_level hamateLevel,
+	bbao.pyramidal_bone_level pyramidalBoneLevel,
+	bbao.moon_bone_level moonBoneLevel,
+	bbao.scaphoid_level scaphoidLevel,
+	bbao.most_of_the_horns_level mostOfTheHornsLevel,
+	bbao.small_polyhorns_level smallPolyhornsLevel,
+	groupbu.`name` userGroupName,
+	bu.`name` userName,
+	bu.phone,
+    bu.sex,
+    bu.birthday,
+    ROUND((DATEDIFF(bbao.create_date,bu.birthday))/365,2) age,
+    groupbu.is_bind_wechat isBindWechat,
+	bot.`name` teamName,
+	bou.`name` organizationUserName,
+    bo.`name` organizationName,
+    bd.`name` departmentName
+FROM
+	base_bone_age_order bbao
+LEFT JOIN base_user_group bug ON bbao.group_user_id = bug.user_id
+LEFT JOIN base_user groupbu ON bbao.group_user_id = groupbu.id
+LEFT JOIN base_user bu ON bbao.user_id = bu.id
+LEFT JOIN base_organization_team bot ON bbao.organization_team_id = bot.id
+LEFT JOIN base_organization_user bou ON bbao.organization_user_id = bou.id
+LEFT JOIN base_organization bo ON bot.organization_id=bo.id
+LEFT JOIN base_doctor_organization_department_duty bdodd ON bbao.organization_user_id=bdodd.organization_user_id AND bdodd.organization_id = bo.id
+LEFT JOIN base_department bd ON bdodd.department_id = bd.id
+<where>
+	bbao.organization_team_id = #{organizationTeamId}
+	<if test="userId!=null">
+		and bbao.user_id = #{userId}
+	</if>
+	<if test="createDate!=null">
+		and bbao.create_date &lt;= #{createDate}
+	</if>
+</where>
+ORDER BY bbao.create_date DESC
+</select>
+
+<!--查询详情  -->
+<select id="getOne" parameterType="org.module.bone.age.domain.BoneAgeOrder" resultType="map">
+SELECT
+	bbao.id,
+	bbao.group_user_id groupUserId,
+	bbao.user_id userId,
+	bbao.organization_team_id organizationTeamId,
+	bbao.organization_user_id organizationUserId,
+	bbao.`status`,
+	bbao.height,
+	bbao.weight,
+	bbao.x_ray xRay,
+	bbao.x_ray_no xRayNo,
+	bbao.`algorithm`,
+	bbao.radius_level radiusLevel,
+	bbao.ulna_level ulnaLevel,
+	bbao.metacarpal_1_level metacarpal1Level,
+	bbao.metacarpal_3_level metacarpal3Level,
+	bbao.metacarpal_5_level metacarpal5Level,
+	bbao.near_phalanges_1_level nearPhalanges1Level,
+	bbao.near_phalanges_3_level nearPhalanges3Level,
+	bbao.near_phalanges_5_level nearPhalanges5Level,
+	bbao.in_phalanges_3_level inPhalanges3Level,
+	bbao.in_phalanges_5_level inPhalanges5Level,
+	bbao.far_phalanges_1_level farPhalanges1Level,
+	bbao.far_phalanges_3_level farPhalanges3Level,
+	bbao.far_phalanges_5_level farPhalanges5Level,
+	bbao.bone_age boneAge,
+	bbao.menarche_age menarcheAge,
+	bbao.menarche_type menarcheType,
+	bbao.forecast_height forecastHeight,
+	bbao.doctor_forecast_height doctorForecastHeight,
+	bbao.min_forecast_height minForecastHeight,
+	bbao.doctor_min_forecast_height doctorMinForecastHeight,
+	bbao.max_forecast_height maxForecastHeight,
+	bbao.doctor_max_forecast_height doctorMaxForecastHeight,
+	bbao.result,
+	bbao.advise,
+	bbao.create_date createDate,
+	bbao.head_bone_level headBoneLevel,
+	bbao.hamate_level hamateLevel,
+	bbao.pyramidal_bone_level pyramidalBoneLevel,
+	bbao.moon_bone_level moonBoneLevel,
+	bbao.scaphoid_level scaphoidLevel,
+	bbao.most_of_the_horns_level mostOfTheHornsLevel,
+	bbao.small_polyhorns_level smallPolyhornsLevel,
+	groupbu.`name` userGroupName,
+	bu.`name` userName,
+	bu.phone,
+    bu.sex,
+    bu.birthday,
+	ROUND((DATEDIFF(bbao.create_date,bu.birthday))/365,2) age,
+    groupbu.is_bind_wechat isBindWechat,
+	bot.`name` teamName,
+	bou.`name` organizationUserName,
+    bo.`name` organizationName,
+    bd.`name` departmentName
+FROM
+	base_bone_age_order bbao
+LEFT JOIN base_user_group bug ON bbao.group_user_id = bug.user_id
+LEFT JOIN base_user groupbu ON bbao.group_user_id = groupbu.id
+LEFT JOIN base_user bu ON bbao.user_id = bu.id
+LEFT JOIN base_organization_team bot ON bbao.organization_team_id = bot.id
+LEFT JOIN base_organization_user bou ON bbao.organization_user_id = bou.id
+LEFT JOIN base_organization bo ON bot.organization_id=bo.id
+LEFT JOIN base_doctor_organization_department_duty bdodd ON bbao.organization_user_id=bdodd.organization_user_id AND bdodd.organization_id = bo.id
+LEFT JOIN base_department bd ON bdodd.department_id = bd.id
+WHERE bbao.id=#{id}
+</select>
+	
+
+<!--查询用户0.88-1.12年前的工单最新的一条  -->
+<select id="getBoneAgeOrdersByYearsAgo" parameterType="org.module.bone.age.domain.BoneAgeOrder" resultType="map">
+SELECT
+	bbao.id,
+	bbao.group_user_id groupUserId,
+	bbao.user_id userId,
+	bbao.organization_team_id organizationTeamId,
+	bbao.organization_user_id organizationUserId,
+	bbao.`status`,
+	bbao.height,
+	bbao.weight,
+	bbao.x_ray xRay,
+	bbao.x_ray_no xRayNo,
+	bbao.`algorithm`,
+	bbao.radius_level radiusLevel,
+	bbao.ulna_level ulnaLevel,
+	bbao.metacarpal_1_level metacarpal1Level,
+	bbao.metacarpal_3_level metacarpal3Level,
+	bbao.metacarpal_5_level metacarpal5Level,
+	bbao.near_phalanges_1_level nearPhalanges1Level,
+	bbao.near_phalanges_3_level nearPhalanges3Level,
+	bbao.near_phalanges_5_level nearPhalanges5Level,
+	bbao.in_phalanges_3_level inPhalanges3Level,
+	bbao.in_phalanges_5_level inPhalanges5Level,
+	bbao.far_phalanges_1_level farPhalanges1Level,
+	bbao.far_phalanges_3_level farPhalanges3Level,
+	bbao.far_phalanges_5_level farPhalanges5Level,
+	bbao.bone_age boneAge,
+	bbao.forecast_height forecastHeight,
+	bbao.doctor_forecast_height doctorForecastHeight,
+	bbao.min_forecast_height minForecastHeight,
+	bbao.doctor_min_forecast_height doctorMinForecastHeight,
+	bbao.max_forecast_height maxForecastHeight,
+	bbao.doctor_max_forecast_height doctorMaxForecastHeight,
+	bbao.result,
+	bbao.advise,
+	bbao.create_date createDate
+FROM
+	base_bone_age_order bbao
+WHERE bbao.user_id=#{userId}
+<if test="startCreateDate != null">
+	AND bbao.create_date &gt; #{startCreateDate}
+</if>
+<if test="endCreateDate != null">
+	AND bbao.create_date &lt; #{endCreateDate}
+</if>
+
+ORDER BY bbao.create_date DESC LIMIT 1
+</select>
+
+	<!-- 获取R骨龄标准百分位数 -->
+	<select id="getBoneAgeStandardPercentileList" parameterType="org.module.bone.age.domain.BoneAgeStandardPercentile" resultType="map">
+		SELECT
+			id,
+			sex,
+			type,
+			bone_age AS boneAge,
+			bone_age_fraction AS boneAgeFraction,
+			percentile,
+			ROUND(DEGREES(ASIN(CONVERT(SQRT(bone_age_fraction/1000),DECIMAL(12,3)))),2) AS coordinateValue
+		FROM base_bone_age_standard_percentile
+		WHERE type = #{type}
+		<if test="sex != null">
+			AND sex = #{sex}
+		</if>
+		<if test="boneAgeFraction != null">
+			AND bone_age_fraction = #{boneAgeFraction}
+		</if>
+		<if test="percentile !=null and percentile !=''">
+			AND percentile = #{percentile}
+		</if>
+		<if test="adjacentValues != null">
+			AND BONE_AGE_FRACTION IS NOT NULL
+			ORDER BY ABS(#{adjacentValues}-bone_age_fraction) ASC LIMIT 2
+		</if>
+	</select>
+	
+	
+	<!-- 获取用户骨龄总分 -->
+	<select id="getBoneTotalPoints" parameterType="org.module.bone.age.domain.BoneAgeOrder" resultType="map">
+		SELECT
+			IFNULL(SUM(
+			IFNULL(a1.bone_score, 0) +
+			IFNULL(a2.bone_score, 0) +
+			IFNULL(a3.bone_score, 0) +
+			IFNULL(a4.bone_score, 0) +
+			IFNULL(a5.bone_score, 0) +
+			IFNULL(a6.bone_score, 0) +
+			IFNULL(a7.bone_score, 0) +
+			IFNULL(a8.bone_score, 0) +
+			IFNULL(a9.bone_score, 0) +
+			IFNULL(a10.bone_score, 0) +
+			IFNULL(a11.bone_score, 0) +
+			IFNULL(a12.bone_score, 0) +
+			<if test="isTW2T != null and isTW2T == 1">
+				IFNULL(a14.bone_score, 0) +
+				IFNULL(a15.bone_score, 0) +
+				IFNULL(a16.bone_score, 0) +
+				IFNULL(a17.bone_score, 0) +
+				IFNULL(a18.bone_score, 0) +
+				IFNULL(a19.bone_score, 0) +
+				IFNULL(a20.bone_score, 0) +
+			</if>
+			IFNULL(a13.bone_score, 0)), 0) AS totalPoints
+		FROM base_bone_age_order bbao
+		LEFT JOIN `base_bone_score_table` a1 ON a1.sex = #{sex} AND a1.bone_type='metacarpal_1' AND a1.bone_grade = bbao.metacarpal_1_level AND a1.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a2 ON a2.sex = #{sex} AND a2.bone_type='metacarpal_3' AND a2.bone_grade = bbao.metacarpal_3_level AND a2.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a3 ON a3.sex = #{sex} AND a3.bone_type='metacarpal_5' AND a3.bone_grade = bbao.metacarpal_5_level AND a3.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a4 ON a4.sex = #{sex} AND a4.bone_type='near_phalanges_1' AND a4.bone_grade = bbao.near_phalanges_1_level AND a4.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a5 ON a5.sex = #{sex} AND a5.bone_type='near_phalanges_3' AND a5.bone_grade = bbao.near_phalanges_3_level AND a5.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a6 ON a6.sex = #{sex} AND a6.bone_type='near_phalanges_5' AND a6.bone_grade = bbao.near_phalanges_5_level AND a6.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a7 ON a7.sex = #{sex} AND a7.bone_type='middle_phalanx_3' AND a7.bone_grade = bbao.in_phalanges_3_level AND a7.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a8 ON a8.sex = #{sex} AND a8.bone_type='middle_phalanx_5' AND a8.bone_grade = bbao.in_phalanges_5_level AND a8.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a9 ON a9.sex = #{sex} AND a9.bone_type='far_phalanges_1' AND a9.bone_grade = bbao.far_phalanges_1_level AND a9.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a10 ON a10.sex = #{sex} AND a10.bone_type='far_phalanges_3' AND a10.bone_grade = bbao.far_phalanges_3_level AND a10.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a11 ON a11.sex = #{sex} AND a11.bone_type='far_phalanges_5' AND a11.bone_grade = bbao.far_phalanges_5_level AND a11.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a12 ON a12.sex = #{sex} AND a12.bone_type='radius' AND a12.bone_grade = bbao.radius_level AND a12.type = #{scoreTableType}
+		LEFT JOIN `base_bone_score_table` a13 ON a13.sex = #{sex} AND a13.bone_type='ulna' AND a13.bone_grade = bbao.ulna_level AND a13.type = #{scoreTableType}
+		<if test="isTW2T != null and isTW2T == 1">
+			LEFT JOIN `base_bone_score_table` a14 ON a14.sex = #{sex} AND a14.bone_type='head_bone' AND a14.bone_grade = bbao.head_bone_level AND a14.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a15 ON a15.sex = #{sex} AND a15.bone_type='hamate' AND a15.bone_grade = bbao.hamate_level AND a15.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a16 ON a16.sex = #{sex} AND a16.bone_type='pyramidal_bone' AND a16.bone_grade = bbao.pyramidal_bone_level AND a16.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a17 ON a17.sex = #{sex} AND a17.bone_type='moon_bone' AND a17.bone_grade = bbao.moon_bone_level AND a17.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a18 ON a18.sex = #{sex} AND a18.bone_type='scaphoid' AND a18.bone_grade = bbao.scaphoid_level AND a18.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a19 ON a19.sex = #{sex} AND a19.bone_type='most_of_the_horns' AND a19.bone_grade = bbao.most_of_the_horns_level AND a19.type = #{scoreTableType}
+			LEFT JOIN `base_bone_score_table` a20 ON a20.sex = #{sex} AND a20.bone_type='small_polyhorns' AND a20.bone_grade = bbao.small_polyhorns_level AND a20.type = #{scoreTableType}
+		</if>
+		WHERE bbao.id = #{id}
+	</select>
+	
+	
+	
+</mapper>

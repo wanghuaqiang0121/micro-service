@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.UserGroupMapper">
+ 
+  <delete id="delete" parameterType="org.module.user.domain.UserGroup">
+    delete from base_user_group
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增用户组 -->
+  <insert id="insert" parameterType="org.module.user.domain.UserGroup" useGeneratedKeys="true" keyProperty="id">
+    insert into base_user_group (user_id, create_date, 
+      remark, phone)
+    values ( #{userId}, #{createDate}, 
+      #{remark}, #{phone})
+  </insert>
+  
+  <update id="update" parameterType="org.module.user.domain.UserGroup">
+    update base_user_group set id = #{id},
+      <if test="remark !=null and remark !=''">
+      ,remark = #{remark}
+      </if>
+      <if test="phone !=null and phone !=''">
+      ,phone = #{phone}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 用户组详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.UserGroup" resultType="map">
+    select id, user_id userId, create_date createDate, remark, phone
+    from base_user_group
+    where id = #{id}
+  </select>
+  
+  <!-- 用户是否有用户组 -->
+  <select id="getRepeat" parameterType="org.module.user.domain.UserGroup" resultType="map">
+    select id, 
+    user_id userId, 
+    create_date createDate, 
+    remark, phone
+    from base_user_group
+    where user_id=#{userId}
+  </select>
+  
+  
+  <select id="getList" parameterType="org.module.user.domain.UserGroup" resultType="map">
+    select id, 
+    user_id userId, 
+    create_date createDate, 
+    remark, phone
+    from base_user_group
+    <where>
+    	<if test="userId !=null">
+    		user_id = #{userId}
+    	</if>
+    </where>
+  </select>
+</mapper>

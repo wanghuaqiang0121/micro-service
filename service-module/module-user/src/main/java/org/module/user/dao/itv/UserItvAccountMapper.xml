@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.itv.UserItvAccountMapper">
+
+  <!-- 添加itv用户 -->
+  <insert id="insert" parameterType="org.module.user.domain.itv.UserItvAccount" useGeneratedKeys="true" keyProperty="id">
+    insert into base_user_itv_account ( user_id, itv_sn, 
+      password, status, create_date
+      )
+    values ( #{userId}, #{itvSn}, 
+      #{password}, #{status}, #{createDate}
+      )
+  </insert>
+  <delete id="delete" parameterType="org.module.user.domain.itv.UserItvAccount">
+  	DELETE FROM base_user_itv_account 
+  	WHERE id=#{id}
+  </delete>
+  <!-- 查询用户itv账号重复 -->
+  <select id="getRepeat" parameterType="org.module.user.domain.itv.UserItvAccount" resultType="map">
+	SELECT
+	    uia.id,
+		uia.user_id userId, 
+		uia.itv_sn itvSn, 
+        uia.password, 
+        uia.status, 
+        uia.create_date createDate
+	FROM
+		base_user_itv_account uia
+	WHERE
+		uia.user_id = #{userId}
+		AND uia.itv_sn = #{itvSn}
+		AND uia.status = #{status}
+  </select>
+  
+  <!-- 查询用户itv账号详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.itv.UserItvAccount" resultType="map">
+	SELECT
+		uia.id,
+		uia.user_id userId,
+		uia.itv_sn itvSn,
+		uia.`status`,
+		uia.create_date createDate,
+		bu.`name`,
+		bu.sex,
+		bu.id_card idCard,
+		bu.birthday,
+		bu.phone
+	FROM
+		base_user_itv_account uia
+	LEFT JOIN base_user bu ON bu.id = uia.user_id
+	<where>
+		<if test="id != null">
+			uia.id = #{id}
+		</if>
+		<if test="userId!=null">
+			AND uia.user_id = #{userId}
+		</if>
+		<if test="itvSn!= null and itvSn !=''">
+			AND uia.itv_sn = #{itvSn}
+		</if>
+		<if test="password!=null and password!=''"> 
+			AND uia.password = #{password}
+		</if>
+		<if test="status!=null"> 
+			AND uia.status = #{status}
+		</if>
+	</where>
+  </select>
+  
+
+   <!-- 定义查询用户组的成员列表结果集-->
+  <resultMap type="map" id="userMap">
+		<result column="id" property="id"/>
+		<collection property="users" column="userGroupId" javaType="list" select="getUserList"/>
+  </resultMap>	
+  <!-- 查询详情 -->
+  <!-- <select id="getOne" parameterType="org.module.user.domain.itv.UserItvAccount" resultMap="userMap">
+		SELECT
+			uia.id,
+			uia.user_id userId,
+			uia.itv_sn itvSn,
+			uia.`password`,
+			uia.`status`,
+			uia.create_date createDate,
+			u.`name` userName,
+			u.phone userPhone,
+			ug.id userGroupId
+		FROM
+			base_user_itv_account uia
+			LEFT JOIN base_user u ON u.id = uia.user_id
+			LEFT JOIN base_user_group ug ON ug.user_id = u.id
+		WHERE
+			uia.id = #{id}
+  </select> -->
+  <!-- 查询用户组的成员列表 -->
+  <select id="getUserList" parameterType="int" resultType="map">
+		SELECT
+			buug.id,
+			bu.id userId,
+			bu.`name` userName,
+			bu.phone userPhone,
+			bu.sex userSex,
+			buug.user_group_id groupId,
+			bug.user_id managerUserId,
+			bum.`name` managerUserName,
+			bum.sex managerUserSex,
+			bum.phone managerPhone,
+			bus.id signId,
+			bus.`status` signStatus,
+			buug.relation,
+			fn_print_system_code_result (buug.relation, ';', 'gx') relationName,
+			buug.trust,
+			bu.birthday,
+			(DATE_FORMAT(FROM_DAYS(TO_DAYS(NOW())-TO_DAYS(bu.birthday)), '%Y')+0) age,
+			bug.phone groupPhone
+		FROM
+			base_user_user_group buug
+		LEFT JOIN base_user bu ON bu.id = buug.user_id
+		LEFT JOIN base_user_group bug ON bug.id = buug.user_group_id
+		LEFT JOIN base_user bum ON bum.id = bug.user_id
+		LEFT JOIN base_user_sign bus ON bus.user_id=bu.id AND bus.`status`=1
+		WHERE 
+			buug.user_group_id=#{userGroupId}
+  </select>
+  <!-- 查询机顶盒绑定的用户列表 -->
+  <select id="getList" parameterType="org.module.user.domain.itv.UserItvAccount" resultType="map">
+    SELECT
+		uia.id,
+		uia.user_id userId,
+		uia.itv_sn itvSn,
+		uia.`status`,
+		uia.create_date createDate,
+		bu.`name` userName,
+		bu.phone userPhone,
+		buug.user_group_id userGroupId
+	FROM
+		base_user_itv_account uia
+	LEFT JOIN base_user bu ON bu.id = uia.user_id
+	LEFT JOIN base_user_user_group buug ON buug.user_id = bu.id
+	WHERE
+		uia.itv_sn = #{itvSn}
+  </select>
+  
+</mapper>

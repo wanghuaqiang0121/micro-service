@@ -1,0 +1,59 @@
+server:
+  port: 8200
+eureka:
+  instance:
+    preferIpAddress: true
+    instanceId: ${spring.cloud.client.ipAddress}:${server.port}:${spring.application.name}
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1000/eureka/
+    healthcheck:
+      enabled: true
+    registerWithEureka: true
+    fetchRegistry: true
+mybatis:
+  configuration:
+    callSettersOnNulls: true
+spring:
+  application:
+    name: module-organization-user
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    joda-date-time-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.1.200:3306/temp?useUnicode=true&characterEncoding=utf8&mysqlEncoding=utf8&autoReconnect=true&serverTimezone=GMT%2B8
+    username: yxt_dev
+    password: yxt315
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+    filters: stat,wall,log4j
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  redis:
+    database: 5
+    host: 192.168.1.200
+    port: 6379
+    password: yxt123
+    timeout: 5000
+    pool:
+      max-active: 100
+      max-wait: 3000
+      max-idle: 15
+      min-idle: 5
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql

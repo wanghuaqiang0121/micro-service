@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.sign.dao.UserSignMapper">
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from base_user_sign
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.sign.domain.UserSign" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_user_sign ( user_id, organization_team_id, 
+      organization_user_id, sign_no, intention_service_package_id, 
+      user_service_package_order_id, launch_organization_user_id, 
+      status, signature, `explain`, 
+      launch_type, protocol, close_reason_code, 
+      close_reason, notice, update_date, 
+      create_date, remark)
+    VALUES ( 
+      #{userId}, #{organizationTeamId}, 
+      #{organizationUserId}, #{signNo}, #{intentionServicePackageId}, 
+      #{userServicePackageOrderId}, #{launchOrganizationUserId}, 
+      #{status}, #{signature}, #{explain}, 
+      #{launchType}, #{protocol}, #{closeReasonCode}, 
+      #{closeReason}, #{notice}, #{updateDate}, 
+      #{createDate}, #{remark})
+  </insert>
+  
+  <update id="update" parameterType="org.module.sign.domain.UserSign">
+    update base_user_sign set id = #{id}
+      <if test="userId !=null">
+      ,user_id = #{userId}
+      </if>
+      <if test="organizationTeamId !=null">
+      ,organization_team_id = #{organizationTeamId}
+      </if>
+      <if test="organizationUserId !=null">
+      ,organization_user_id = #{organizationUserId}
+      </if>
+      <if test="signNo !=null and signNo !=''">
+      ,sign_no = #{signNo}
+      </if>
+      <if test="intentionServicePackageId !=null">
+      ,intention_service_package_id = #{intentionServicePackageId}
+      </if>
+      <if test="userServicePackageOrderId !=null">
+      ,user_service_package_order_id = #{userServicePackageOrderId}
+      </if>
+      <if test="launchOrganizationUserId !=null">
+      ,launch_organization_user_id = #{launchOrganizationUserId}
+      </if>
+      <if test="status !=null">
+      ,`status` = #{status}
+      </if>
+      <if test="signature !=null and signature !=''">
+      ,signature = #{signature}
+      </if>
+      <if test="explain !=null and explain !=''">
+      ,`explain` = #{explain}
+      </if>
+      <if test="launchType !=null">
+      ,launch_type = #{launchType}
+      </if>
+      <if test="protocol !=null and protocol !=''">
+      ,protocol = #{protocol}
+      </if>
+      <if test="closeReasonCode !=null and closeReasonCode !=''">
+      ,close_reason_code = #{closeReasonCode}
+      </if>
+      <if test="closeReason !=null and closeReason !=''">
+      ,close_reason = #{closeReason}
+      </if>
+      <if test="notice !=null and notice !=''">
+      ,notice = #{notice}
+      </if>
+      <if test="updateDate !=null">
+      ,update_date = #{updateDate}
+      </if>
+      <if test="remark !=null and remark">
+      ,remark = #{remark}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 签约详情 -->
+  <select id="getOne" parameterType="org.module.sign.domain.UserSign" resultType="map">
+    SELECT
+		bus.id,
+		bus.user_id userId,
+		bus.organization_team_id organizationTeamId,
+		bus.organization_user_id organizationUserId,
+		bus.sign_no signNo,
+		bus.intention_service_package_id intentionServicePackageId,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bus.launch_organization_user_id launchOrganizationUserId,
+		bus.status,
+		bus.signature,
+		bus.explain,
+		bus.launch_type launchType,
+		bus.protocol,
+		bus.close_reason_code closeReasonCode,
+		bus.close_reason closeReason,
+		bus.notice,
+		bus.update_date updateDate,
+		bus.create_date createDate,
+		bus.remark
+	FROM
+		base_user_sign bus
+	LEFT JOIN base_user bu ON bu.id = bus.user_id
+	LEFT JOIN base_user_certificate buc ON buc.user_id=bu.id
+	<where>
+		<if test="userId !=null">
+    	  bus.user_id=#{userId}
+		</if>
+		<if test="status !=null">
+    	  and bus.`status`=#{status}
+		</if>
+		<!-- <if test="userCertificate !=null">
+			<if test="userCertificate.certificateNumber !=null and userCertificate.certificateNumber !=''">
+	    	  AND buc.certificate_number=#{userCertificate.certificateNumber}
+			</if>
+		</if> -->
+	</where>
+  </select>
+  
+  
+</mapper>

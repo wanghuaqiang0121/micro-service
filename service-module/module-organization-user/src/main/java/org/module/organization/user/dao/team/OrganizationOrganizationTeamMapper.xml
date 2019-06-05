@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.user.dao.team.OrganizationOrganizationTeamMapper">
+
+	<resultMap type="map" id="teamMap">
+	<result column="id" property="id"/>
+	<result column="organizationTeamId" property="organizationTeamId"/>
+	<collection property="organizationTeamNumbers" column="organizationTeamId" javaType="int" select="getorganizationTeamNumber"/>
+	</resultMap>
+	<select id="getorganizationTeamNumber" parameterType="int" resultType="int">
+		SELECT
+			COUNT(organization_user_id)
+		FROM
+			base_organization_user_team
+		WHERE 
+			organization_team_id = #{organizationTeamId}
+	</select>
+	
+	<!-- 查询用户团队列表 -->
+	<select id="getList" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultMap="teamMap">
+		SELECT
+			bddt.id id,
+			bddt.organization_user_id organizationUserId,
+			bddt.organization_team_id organizationTeamId,
+			bot.`name` organizationTeamName,
+			bot.organization_id organizationTeamOrganizationId,
+			bot.organization_site_id organizationTeamOrganizationSiteId,
+			bot.picture organizationTeamPicture,
+			bot.protocol organizationTeamProtocol,
+			bot.experties organizationTeamExperties,
+			bot.`status` organizationTeamStatus,
+			bot.remark organizationTeamRemark,
+			bou.`name` organizationUserName,
+			bou.account organizationUserAccount,
+			bo.id organizationId,
+			bo.`name` organizationName,
+			bo.address organizationAddress,
+			bo.province organizationProvince,
+			bo.city organizationCity,
+			bo.area organizationArea,
+			bo.street organizationStreet,
+			bo.lng organizationLng,
+			bo.lat organizationLat
+		FROM
+			base_organization_user_team bddt
+		LEFT JOIN base_organization_team bot ON bot.id = bddt.organization_team_id
+		LEFT JOIN base_organization_user bou ON bou.id = bddt.organization_user_id
+		LEFT JOIN base_organization_site bos ON bos.id = bot.organization_site_id
+		LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+		<where>
+			<if test="organizationUserId !=null">
+				bddt.organization_user_id = #{organizationUserId}
+			</if>
+			<if test="organizationId !=null">
+				AND bo.id = #{organizationId}
+			</if>
+			<if test="organizationTeamId!=null">
+				AND	bddt.organization_team_id = #{organizationTeamId}
+			</if>
+		</where>
+	</select>
+	  
+	<!-- 查询团队角色列表 -->
+	<select id="getOrganizationOrganizationTeamRoles" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botr.id,
+			botr.service_type_id serviceTypeId,
+			bst.`name` serviceTypeName,
+			bst.`code` serviceTypeCode,
+			bst.`explain` serviceTypeExplain,
+			botr.`name`,
+			botr.`code`,
+			botr.is_used isUsed,
+			botr.remark
+		FROM
+			base_organization_user_team_role boot
+		LEFT JOIN base_organization_user_team bddt ON bddt.id = boot.organization_user_team_id AND bddt.organization_user_id = #{organizationUserId}
+		LEFT JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id AND botr.is_used = TRUE
+		LEFT JOIN base_service_type bst ON bst.id = botr.service_type_id
+		WHERE
+			boot.`status` = 0
+			<if test="organizationTeamId !=null">
+				AND bddt.organization_team_id = #{organizationTeamId}
+			</if>
+	</select>
+	
+	<!-- 查询团队团队长角色列表 -->
+	<select id="getOrganizationOrganizationTeamManagerRoles" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botr.id,
+			botr.service_type_id serviceTypeId,
+			bst.`name` serviceTypeName,
+			bst.`code` serviceTypeCode,
+			bst.`explain` serviceTypeExplain,
+			botr.`name`,
+			botr.`code`,
+			botr.is_used isUsed,
+			botr.remark
+		FROM
+			base_organization_team_role botr
+		LEFT JOIN base_service_type bst ON bst.id = botr.service_type_id
+		WHERE
+			botr.is_used = TRUE
+	</select>
+	
+	 <!-- 查询团队权限列表 -->
+	<select id="getOrganizationOrganizationTeamPermissions" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botp.id,
+			botp.`name`,
+			botp.`code`,
+			botp.is_used isUsed,
+			botp.remark
+		FROM
+			base_organization_user_team_role boot
+		LEFT JOIN base_organization_user_team bddt ON bddt.id = boot.organization_user_team_id AND bddt.organization_user_id = #{organizationUserId}
+		LEFT JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id AND botr.is_used = TRUE
+		LEFT JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		LEFT JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		WHERE
+			 boot.`status` = 0
+			<if test="organizationTeamId !=null">
+			AND bddt.organization_team_id = #{organizationTeamId}
+			</if>
+		GROUP BY botp.id
+	</select>
+	
+	 <!-- 查询团队团队长权限列表 -->
+	<select id="getOrganizationOrganizationTeamManagerPermissions" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botp.id,
+			botp.`name`,
+			botp.`code`,
+			botp.is_used isUsed,
+			botp.remark
+		FROM
+			base_organization_team_role botr
+		LEFT JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		LEFT JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		WHERE
+		    botr.is_used = TRUE
+		GROUP BY
+			botp.id
+	</select>
+	
+	<!-- 查询团队菜单列表 -->
+	<select id="getOrganizationOrganizationTeamMenus" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botm.id,
+			botm.pid,
+			botm.`name`,
+			botm.`code`,
+			botm.is_used isUsed,
+			botm.remark,
+			botm.icon,
+			botm.sort,
+			botm.type
+		FROM
+			base_organization_user_team_role boot
+		INNER JOIN base_organization_user_team bddt ON bddt.id = boot.organization_user_team_id AND bddt.organization_user_id = #{organizationUserId} AND bddt.organization_team_id = #{organizationTeamId}
+		INNER JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id AND botr.is_used = TRUE
+		INNER JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		INNER JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		INNER JOIN base_organization_team_permission_menu botpm ON botpm.organization_team_permission_id = botp.id
+		INNER JOIN base_organization_team_menu botm ON botm.id = botpm.organization_team_menu_id AND botm.is_used = TRUE
+		WHERE
+			boot.`status` = 0
+		GROUP BY
+			botm.id
+		ORDER BY botm.sort,botm.id
+	</select>
+	
+	<!-- 查询团队团队长菜单列表 -->
+	<select id="getOrganizationOrganizationTeamManagerMenus" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			botm.id,
+			botm.pid,
+			botm.`name`,
+			botm.`code`,
+			botm.is_used isUsed,
+			botm.remark,
+			botm.icon,
+			botm.sort,
+			botm.type
+		FROM
+			base_organization_organization_team_role  bootr
+		INNER JOIN base_organization_team_role botr ON bootr.organization_team_role_id = botr.id
+		INNER JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		INNER JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		INNER JOIN base_organization_team_permission_menu botpm ON botpm.organization_team_permission_id = botp.id
+		INNER JOIN base_organization_team_menu botm ON botm.id = botpm.organization_team_menu_id AND botm.is_used = TRUE
+		WHERE
+			bootr.organization_id = #{organizationId} 
+		GROUP BY
+			botm.id
+		ORDER BY botm.sort,botm.id
+	</select>
+	
+	<!-- 查询团队操作列表 -->
+	<select id="getOrganizationOrganizationTeamOperation" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			boto.id,
+			boto.`name`,
+			boto.`code`,
+			boto.is_used isUsed,
+			boto.remark
+		FROM
+			base_organization_user_team_role boot
+		INNER JOIN base_organization_user_team bddt ON bddt.id = boot.organization_user_team_id AND bddt.organization_user_id = #{organizationUserId}
+		INNER JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id AND botr.is_used = TRUE
+		INNER JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		INNER JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		INNER JOIN base_organization_team_permission_operation botpo ON botpo.organization_team_permission_id = botp.id
+		INNER JOIN base_organization_team_operation boto ON boto.id = botpo.organization_team_operation_id AND boto.is_used = TRUE
+		WHERE
+			boot.`status` = 0
+			<if test="organizationTeamId !=null">
+				AND bddt.organization_team_id = #{organizationTeamId}
+			</if>
+		GROUP BY boto.id
+	</select>
+	
+	<!-- 查询团队团队长操作列表 -->
+	<select id="getOrganizationOrganizationTeamManagerOperation" parameterType="org.module.organization.user.domain.team.OrganizationOrganizationTeam" resultType="map">
+		SELECT
+			boto.id,
+			boto.`name`,
+			boto.`code`,
+			boto.is_used isUsed,
+			boto.remark
+		FROM
+			base_organization_team_role botr
+		LEFT JOIN base_organization_team_role_permission botrp ON botrp.organization_team_role_id = botr.id
+		INNER JOIN base_organization_team_permission botp ON botp.id = botrp.organization_team_permission_id AND botp.is_used = TRUE
+		INNER JOIN base_organization_team_permission_operation botpo ON botpo.organization_team_permission_id = botp.id
+		INNER JOIN base_organization_team_operation boto ON boto.id = botpo.organization_team_operation_id AND boto.is_used = TRUE
+		WHERE
+			botr.is_used = TRUE
+		GROUP BY
+			boto.id
+	</select>
+</mapper>

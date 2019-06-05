@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bespeak.dao.TeamAppointmentConfigureMapper">
+  
+  <delete id="delete" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure">
+    DELETE FROM base_team_appointment_configure
+    WHERE id = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure">
+    INSERT INTO base_team_appointment_configure (id, organization_team_id, 
+      name, cycle, status, 
+      start_date, end_date, create_date
+      )
+    VALUES (#{id}, #{organizationTeamId}, 
+      #{name}, #{cycle}, #{status}, 
+      #{startDate}, #{endDate}, #{createDate}
+      )
+  </insert>
+  
+  <update id="update" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure">
+    UPDATE base_team_appointment_configure
+    SET 
+      organization_team_id = #{organizationTeamId},
+      name = #{name},
+      cycle = #{cycle},
+      status = #{status},
+      start_date = #{startDate},
+      end_date = #{endDate},
+      create_date = #{createDate}
+    WHERE id = #{id}
+  </update>
+  
+  <select id="getOne" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure" resultType="map">
+    SELECT 
+    	btac.id, 
+    	btac.service_id serviceId,
+    	btac.organization_team_id organizationTeamId, 
+    	btac.name, btac.cycle, btac.status, 
+    	btac.start_date startDate, 
+    	btac.end_date endDate, 
+    	btac.create_date createDate
+    FROM base_team_appointment_configure btac
+    <where>
+    	<if test="id != null">
+    		btac.id = #{id}
+    	</if>
+    	<if test="cycle != null">
+    		AND btac.cycle = #{cycle}
+    	</if>
+    	<if test="status != null">
+    		AND btac.status = #{status}
+    	</if>
+    	<if test="serviceId != null">
+    		AND btac.service_id = #{serviceId}
+    	</if>
+    	<if test="organizationTeamId != null">
+    		AND btac.organization_team_id = #{organizationTeamId}
+    	</if>
+    	<if test="startDate != null and endDate != null">
+    		AND NOT ((btac.end_date &lt; #{startDate}) OR (btac.start_date &gt; #{endDate}))
+    	</if>
+    </where> 
+  </select>
+  
+  <!-- 是否可预约详情 -->
+  <select id="getAppointmentDetail" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure" resultType="map">
+    SELECT
+		btacd.id,
+		btacd.team_appointment_configure_id teamAppointmentConfigureId,
+		btacd.start_date startDate,
+		btacd.end_date endDate,
+		(btacd.end_no - btacd.start_no + 1) total,
+		(
+			SELECT
+				COUNT(btao.id)
+			FROM
+				base_team_appointment_order btao
+			WHERE
+				btao.team_appointment_configure_detail_id = btacd.id
+			AND 
+				DATE_FORMAT(btao.appointment_date,'%Y-%m-%d') = #{strAppointmentDate}
+		) appointmentedNum,
+		IF (
+			btacd.end_no - btacd.start_no + 1 > (
+				SELECT
+					COUNT(btao.id)
+				FROM
+					base_team_appointment_order btao
+				WHERE
+					btao.team_appointment_configure_detail_id = btacd.id
+				AND DATE_FORMAT(btao.appointment_date,'%Y-%m-%d') = #{strAppointmentDate}
+			),
+			true,
+			false
+		) appointment
+	FROM base_team_appointment_configure_detail btacd
+	INNER JOIN base_team_appointment_configure btac ON btac.id = btacd.team_appointment_configure_id
+	WHERE
+		<choose>
+    		<when test="id != null">
+    			btacd.team_appointment_configure_id = #{id}
+    		</when>
+    		<otherwise>
+    			btacd.team_appointment_configure_id in 
+    			<foreach collection="ids" open="(" close=")" separator="," item="id">
+                	#{id}
+            </foreach>
+    		</otherwise>
+    	</choose>
+		<if test="cycle != null and cycle == 2">
+			AND (DATE_FORMAT(btac.start_date,'%Y-%m-%d') &lt;=#{strAppointmentDate} and DATE_FORMAT(btac.end_date,'%Y-%m-%d') &gt;=#{strAppointmentDate})
+		</if>
+		<if test="status != null">
+        	AND btac.status = #{status}
+    	</if>
+    ORDER BY btacd.id DESC
+  </select>
+  
+  <!-- 团队预约配置列表 -->
+  <select id="getList" parameterType="org.module.bespeak.domain.TeamAppointmentConfigure" resultType="map">
+    SELECT 
+    	btac.id, 
+    	btac.organization_team_id organizationTeamId, 
+    	btac.`name`, btac.cycle, btac.`status`, 
+    	btac.start_date startDate, 
+    	btac.end_date endDate, 
+    	btac.create_date createDate
+    FROM base_team_appointment_configure btac
+    <where>
+    	<if test="organizationTeamId != null">
+        	btac.organization_team_id = #{organizationTeamId}
+    	</if>
+    	<if test="serviceId != null"> 
+    		AND btac.service_id = #{serviceId}
+    	</if>
+    	<if test="startDate != null and endDate != null">
+    		AND NOT ((btac.end_date &lt; #{startDate}) OR (btac.start_date &gt; #{endDate}))
+    	</if>
+    	<if test="status != null">
+        	AND btac.status = #{status}
+    	</if>
+	    <if test="cycle != null">
+	   		AND btac.cycle = #{cycle}
+	   	</if>
+    </where>
+    ORDER BY btac.id DESC
+  </select>
+</mapper>

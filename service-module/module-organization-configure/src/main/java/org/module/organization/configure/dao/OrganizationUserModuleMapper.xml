@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationUserModuleMapper">
+  
+  
+  
+  <!-- 添加机构用户模块关联 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationUserModule" useGeneratedKeys="true" keyProperty="id">
+    INSERT into base_organization_user_module (
+    	organization_user_id, 
+    	organization_module_id, 
+        status
+    )
+    values (
+     	#{organizationUserId}, 
+     	#{organizationModuleId}, 
+     	#{status}
+    )
+  </insert>
+  
+  <!-- 修改 -->
+  <update id="update" parameterType="org.module.organization.configure.domain.OrganizationUserModule">
+    UPDATE base_organization_user_module SET id = #{id}
+	    <if test="organizationUserId != null">
+	    	,organization_user_id = #{organizationUserId}
+	    </if>
+	    <if test="organizationModuleId != null">
+	        ,organization_module_id = #{organizationModuleId}
+	    </if>
+	    <if test="status != null">
+	        ,status = #{status}
+	    </if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 查询是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationUserModule" resultType="map">
+    SELECT 
+    	boum.id, 
+	    boum.organization_user_id organizationUserId, 
+	    boum.organization_module_id organizationModuleId, 
+	    boum.status
+    FROM base_organization_user_module boum
+    WHERE boum.organization_user_id = #{organizationUserId} AND 
+    	boum.organization_module_id = #{organizationModuleId}
+  </select>
+  
+  <!-- 查询机构用户和模块关联列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationUserModule" resultType="map">
+    SELECT 
+    	boum.id, 
+	    boum.organization_user_id organizationUserId, 
+	    boum.organization_module_id organizationModuleId, 
+	    boum.status,
+	    bsm.id systemModuleId,
+	    bsm.`name`,
+	    bsm.code,
+	    bsm.role,
+	    bsm.index,
+	    bsm.logo,
+	    bsm.create_date createDate,
+	    bsm.remark
+    FROM base_organization_user_module boum
+    INNER JOIN base_organization_module bom ON bom.id = boum.organization_module_id AND bom.organization_id = #{organizationId} 
+    INNER JOIN base_system_module bsm ON bsm.id = bom.system_module_id
+    WHERE 
+    	boum.organization_user_id = #{organizationUserId} 
+    	<if test="status!=null">
+    		AND boum.status = #{status}
+    	</if>
+    	<if test="systemModuleName !=null and systemModuleName !=''">
+			AND bsm.`name` like CONCAT(CONCAT('%', #{systemModuleName}), '%')
+		</if>
+  </select>
+  
+  <!-- 机构用户在该机构下拥有和未拥有的模块列表 -->
+  <select id="haveAndNotHaveModules" parameterType="org.module.organization.configure.domain.OrganizationUserModule" resultType="map">
+    SELECT
+    	bom.id organizationModuleId,
+		bsm.id,
+		boum.id organizationUserModuleId,
+	    bsm.`name`,
+	    bsm.code,
+	    bsm.role,
+	    bsm.index,
+	    bsm.logo,
+	    bsm.create_date createDate,
+	    bsm.remark,
+		IF(boum.id IS NULL,
+			FALSE,
+			TRUE
+		) isChoose
+	FROM
+		base_organization_module bom
+	LEFT JOIN base_organization_user_module boum ON boum.organization_module_id = bom.id AND boum.`status` = 0
+	AND boum.organization_user_id =#{organizationUserId}
+	<if test="status != null">
+		AND boum.`status` = #{status}
+	</if>
+	LEFT JOIN base_system_module bsm ON bsm.id = bom.system_module_id
+	WHERE
+		bom.organization_id = #{organizationId} AND bom.`status` = 0
+		<if test="systemModuleName !=null and systemModuleName !=''">
+			AND bsm.`name` like CONCAT(CONCAT('%', #{systemModuleName}), '%')
+		</if>
+  </select>
+  
+  <!-- 机构用户在该机构下拥有的模块列表 -->
+  <select id="haveModules" parameterType="org.module.organization.configure.domain.OrganizationUserModule" resultType="map">
+    SELECT
+		bsm.id,
+	    bsm.`name`,
+	    bsm.code,
+	    bsm.role,
+	    bsm.index,
+	    bsm.logo,
+	    bsm.create_date createDate,
+	    bsm.remark
+	FROM
+		base_organization_user_module boum 
+	LEFT JOIN  base_organization_module bom ON boum.organization_module_id = bom.id AND boum.organization_user_id =#{organizationUserId}
+	LEFT JOIN base_system_module bsm ON bsm.id = bom.system_module_id
+	WHERE
+		bom.organization_id = #{organizationId}
+		AND bom.`status` = 0
+		<if test="status != null">
+			AND boum.`status` = #{status}
+		</if>
+		<if test="systemModuleName !=null and systemModuleName !=''">
+			AND bsm.`name` like CONCAT(CONCAT('%', #{systemModuleName}), '%')
+		</if>
+	ORDER BY bsm.id
+  </select>
+  
+  <!-- 机构拥有的模块列表 -->
+  <select id="organizationHaveModules" parameterType="org.module.organization.configure.domain.OrganizationUserModule" resultType="map">
+    SELECT
+		bsm.id,
+	    bsm.`name`,
+	    bsm.code,
+	    bsm.role,
+	    bsm.index,
+	    bsm.logo,
+	    bsm.create_date createDate,
+	    bsm.remark
+	FROM
+		base_organization_module bom
+	INNER JOIN base_system_module bsm ON bsm.id = bom.system_module_id
+	WHERE
+		bom.organization_id = #{organizationId}
+		<if test="status != null">
+			AND bom.`status` = #{status}
+		</if>
+		<if test="systemModuleName !=null and systemModuleName !=''">
+			AND bsm.`name` like CONCAT(CONCAT('%', #{systemModuleName}), '%')
+		</if>
+	ORDER BY bsm.id
+  </select>
+</mapper>

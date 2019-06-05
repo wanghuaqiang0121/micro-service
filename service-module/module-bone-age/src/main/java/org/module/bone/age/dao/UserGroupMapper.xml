@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.UserGroupMapper">
+
+  <!--删除用户组  -->
+ <delete id="delete" parameterType="org.module.bone.age.domain.UserGroup">
+    delete from base_user_group
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增用户组 -->
+  <insert id="insert" parameterType="org.module.bone.age.domain.UserGroup" useGeneratedKeys="true" keyProperty="id">
+	INSERT INTO base_user_group (
+		user_id,
+		create_date,
+		remark,
+		phone
+	)
+	VALUES
+		(
+			#{userId}, #{createDate}, 
+			#{remark}, #{phone})    
+  </insert>
+  
+  <!--修改  -->
+  <update id="update" parameterType="org.module.bone.age.domain.UserGroup">
+    update base_user_group set id = #{id}
+      <if test="remark !=null and remark !=''">
+      ,remark = #{remark}
+      </if>
+      <if test="phone !=null and phone !=''">
+      ,phone = #{phone}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!--查询用户组详情  -->
+  <select id="getOne" parameterType="org.module.bone.age.domain.UserGroup" resultType="map">
+	SELECT
+		id,
+		user_id userId,
+		create_date createDate,
+		remark,
+		phone
+	FROM
+		base_user_group
+	WHERE
+		id = #{id}   
+  </select>
+  
+  <!--查询用户组数据是否重复  -->
+  <select id="getRepeat" parameterType="org.module.bone.age.domain.UserGroup" resultType="map">
+	SELECT
+		id,
+		user_id userId,
+		create_date createDate,
+		remark,
+		phone
+	FROM
+		base_user_group
+	WHERE
+		user_id = #{userId}
+  </select>
+  
+  <!--查询用户组列表-->
+  <select id="getList" parameterType="org.module.bone.age.domain.UserGroup" resultType="map">
+	ELECT
+		id,
+		user_id userId,
+		create_date createDate,
+		remark,
+		phone
+	FROM
+		base_user_group
+    <where>
+    	<if test="userId !=null">
+    		user_id = #{userId}
+    	</if>
+    </where>
+  </select>
+</mapper>

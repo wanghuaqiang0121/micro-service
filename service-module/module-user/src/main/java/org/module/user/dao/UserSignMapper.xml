@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.UserSignMapper">
+ 
+
+  <select id="getList" parameterType="org.module.user.domain.UserSign" resultType="map">
+    select id, 
+	    user_id userId, 
+	    organization_team_id organizationTeamId, 
+	    organization_user_id organizationUserId, 
+	    sign_no signNo, 
+	    intention_service_package_id intentionServicePackageId, 
+	    user_service_package_order_id userServicePackageOrderId, 
+	    launch_organization_user_id launchOrganizationUserId, 
+	    `status`, 
+	    signature, 
+	    `explain`, 
+	    launch_type launchType, 
+	    protocol, 
+	    close_reason_code closeReasonCode, 
+	    close_reason closeReason, 
+	    notice, 
+	    update_date updateDate, 
+	    create_date createDate, 
+	    remark
+    from base_user_sign
+    	<where>
+    		<if test="userId !=null">
+    			user_id = #{userId}
+    		</if>
+    	</where>
+  </select>
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.user.dao.OrganizationUserRoleMapper">
+ 
+  
+  <insert id="insert" parameterType="org.module.organization.user.domain.OrganizationUserRole">
+    insert into base_organization_user_role ( organization_user_id, organization_role_id)
+    values ( #{organizationUserId}, #{organizationRoleId})
+  </insert>
+  
+  <!-- 机构用户所属机构列表 -->
+  <select id="getList" parameterType="org.module.organization.user.domain.OrganizationUserRole" resultType="map">
+	SELECT
+		bo.id organizationId,
+		bo.`name` organizationName,
+		bo.`code` organizationCode,
+		bo.organization_type_id organizationTypeId,
+		bo.pid organizationPid,
+		bou.id organizationUserId,
+		bou.`name` organizationUserName,
+		bor.id organizationRoleId
+	FROM
+		base_organization_role bor
+	LEFT JOIN base_organization_user_role bour ON bour.organization_role_id = bor.id
+	LEFT JOIN base_organization_user bou ON bou.id = bour.organization_user_id
+	LEFT JOIN base_organization bo ON bo.id = bor.organization_id
+	<where>
+		<if test="organizationUserId !=null">
+			bour.organization_user_id = #{organizationUserId}
+		</if>
+	</where>
+	GROUP BY
+		bor.organization_id
+  </select>
+  <!-- 角色列表（用于拦截） -->
+  <select id="getOrganizationUserRoleRolesList" parameterType="org.module.organization.user.domain.OrganizationUserRole" resultType="map">
+		
+  </select>
+  <!-- 权限列表（用于拦截） -->
+  <select id="getOrganizationUserRolepermissionsList" parameterType="org.module.organization.user.domain.OrganizationUserRole" resultType="map">
+	
+  </select>
+  <!-- 操作列表（用于拦截） -->
+  <select id="getOrganizationUserRoleOperationsList" parameterType="org.module.organization.user.domain.OrganizationUserRole" resultType="map">
+		
+  </select>
+  <!-- 菜单列表（用于拦截） -->
+  <select id="getOrganizationUserRoleMenusList" parameterType="org.module.organization.user.domain.OrganizationUserRole" resultType="map">
+		
+  </select>
+</mapper>

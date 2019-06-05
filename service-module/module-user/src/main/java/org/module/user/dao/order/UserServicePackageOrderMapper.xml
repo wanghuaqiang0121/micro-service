@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.order.UserServicePackageOrderMapper">
+  <!-- 新增订单 -->
+  <insert id="insert" parameterType="org.module.user.domain.order.UserServicePackageOrder" useGeneratedKeys="true" keyProperty="id">
+    insert into base_user_service_package_order ( user_id, organization_service_package_id, 
+      doctor_team_id, order_no, price, 
+      evidence_sn, evidence_file, type, 
+      status, create_date, expire_date, merchant_number,pay_key,app_secret,app_id,wechat_id,wechat_key,
+      complete_date, remark)
+    values ( #{userId}, #{organizationServicePackageId}, 
+      #{doctorTeamId}, #{orderNo}, #{price}, 
+      #{evidenceSn}, #{evidenceFile}, #{type}, 
+      #{status}, #{createDate}, #{expireDate},#{merchantNumber},#{payKey},#{appSecret},#{appId},#{wechatId},#{wechatKey},
+      #{completeDate}, #{remark})
+  </insert>
+ 
+  <!-- 确认完成订单 -->
+  <update id="update" parameterType="org.module.user.domain.order.UserServicePackageOrder">
+    update base_user_service_package_order set remark=#{remark}
+    where id = #{id}
+  </update>
+  
+  <!-- 确认完成订单 -->
+  <update id="updateSureUserServicePackageOrder" parameterType="org.module.user.domain.order.UserServicePackageOrder">
+    update base_user_service_package_order set status=#{status},complete_date=#{completeDate},expire_date=#{expireDate}
+    where id = #{id}
+  </update>
+  
+  <!-- 取消订单 -->
+  <update id="updateCancelUserServicePackageOrder" parameterType="org.module.user.domain.order.UserServicePackageOrder">
+    update base_user_service_package_order set status=#{status}
+    where id = #{id}
+  </update>
+  
+   <!-- 定义查询详情返回结果集 -->
+   <resultMap type="map" id="orderMap">
+		<result column="id" property="id"/>
+		<collection property="userService" column="id" javaType="list" select="getUserServiceList"/>
+   </resultMap>
+  <!-- 查询订单详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.order.UserServicePackageOrder" resultMap="orderMap">
+	SELECT
+		buspo.id,
+		buspo.user_id userId,
+		buspo.organization_service_package_id organizationServicePackageId,
+		buspo.order_no orderNo,
+		buspo.price,
+		buspo.evidence_sn evidenceSn,
+		buspo.evidence_file evidenceFile,
+		buspo.type,
+		buspo.`status`,
+		buspo.create_date createDate,
+		buspo.expire_date expireDate,
+		buspo.complete_date completeDate,
+		buspo.pay_key payKey,
+		to_days(buspo.expire_date) - to_days(now()) surplusDay,
+		buspo.remark,
+		bosp.id organizationServicePackageId,
+		bosp.`name` servicePackageName,
+		bosp.`cover` servicePackageCover,
+		bosp.acquisitive,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.original_price originalPrice,
+		buspo.doctor_team_id doctorTeamId,
+		bot.`name` doctorTeamName,
+		bot.phone teamPhone,
+		bu.`name` userName,
+		bu.phone userPhone,
+		bu.phone_status phoneStatus,
+		bu.sex,
+		bo.id organizationId,
+		bo.`name` organizationName,
+		bo.organization_type_id organizationTypeId,
+		bspt.id servicePackageTypeId,
+		bspt.`name` servicePackageTypeName
+	FROM
+		base_user_service_package_order buspo
+	LEFT JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+	LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+	LEFT JOIN base_organization bo ON bo.id=bosp.organization_id
+	LEFT JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+	LEFT JOIN base_user bu ON bu.id=buspo.user_id
+	<where>
+		<if test="id != null">
+			buspo.id = #{id}
+		</if>
+		<if test="orderNo != null and orderNo !=''">
+			and buspo.order_no = #{orderNo}
+		</if>
+	</where>
+  </select>
+  <!-- 查询订单对应的服务列表 -->
+  <select id="getUserServiceList" parameterType="org.module.user.domain.order.UserServicePackageOrder" resultType="map">
+	SELECT
+		bus.id,
+		bus.user_id userId,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bus.service_type_id serviceTypeId,
+		bus.times,
+		bus.`name`,
+		bus.lock_times lockTimes,
+		bus.use_times useTimes,
+		bus.times - bus.lock_times - bus.use_times availableTimes,
+		bst.`name` servieTypeName,
+		bus.create_time createTime,
+		bus.update_time updateTime
+	FROM
+		base_user_service bus
+	LEFT JOIN base_service_type bst ON bst.id = bus.service_type_id  
+	WHERE bus.user_service_package_order_id=#{id}
+  </select>
+  
+  <!-- 查询订单列表 -->
+  <select id="getList" parameterType="org.module.user.domain.order.UserServicePackageOrder" resultMap="orderMap">
+		SELECT
+			buspo.id,
+			buspo.user_id userId,
+			buspo.organization_service_package_id organizationServicePackageId,
+			buspo.order_no orderNo,
+			buspo.price,
+			buspo.evidence_sn evidenceSn,
+			buspo.evidence_file evidenceFile,
+			buspo.type,
+			buspo.`status`,
+			buspo.create_date createDate,
+			buspo.expire_date expireDate,
+			buspo.complete_date completeDate,
+			buspo.remark,
+			to_days(buspo.expire_date) - to_days(now()) surplusDay,
+			bosp.id organizationServicePackageId,
+			bosp.`name` servicePackageName,
+			bosp.`cover` servicePackageCover,
+			(	SELECT
+					group_concat(but.`name`)
+				FROM 
+					base_user_type but 
+				LEFT JOIN base_organization_package_user_type bospt ON bospt.user_type_id = but.id
+ 				WHERE bospt.organization_service_package_id = buspo.organization_service_package_id
+ 			) packageTypeNames,
+			bosp.acquisitive,
+			bosp.acquisitive_type acquisitiveType,
+			bosp.original_price originalPrice,
+			buspo.doctor_team_id doctorTeamId,
+			bot.`name` doctorTeamName,
+			bu.`name` userName,
+			bu.phone,
+			bu.phone_status phoneStatus,
+			bu.sex,
+			bo.`name` organizationName,
+		    bowi.merchant_number merchantNumber,
+		    bowi.pay_key payKey,
+		    bowi.wechat_id wechatId,
+		    bowi.wechat_key wechatKey,
+			bo.organization_type_id organizationTypeId,
+			bspt.`name` servicePackageTypeName
+		FROM
+			base_user_service_package_order buspo
+		LEFT JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+		LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+		LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+		LEFT JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+		LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+		LEFT JOIN base_user bu ON bu.id = buspo.user_id
+		LEFT JOIN base_user_user_group buug ON buug.user_id = bu.id AND buug.user_group_id = (
+			SELECT
+				bug.id
+			FROM
+				base_user_group bug
+			WHERE
+				bug.user_id = #{userId}
+		)
+		<where>
+			buspo.user_id
+		 	IN (
+				SELECT
+					bu.id userId
+				FROM
+					base_user_user_group buug
+				LEFT JOIN base_user bu ON bu.id = buug.user_id
+				WHERE
+					buug.user_group_id = (
+						SELECT
+							bug.id
+						FROM
+							base_user_group bug
+						WHERE
+							bug.user_id = #{userId}
+					)
+			)
+			<if test="organizationServicePackageId !=null">
+				and buspo.organization_service_package_id=#{organizationServicePackageId}
+			</if>
+			<if test="orderNo !=null and orderNo !=''">
+				and buspo.order_no=#{orderNo}
+			</if>
+			<if test="type !=null">
+				and buspo.type=#{type}
+			</if>
+			<if test="status !=null">
+				and buspo.`status`=#{status}
+			</if>
+			<if test="statuss !=null">
+				<foreach collection="statuss" item="item" open="and buspo.`status` IN (" close=")" separator=",">
+					${item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+  
+  <!-- 查询用户订单列表 -->
+  <select id="getListByUserId" parameterType="org.module.user.domain.order.UserServicePackageOrder" resultMap="orderMap">
+		SELECT
+			buspo.id,
+			buspo.user_id userId,
+			buspo.organization_service_package_id organizationServicePackageId,
+			buspo.order_no orderNo,
+			buspo.price,
+			buspo.evidence_sn evidenceSn,
+			buspo.evidence_file evidenceFile,
+			buspo.type,
+			buspo.`status`,
+			buspo.create_date createDate,
+			buspo.expire_date expireDate,
+			buspo.complete_date completeDate,
+			buspo.remark,
+			to_days(buspo.expire_date) - to_days(now()) surplusDay,
+			bosp.id organizationServicePackageId,
+			bosp.`name` servicePackageName,
+			bosp.`cover` servicePackageCover,
+			(	SELECT
+					group_concat(but.`name`)
+				FROM 
+					base_user_type but 
+				LEFT JOIN base_organization_package_user_type bospt ON bospt.user_type_id = but.id
+ 				WHERE bospt.organization_service_package_id = buspo.organization_service_package_id
+ 			) packageTypeNames,
+			bosp.acquisitive,
+			bosp.acquisitive_type acquisitiveType,
+			bosp.original_price originalPrice,
+			buspo.doctor_team_id doctorTeamId,
+			bot.`name` doctorTeamName,
+			bu.`name` userName,
+			bu.phone,
+			bu.phone_status phoneStatus,
+			bu.sex,
+			bo.`name` organizationName,
+		    bowi.merchant_number merchantNumber,
+		    bowi.pay_key payKey,
+		    bowi.wechat_id wechatId,
+		    bowi.wechat_key wechatKey,
+			bo.organization_type_id organizationTypeId,
+			bspt.`name` servicePackageTypeName
+		FROM
+			base_user_service_package_order buspo
+		LEFT JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+		LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+		LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+		LEFT JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+		LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+		LEFT JOIN base_user bu ON bu.id = buspo.user_id
+		<where>
+			buspo.user_id = #{userId}
+			<if test="organizationServicePackageId !=null">
+				and buspo.organization_service_package_id=#{organizationServicePackageId}
+			</if>
+			<if test="orderNo !=null and orderNo !=''">
+				and buspo.order_no=#{orderNo}
+			</if>
+			<if test="type !=null">
+				and buspo.type=#{type}
+			</if>
+			<if test="status !=null">
+				and buspo.`status`=#{status}
+			</if>
+			<if test="statuss !=null">
+				<foreach collection="statuss" item="item" open="and buspo.`status` IN (" close=")" separator=",">
+					${item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+</mapper>

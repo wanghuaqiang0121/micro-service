@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.RecommendOrganizationMapper">
+  
+  <!-- 查询是否有重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+    SELECT 
+    	bro.id,
+    	bro.organization_id organizationId,
+    	bro.organization_site_id organizationSiteId,
+    	bro.recommend_organization_id recommendOrganizationId,
+    	bro.sort
+    FROM
+    	base_recommend_organization bro
+    WHERE bro.organization_id = #{organizationId} AND 
+    	bro.recommend_organization_id = #{recommendOrganizationId}
+  </select>
+
+  <!-- 修改推荐机构 -->
+  <update id="update" parameterType="org.module.organization.configure.domain.RecommendOrganization">
+    update base_recommend_organization  set id = #{id}
+    <if test="sort !=null and sort !=''">
+      ,sort = #{sort}
+    </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 根据id删除 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.RecommendOrganization">
+    DELETE FROM base_recommend_organization
+    WHERE  id = #{id}
+  </delete>
+  
+  <!-- 添加 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.RecommendOrganization" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_recommend_organization (
+    	organization_id,
+    	organization_site_id,
+    	recommend_organization_id, 
+        sort
+	)
+    VALUES (
+    	#{organizationId},
+    	#{organizationSiteId},
+    	#{recommendOrganizationId},
+    	#{sort}
+    )
+  </insert>
+  
+  <!-- 获取某一机构的推荐机构最大排序号 -->
+  <select id="getRecommendOrganizationMaxSort" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+    SELECT
+    	MAX(bro.sort) maxSort
+    FROM
+    	base_recommend_organization bro
+    WHERE organization_id = #{organizationId}
+  </select>
+  
+  <!-- 查询推荐机构详情 -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+	SELECT
+		bro.id,
+		bro.organization_id organizationId,
+		bro.recommend_organization_id recommendOrganizationId,
+		bo.`name` recommendOrganizationName,
+		bo.organization_type_id recommendOrganizationTypeId,
+		bot.`name` recommendOrganizationTypeName,
+		bo.`status` recommendOrganizationStatus,
+		bo.remark recommendOrganizationRemark,
+		bro.sort
+	FROM
+		base_recommend_organization bro
+	LEFT JOIN base_organization bo ON bo.id = bro.recommend_organization_id
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+    where bro.id = #{id}
+  </select>
+  
+  <!-- 查询某机构推荐机构列表 -->
+  <select id="getRecommendOrganizations" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+    SELECT
+		bo.id organizationId,
+		bo.`name`,
+		bo.`code`,
+		bo.phone,
+		bo.logo,
+		bo.`status`,
+		bo.organization_type_id organizationTypeId,
+		bot.`name` organizationTypeName,
+		bro.sort,
+		bro.id
+	FROM
+		base_recommend_organization bro
+	INNER JOIN base_organization bo ON bo.id = bro.recommend_organization_id  AND bro.organization_id = #{organizationId}
+	<if test="organizationSiteId != null">
+		AND bro.organization_site_id = #{bro.organizationSiteId}
+	</if>
+	LEFT JOIN base_organization_site bos ON bos.organization_id = bo.id
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	
+	WHERE
+	    bo.`status` = #{organization.status}
+		AND bo.organization_type_id &lt;13
+		<if test="organization !=null">
+			<if test="organization.name !=null and organization.name !=''">
+				and bo.`name` like CONCAT(CONCAT('%', #{organization.name}), '%')
+			</if>	
+		</if>
+		GROUP BY bo.id
+	ORDER BY bro.sort DESC
+  </select>
+  
+  <!-- 未推荐机构列表 -->
+  <select id="getNotRecommendOrganizations" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+   SELECT
+		bo.id,
+		bo.`code`,
+		bo.`name`,
+		bo.phone,
+		bo.`status`,
+		bo.organization_type_id organizationTypeId,
+		bot.`name` organizationTypeName,
+		bos.id siteId
+	FROM
+		base_organization bo
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	
+	LEFT JOIN base_organization_site bos ON bos.organization_id = bo.id
+	WHERE
+		bo.id NOT IN (
+			SELECT
+				bro.recommend_organization_id
+			FROM
+				base_recommend_organization bro
+			WHERE
+				bro.organization_id = #{organizationId}
+				<if test="organizationSiteId !=null">
+					AND bro.organization_site_id =#{organizationSiteId}
+				</if>
+		)
+		AND bot.is_referral = TRUE
+		<if test="organization !=null">
+			<if test="organization.code !=null and organization.code !=''">
+				and bo.`code` =#{organization.code}
+			</if>
+			<if test="organization.status !=null">
+				and bo.`status` =#{organization.status}
+			</if>
+			<if test="organization.name !=null and organization.name !=''">
+				and bo.`name` like CONCAT(CONCAT('%', #{organization.name}), '%')
+			</if>
+		</if>
+		GROUP BY bo.id
+  </select>
+  
+  <!-- 获取当前排序最近的的最大的排序号（下移：sort越大置顶） -->
+  <select id="getRecommendOrganizationMaxSortByMoveDown" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+	SELECT
+		bro.id,
+		bro.organization_id organizationId,
+		bro.organization_site_id organizationSiteId,
+		bro.recommend_organization_id recommendOrganizationId,
+		bro.sort
+	FROM
+		base_recommend_organization bro
+	WHERE
+		bro.organization_id = #{organizationId}
+		<if test="organizationSiteId !=null">
+			AND bro.organization_site_id =#{organizationSiteId}
+		</if>
+		AND bro.sort &lt; (
+			SELECT
+				ro.sort
+			FROM
+				base_recommend_organization ro
+			WHERE
+				ro.id = #{id}
+		)
+		ORDER BY bro.sort DESC
+		LIMIT 0,1
+  </select>
+  
+  <!-- 获取当前排序最近的的最小的排序号（上移：sort越大置顶） -->
+  <select id="getRecommendOrganizationMinSortByMoveUp" parameterType="org.module.organization.configure.domain.RecommendOrganization" resultType="map">
+	SELECT
+		bro.id,
+		bro.organization_id organizationId,
+		bro.organization_site_id organizationSiteId,
+		bro.recommend_organization_id recommendOrganizationId,
+		bro.sort
+	FROM
+		base_recommend_organization bro
+	WHERE
+		bro.organization_id = #{organizationId}
+		<if test="organizationSiteId !=null">
+			AND bro.organization_site_id = #{organizationSiteId}
+		</if>
+		AND bro.sort > (
+			SELECT
+				ro.sort
+			FROM
+				base_recommend_organization ro
+			WHERE
+				ro.id = #{id}
+		)
+		ORDER BY bro.sort ASC
+		LIMIT 0,1
+  </select>
+</mapper>

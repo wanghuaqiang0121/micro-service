@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationSmsInfoMapper">
+  
+    <!-- 修改机构短信 -->
+	<update id="update" parameterType="org.module.organization.configure.domain.OrganizationSmsInfo">
+	  update base_organization_sms_info
+	  set 
+	    total_frequency = #{totalFrequency}
+	  where organization_id = #{organizationId}
+	</update>
+	
+	<!-- 新增机构短信  -->
+	<insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationSmsInfo" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO base_organization_sms_info(organization_id,total_frequency,use_frequency,create_date) 
+	VALUES (#{organizationId},#{totalFrequency},#{useFrequency},#{createDate})
+	</insert>
+ 	<!-- 查询机构短信详情 -->
+	<select id="getOne" parameterType="org.module.organization.configure.domain.OrganizationSmsInfo" resultType="map">
+	SELECT
+		bosi.total_frequency totalFrequency,
+		bosi.use_frequency useFrequency,
+		bosi.total_frequency-bosi.use_frequency remainNum
+	FROM
+		base_organization_sms_info bosi
+	WHERE bosi.organization_id=#{organizationId}
+	</select>
+</mapper>

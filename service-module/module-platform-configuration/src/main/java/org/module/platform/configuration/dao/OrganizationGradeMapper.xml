@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationGradeMapper">
+
+
+  <!-- 机构等级重复 -->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.OrganizationGrade" resultType="map">
+	select id, `name`, create_date createDate
+	from base_organization_grade
+	WHERE name = #{name}
+  </select>
+  
+  <!-- 新增机构等级 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.OrganizationGrade" keyProperty="id" useGeneratedKeys="true">
+    insert into base_organization_grade (name, create_date
+      )
+    values (#{name}, #{createDate}
+      )
+  </insert>
+  
+  <!-- 修改机构等级 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.OrganizationGrade">
+    update base_organization_grade
+    set id=#{id}
+    <if test="name!=null and name!=''">
+    ,name = #{name}
+    </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 机构等级详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.OrganizationGrade" resultType="map">
+    select id, name, create_date createDate
+    from base_organization_grade
+    where id = #{id}
+  </select>
+  
+  <!-- 查询机构等级列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.OrganizationGrade" resultType="map">
+    select id, name, create_date createDate
+    from base_organization_grade
+    <where>
+       <if test="name!=null and name !=''">
+        `name` like    CONCAT(CONCAT('%', #{name}), '%')
+       </if>
+    </where>
+  </select>
+</mapper>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.ReadFilmDoctorPriceMapper">
+
+<insert id="insert" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice" useGeneratedKeys="true" keyProperty="id">
+INSERT INTO base_read_film_doctor_price (doctor_id,price,status,remark,create_time,organization_id) 
+	VALUES (#{doctorId},#{price},#{status},#{remark},#{createTime},#{organizationId})
+</insert>
+
+<select id="getOne" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice" resultType="map">
+SELECT
+	brfdp.id,
+	brfdp.doctor_id doctorId,
+	brfdp.price,
+	brfdp.`status`,
+	brfdp.remark,
+	brfdp.create_time createTime,
+	bou.`name` doctorName,
+	brfdp.organization_id organizationId,
+	bo.`name` organizationName
+FROM
+	base_read_film_doctor_price brfdp
+LEFT JOIN base_organization_user bou ON brfdp.doctor_id = bou.id
+LEFT JOIN base_organization bo ON brfdp.organization_id = bo.id
+WHERE brfdp.id=#{id}
+</select>
+
+<select id="getRepeat" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice" resultType="map">
+SELECT
+	brfdp.id,
+	brfdp.doctor_id doctorId,
+	brfdp.price,
+	brfdp.`status`,
+	brfdp.remark,
+	brfdp.create_time createTime,
+	brfdp.organization_id organizationId
+FROM
+	base_read_film_doctor_price brfdp
+WHERE 
+	brfdp.doctor_id=#{doctorId} AND brfdp.organization_id =#{organizationId}
+</select>
+
+<select id="getList" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice" resultType="map">
+SELECT
+	brfdp.id,
+	brfdp.organization_id organizationId,
+	bo.`name` organizationName,
+	brfdp.doctor_id doctorId,
+	bou.`name` doctorName,
+	brfdp.price,
+	bou.photo,
+	bou.remark organizationUserRemark,
+	brfdp.`status`,
+	brfdp.remark,
+	brfdp.create_time createTime
+FROM
+	base_read_film_doctor_price brfdp
+LEFT JOIN base_organization_user bou ON brfdp.doctor_id = bou.id
+LEFT JOIN base_organization bo ON brfdp.organization_id = bo.id
+<where>
+  <if test="doctorName!=null and doctorName!=''">
+  	bou.`name`  like CONCAT(CONCAT('%', #{doctorName}), '%')
+  </if>
+  <if test="organizationId!=null">
+   and brfdp.organization_id=#{organizationId}
+  </if>
+  <if test="status!=null">
+   and brfdp.`status`= #{status}
+  </if>
+</where>
+GROUP BY brfdp.id
+</select>
+
+<update id="update" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice">
+UPDATE base_read_film_doctor_price SET id=#{id}
+	<if test="doctorId!=null">
+	,doctor_id=#{doctorId}
+	</if>
+	<if test="organizationId!=null">
+	,organization_id=#{organizationId}
+	</if>
+	<if test="price!=null">
+	,price=#{price}
+	</if>
+	<if test="status!=null">
+	,status=#{status}
+	</if>
+	<if test="remark!=null and remark!=''">
+	,remark=#{remark}
+	</if>
+	  WHERE id = #{id}
+</update>
+
+
+<select id="getDoctorList" parameterType="org.module.platform.configuration.domain.ReadFilmDoctorPrice" resultType="map">
+SELECT
+	bou.id,
+	bou.`name`,
+	bou.phone,
+	bdodd.organization_id organizationId,
+	bo.`name` organizationName
+FROM
+	base_organization_user bou
+LEFT JOIN base_doctor_organization_department_duty bdodd ON bdodd.organization_user_id = bou.id
+LEFT JOIN base_organization bo ON bdodd.organization_id = bo.id
+<where>
+  <if test="doctorName!=null and doctorName!=''">
+  	bou.`name`  like CONCAT(CONCAT('%', #{doctorName}), '%')  or bou.phone like CONCAT(CONCAT('%', #{doctorName}), '%')
+  </if>
+</where>
+</select>
+</mapper>

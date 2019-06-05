@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationSiteMapper">
+ 
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationSite">
+    delete from base_organization_site
+    where id = #{id}
+  </delete>
+  
+  <!--新增机构站点  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationSite" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_site 
+    	 (organization_id, name,picture, province, city,area, street, address,lng, lat, create_date,remark)
+    values
+    	 ( #{organizationId}, #{name},#{picture}, #{province}, #{city},#{area}, #{street}, #{address},#{lng}, #{lat}, #{createDate},#{remark})
+  </insert>
+  <!--修改机构站点  -->
+  <update id="update" parameterType="org.module.organization.configure.domain.OrganizationSite">
+		 update base_organization_site  set id = #{id}
+    	<if test="name != null and name != ''">
+    		,name = #{name}
+    	</if>
+      	<if test="picture != null">
+    		,picture = #{picture}
+    	</if>
+      	<if test="province != null and province != ''">
+    		,province = #{province}
+    	</if>
+      	<if test="city != null and city != ''">
+    		,city = #{city}
+    	</if>
+     	<if test="area != null and area != ''">
+    		,area = #{area}
+    	</if>
+      	<if test="street != null and street != ''">
+    		,street = #{street}
+    	</if>
+      	<if test="address != null and address != ''">
+    		,address = #{address}
+    	</if>
+      	<if test="lng != null">
+    		,lng = #{lng}
+    	</if>
+      	<if test="lat != null">
+    		,lat = #{lat}
+    	</if>
+      	<if test="remark != null">
+    		,remark = #{remark}
+    	</if>
+   		 where id = #{id}
+  </update>
+  <!-- 查询机构站点重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationSite" resultType="map">
+			 SELECT
+				id,
+				organization_id organizationId,
+				`name`,
+				picture,
+				province,
+				city,
+				area,
+				street,
+				address,
+				lng,
+				lat,
+				create_date,
+				remark
+			FROM
+				base_organization_site
+			WHERE
+				organization_id = #{organizationId} AND name=#{name}
+  </select>
+  <!--查询机构站点详情  -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.OrganizationSite" resultType="map">
+	SELECT
+		bos.id,
+		bos.organization_id organizationId,
+		bos.`name`,
+		bos.picture,
+		bos.province,
+		bos.city,
+		bos.area,
+		bos.street,
+		bos.address,
+		bos.lng,
+		bos.lat,
+		bos.create_date createDate,
+		bos.remark,
+		bo.`name` organizationName
+	FROM
+		base_organization_site bos
+	LEFT JOIN base_organization bo ON bos.organization_id = bo.id
+	WHERE
+		bos.id = #{id}
+  </select>
+  <!--查询机构站点列表  -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationSite" resultType="map">
+	SELECT
+		bos.id,
+		bos.organization_id organizationId,
+		bos.`name`,
+		bos.picture,
+		bos.province,
+		bos.city,
+		bos.area,
+		bos.street,
+		bos.address,
+		bos.lng,
+		bos.lat,
+		bos.create_date createDate,
+		bos.remark,
+		bo.`name` organizationName,
+		bo.`code` organizationCode,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId,
+		bo.pid
+	FROM
+		base_organization_site bos
+	LEFT JOIN base_organization bo ON bo.id = bos.organization_id
+		    <where>
+		    	<if test="organizationId != null">
+		    		bos.organization_id = #{organizationId}
+		    	</if>
+		    	<if test="name != null and name != ''">
+		    		and bos.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		    	</if>
+		    </where>
+  </select>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.sign.dao.UserSignLogMapper">
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from base_user_sign_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.sign.domain.UserSignLog">
+    INSERT INTO base_user_sign_log 
+    ( log_type, user_sign_id, status, `explain`, record, create_date, content)
+    VALUES 
+    ( #{type}, #{userSignId},#{status}, #{explain},#{record}, #{createDate}, #{content})
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="org.module.sign.domain.UserSignLog">
+    update base_user_sign_log
+    set type = #{type,jdbcType=INTEGER},
+      user_sign_id = #{userSignId,jdbcType=INTEGER},
+      organization_user_id = #{organizationUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      explain = #{explain,jdbcType=VARCHAR},
+      record = #{record,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+ 
+  
+</mapper>

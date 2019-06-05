@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.micro.service</groupId>
+		<artifactId>service-module</artifactId>
+		<version>20180102.Alpha</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>module-organization-team</artifactId>
+	<name>module-organization-team</name>
+	<!-- 属性配置 -->
+	<properties>
+		<druid.version>1.1.3</druid.version>
+		<mysql.version>5.1.43</mysql.version>
+		<mybatis.version>1.3.0</mybatis.version>
+		<pagehelper.version>1.1.3</pagehelper.version>
+		<spatial4j.version>0.5</spatial4j.version>
+	</properties>
+	<!-- 依赖包配置 -->
+	<dependencies>
+		<!-- redis项目依赖 -->
+		<dependency>
+			<groupId>org.micro.service</groupId>
+			<artifactId>service-redis</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<!-- spring boot mybatis -->
+		<dependency>
+			<groupId>org.mybatis.spring.boot</groupId>
+			<artifactId>mybatis-spring-boot-starter</artifactId>
+			<version>${mybatis.version}</version>
+		</dependency>
+		<!-- aop -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<!-- mysql -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+		</dependency>
+		<!-- druid -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>${druid.version}</version>
+		</dependency>
+		<!-- pagehelper -->
+		<dependency>
+			<groupId>com.github.pagehelper</groupId>
+			<artifactId>pagehelper-spring-boot-starter</artifactId>
+			<version>${pagehelper.version}</version>
+		</dependency>
+	</dependencies>
+	<!-- 编译配置 -->
+	<build>
+		<finalName>module-organization-team</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

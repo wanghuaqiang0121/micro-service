@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.ModuleOperationalRoleMapper">
+
+<!--查询权限和模块关联列表  -->
+<select id="getList" parameterType="org.module.platform.configuration.domain.organization.ModuleOperationalRole" resultType="map">
+	SELECT
+		bmor.id,
+		bmor.`name`,
+		bmor.operational_role_id operationalRoleId,
+		bmor.system_module_id systemModuleId,
+		bsm.`name` systemModuleName,
+		bsm.`code` systemModuleCode,
+		bsm.`index`,
+		bor.`name` operationalRoleName,
+		bor.`code` operationalRoleCode
+	FROM
+		base_module_operational_role bmor
+	LEFT JOIN base_system_module bsm ON bmor.system_module_id = bsm.id
+	LEFT JOIN base_operational_role bor ON bmor.operational_role_id = bor.id
+	<where>
+	  <if test="operationalRoleId!=null">
+	  	bmor.operational_role_id=#{operationalRoleId}
+	  </if>
+	  <if test="systemModuleId!=null">
+	  	AND  bmor.system_module_id =#{systemModuleId}
+	  </if>
+	  <if test="name!=null and name!=''">
+	  	AND bmor.`name` like CONCAT(CONCAT('%', #{name}), '%')
+	  </if>
+	</where>
+</select>
+</mapper>

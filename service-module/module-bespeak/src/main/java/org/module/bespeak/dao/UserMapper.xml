@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bespeak.dao.UserMapper">
+	<!-- 查询用户微信 -->
+	<select id="getWechat" parameterType="org.module.bespeak.domain.User" resultType="map">
+		SELECT
+			bu.id,
+			bu.`name` userName,
+			buw.appid userAppId,
+			buw.openid userOpenId
+		FROM
+			base_user bu
+		INNER JOIN base_user_wechat buw ON buw.user_id = bu.id
+		WHERE bu.id=#{id}
+		ORDER BY buw.create_date desc
+		LIMIT 1
+	</select>
+  	
+</mapper>

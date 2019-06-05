@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.UserTypeMapper">
+
+	 <!-- 删除人群类型标签 -->
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.UserType">
+    delete from base_user_type where id = #{id}
+  </delete>
+  
+    <!-- 检查数据是否存在 -->
+    <select id="getRepeat" parameterType="org.module.platform.configuration.domain.UserType" resultType="map">
+        SELECT
+	        id,
+	        name,
+	        apply_type as applyType,
+	        is_used as isUsed,
+	        create_date as createDate,
+	        remark
+        FROM 
+        	base_user_type
+        WHERE 
+        	name = #{name}
+    </select>
+
+    <!-- 查询人群类型列表 -->
+    <select id="getList" parameterType="org.module.platform.configuration.domain.UserType" resultType="map">
+        SELECT
+	        id,
+	        name,
+	        apply_type as applyType,
+	        is_used as isUsed,
+	        create_date as createDate,
+	        remark
+        FROM base_user_type
+        <where>
+			<if test="name !=null and name !=''">
+				`name` like CONCAT(CONCAT('%', #{name}), '%')
+			</if>
+			<if test="applyType !=null">
+				and apply_type=#{applyType}
+			</if>
+			<if test="isUsed !=null">
+				and is_used=#{isUsed}
+			</if>
+		</where>
+    </select>
+
+    <!-- 新增人群类型 -->
+    <insert id="insert" parameterType="org.module.platform.configuration.domain.UserType">
+      INSERT INTO base_user_type(name,apply_type,is_used,create_date,remark)
+      VALUES (#{name},#{applyType},#{isUsed},#{createDate},#{remark})
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update" parameterType="org.module.platform.configuration.domain.UserType">
+        UPDATE base_user_type SET id=#{id}
+	        <if test="name != null and name != ''">
+	        	,name = #{name}
+	        </if>
+	        <if test="applyType != null ">
+	        	,apply_type =#{applyType}
+	        </if>
+	        <if test="isUsed != null ">
+	       		,is_used =#{isUsed}
+	        </if>
+	        <if test="remark != null and remark != ''">
+	        	,remark =#{remark}
+	        </if>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 人群类型详情 -->
+    <select id="getOne" parameterType="org.module.platform.configuration.domain.UserType" resultType="map">
+        SELECT
+	        id,
+	        name,
+	        apply_type as applyType,
+	        is_used as isUsed,
+	        create_date as createDate,
+	        remark
+        FROM 
+        	base_user_type
+        WHERE 
+        	id = #{id}
+    </select>
+  
+</mapper>

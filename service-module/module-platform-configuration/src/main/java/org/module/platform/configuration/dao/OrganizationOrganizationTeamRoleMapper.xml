@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationOrganizationTeamRoleMapper">
+
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole">
+    delete from base_organization_organization_team_role
+    where id = #{id}
+  </delete>
+  
+  <!-- 删除机构和团队角色关联 -->
+  <delete id="deleteOrganizationUserTeamRole" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole">
+	 DELETE boutr
+	FROM
+		base_organization_user_team_role boutr
+	WHERE
+		boutr.organization_team_role_id = #{organizationTeamRoleId} AND
+		boutr.organization_user_team_id IN (
+			SELECT
+				bout.id
+			FROM
+				base_organization_user_team bout
+			LEFT JOIN base_organization_team bot ON bot.id = bout.organization_team_id
+			WHERE
+				bot.organization_id = #{organizationId}
+		)
+  </delete>
+  
+  <!-- 新增机构和机构团队角色关联 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_organization_team_role (organization_id, organization_team_role_id
+      )
+    values ( #{organizationId}, #{organizationTeamRoleId}
+      )
+  </insert>
+  <update id="update" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole">
+    update base_organization_organization_team_role
+    set organization_id = #{organizationId},
+      organization_team_role_id = #{organizationTeamRoleId}
+    where id = #{id}
+  </update>
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole" resultType="map">
+    select id, organization_id organizationId, organization_team_role_id organizationTeamRoleId
+    from base_organization_organization_team_role
+    where id = #{id}
+  </select>
+  
+  
+  <select id="getOrganizationUserTeamRoleOne" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole" resultType="map">
+   SELECT
+		boutr.id
+		FROM
+			base_organization_user_team_role boutr
+		WHERE
+		boutr.organization_team_role_id =  #{organizationTeamRoleId} AND
+			boutr.organization_user_team_id IN (
+				SELECT
+					bout.id
+				FROM
+					base_organization_user_team bout
+				LEFT JOIN base_organization_team bot ON bot.id = bout.organization_team_id
+				WHERE
+					bot.organization_id = #{organizationId}
+			)
+  </select>
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole" resultType="map">
+    select id, organization_id, organization_team_role_id
+    from base_organization_organization_team_role
+    where organization_id = #{organizationId} and organization_team_role_id = #{organizationTeamRoleId}
+  </select>
+  
+  <!-- 机构拥有和未拥有的团队角色列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.OrganizationOrganizationTeamRole" resultType="map">
+    SELECT
+		botr.id,
+		botr.`code`,
+		botr.create_date createDate,
+		botr.is_used isUsed,
+		botr.`name`,
+		botr.remark,
+		botr.service_type_id serviceTypeId,
+		bootr.id organizationOrganizationTeamRoleId,
+	IF (bootr.id IS NULL, FALSE, TRUE) isChoose
+	FROM
+		base_organization_team_role botr
+	LEFT JOIN base_organization_organization_team_role bootr ON bootr.organization_team_role_id = botr.id
+	AND bootr.organization_id = #{organizationId}
+	WHERE
+		botr.is_used = TRUE
+		<if test="name!=null and name!=''">
+			and botr.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="code!=null and code!=''">
+			and botr.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+		ORDER BY botr.id ASC
+  </select>
+</mapper>

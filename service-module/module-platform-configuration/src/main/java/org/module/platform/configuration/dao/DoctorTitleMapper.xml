@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.DoctorTitleMapper">
+  
+  <!-- 新增医生职称--> 
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.DoctorTitle" keyProperty="id" useGeneratedKeys="true">
+    INSERT into base_doctor_title ( name, create_date ) VALUES ( #{name}, #{createDate} )
+  </insert>
+  
+  <update id="update" parameterType="org.module.platform.configuration.domain.DoctorTitle">
+    UPDATE base_doctor_title set id = #{id}
+    	<if test="name!=null and name!=''">
+	    	,name = #{name}
+    	</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 数据是否重复-->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.DoctorTitle" resultType="map">
+    SELECT 
+    	id, 
+	    name, 
+	    create_date createDate
+    FROM base_doctor_title
+    WHERE name = #{name}
+  </select>
+  
+  <!-- 查看医生职称详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.DoctorTitle" resultType="map">
+    SELECT 
+    	id, 
+	    name, 
+	    create_date createDate
+    FROM base_doctor_title
+    WHERE id = #{id}
+  </select>
+  
+  <!-- 查看医生职称列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.DoctorTitle" resultType="map">
+    SELECT 
+	    id, 
+	    name, 
+	    create_date createDate
+    FROM base_doctor_title
+    <where>
+	    <if test="name!=null and name!=''">
+	    	`name` like CONCAT(CONCAT('%', #{name}), '%')
+	    </if>
+    </where>
+  </select>
+</mapper>

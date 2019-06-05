@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/micro-service.iml" filepath="$PROJECT_DIR$/micro-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-bespeak/module-bespeak.iml" filepath="$PROJECT_DIR$/service-module/module-bespeak/module-bespeak.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-bone-age/module-bone-age.iml" filepath="$PROJECT_DIR$/service-module/module-bone-age/module-bone-age.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-common/module-common.iml" filepath="$PROJECT_DIR$/service-module/module-common/module-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-inquiry/module-inquiry.iml" filepath="$PROJECT_DIR$/service-module/module-inquiry/module-inquiry.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-organization-configure/module-organization-configure.iml" filepath="$PROJECT_DIR$/service-module/module-organization-configure/module-organization-configure.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-organization-permission/module-organization-permission.iml" filepath="$PROJECT_DIR$/service-module/module-organization-permission/module-organization-permission.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-organization-team/module-organization-team.iml" filepath="$PROJECT_DIR$/service-module/module-organization-team/module-organization-team.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-organization-user/module-organization-user.iml" filepath="$PROJECT_DIR$/service-module/module-organization-user/module-organization-user.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-platform-configuration/module-platform-configuration.iml" filepath="$PROJECT_DIR$/service-module/module-platform-configuration/module-platform-configuration.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-sign/module-sign.iml" filepath="$PROJECT_DIR$/service-module/module-sign/module-sign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-team-permission/module-team-permission.iml" filepath="$PROJECT_DIR$/service-module/module-team-permission/module-team-permission.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-user/module-user.iml" filepath="$PROJECT_DIR$/service-module/module-user/module-user.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/module-work-order/module-work-order.iml" filepath="$PROJECT_DIR$/service-module/module-work-order/module-work-order.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-core/service-core.iml" filepath="$PROJECT_DIR$/service-core/service-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-eureka/service-eureka.iml" filepath="$PROJECT_DIR$/service-eureka/service-eureka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-module/service-module.iml" filepath="$PROJECT_DIR$/service-module/service-module.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-redis/service-redis.iml" filepath="$PROJECT_DIR$/service-redis/service-redis.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-tools/service-tools.iml" filepath="$PROJECT_DIR$/service-tools/service-tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service-zuul/service-zuul.iml" filepath="$PROJECT_DIR$/service-zuul/service-zuul.iml" />
+    </modules>
+  </component>
+</project>

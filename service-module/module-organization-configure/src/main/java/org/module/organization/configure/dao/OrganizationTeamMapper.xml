@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationTeamMapper">
+
+	<!-- 检查数据是否重复 -->
+	<select id="getOrganizationVerType" parameterType="org.module.organization.configure.domain.OrganizationTeam" resultType="map">
+	SELECT
+		id,
+		ver_type verType
+	FROM
+		base_organization_wechat_info
+	WHERE
+		organization_id = #{organizationId}
+	</select>
+	
+<!-- 检查数据是否重复 -->
+	<select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationTeam" resultType="map">
+	SELECT
+		id,
+		organization_id organizationId,
+		`name`,
+		logo,
+		phone,
+		picture,
+		`status`,
+		create_date createDate,
+		remark,
+		experties
+	FROM
+		base_organization_team
+	WHERE
+		organization_id = #{organizationId} AND name=#{name}
+	</select>
+
+  <!-- 新建机构团队表 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationTeam" keyProperty="id" useGeneratedKeys="true">
+    insert into base_organization_team 
+    	(organization_id, `name`, logo, picture, status, create_date, remark,experties,organization_site_id,protocol,phone)
+    values 
+    	(#{organizationId}, #{name}, #{logo}, #{picture}, #{status}, #{createDate}, #{remark},#{experties},#{organizationSiteId},#{protocol},#{phone})
+  </insert>
+  
+  <!-- 修改机构团队表 -->
+  <update id="update" parameterType="org.module.organization.configure.domain.OrganizationTeam">
+    update base_organization_team  SET id=#{id}
+    	<if test="name !=null and name !=''">
+	      ,`name` = #{name}
+    	</if>
+    	<if test="phone !=null and phone !=''">
+	      ,phone = #{phone}
+    	</if>
+    	<if test="logo !=null">
+	      ,logo = #{logo}
+    	</if>
+    	<if test="picture !=null">
+	      ,picture = #{picture}
+    	</if>
+    	<if test="status !=null">
+	      ,`status` = #{status}
+    	</if>
+    	<if test="organizationId !=null">
+	      ,organization_id = #{organizationId}
+    	</if>
+    	<if test="remark !=null">
+	      ,remark = #{remark}
+    	</if>
+    	<if test="experties !=null and experties !=''">
+	      ,experties = #{experties}
+    	</if>
+    	<if test="organizationSiteId!=null">
+    	,organization_site_id=#{organizationSiteId}
+    	</if>
+    	<if test="protocol!=null and protocol!=''">
+    	,protocol=#{protocol}
+    	</if>
+    where id = #{id}
+  </update>
+  <!-- 查询机构团队表列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationTeam" resultType="map">
+	SELECT
+		bot.id,
+		bot.organization_id organizationId,
+		bot.organization_site_id organizationSiteId,
+		bot.`name`,
+		bot.logo,
+		bot.picture,
+		bot.`status`,
+		bot.create_date createDate,
+		bot.remark,
+		bot.experties,
+		bot.protocol,
+		bot.phone,
+		bo.`name` organizationName,
+		bo.`code`,
+		bo.logo organizationLogo,
+		bo.phone organizationPhone,
+		bo.picture organizationPicture,
+		bo.province,
+		bo.city,
+		bo.area,
+		bo.street,
+		bo.community,
+		bo.address,
+		bo.lat,
+		bo.lng,
+		bou.id organizationUserId,
+		(SELECT COUNT(bout.organization_user_id) FROM base_organization_user_team bout WHERE bout.organization_team_id = bot.id) teamMembers,
+		bou.`name` teamLeader
+	
+	FROM
+		base_organization_team bot
+	LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+	LEFT JOIN base_organization_user_team bout ON bout.organization_team_id = bot.id
+	AND bout.is_manager = TRUE
+	LEFT JOIN base_organization_user bou ON bout.organization_user_id = bou.id
+	<where>
+		  <if test="name!=null and name!=''">
+		    bot.name like CONCAT(CONCAT('%', #{name}), '%')
+		  </if>
+		  <if test="organizationId!=null">
+		  and  bot.organization_id=#{organizationId}
+		  </if>
+		   <if test="organizationSiteId!=null">
+		  and  bot.organization_site_id=#{organizationSiteId}
+		  </if>
+		   <if test="status!=null">
+		  and  bot.status=#{status}
+		  </if>	 
+		 <if test="organization!=null and organization.lng!=null and organization.lat!=null">
+		         <if test="organization.rectangle !=null">
+			     	 and (bo.lng BETWEEN #{organization.rectangle.minX} and #{organization.rectangle.maxX})  or (bo.lat BETWEEN  #{organization.rectangle.minY} and #{organization.rectangle.maxY})
+			     </if> 
+		  </if> 
+		</where>  
+	 GROUP BY bot.id  
+<!-- <if test="organizationSite!=null">
+	     <choose>
+				<when test="organizationSite.maxRaidus !=null and organizationSite.minRaidus !=null ">
+					HAVING distance &lt;= #{organizationSite.maxRaidus} and  distance &gt;= #{organizationSite.minRaidus}
+				</when>
+				<otherwise>
+					<if test="organizationSite.maxRaidus !=null">
+				     	HAVING distance &lt;= #{organizationSite.maxRaidus}
+				     </if>     
+				     <if test="organizationSite.minRaidus !=null">
+				     	HAVING distance &gt;= #{organizationSite.minRaidus}
+				     </if>   
+				</otherwise>
+		</choose>
+	</if>
+	 ORDER BY distance -->
+  </select>
+
+<!--查询机构团队详情  -->
+<select id="getOne" parameterType="org.module.organization.configure.domain.OrganizationTeam" resultType="map">
+SELECT
+	bot.id,
+	bot.organization_id organizationId,
+	bot.organization_site_id organizationSiteId,
+	bot.`name`,
+	bot.logo,
+	bot.picture,
+	bot.`status`,
+	bot.create_date createDate,
+	bot.remark,
+	bot.experties,
+	bot.protocol,
+	bot.phone,
+	bo.id organizationId,
+	bo.`name` organizationName,
+	bo.`code`,
+	bo.logo organizationLogo,
+	bo.phone organizationPhone,
+	bo.picture organizationPicture,
+	bo.province,
+	bo.city,
+	bo.area,
+	bo.street,
+	bo.community,
+	bo.address,
+	bo.lat,
+	bo.lng,
+    bou.id organizationUserId,
+	bou.`name` organizationUserName
+FROM
+	base_organization_team bot
+LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+LEFT JOIN base_organization_user_team bout ON bout.organization_team_id = bot.id
+AND bout.is_manager = TRUE
+LEFT JOIN base_organization_user bou ON bout.organization_user_id = bou.id
+WHERE
+	bot.id =#{id}
+</select>
+
+<select id="getwechatQrCode" parameterType="org.module.organization.configure.domain.OrganizationTeam" resultType="map">
+SELECT
+	id,
+	name,
+	url
+FROM
+	base_wechat_qr_code
+</select>
+
+</mapper>

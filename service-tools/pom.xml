@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.micro.service</groupId>
+		<artifactId>micro-service</artifactId>
+		<version>20180102.Alpha</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>service-tools</artifactId>
+	<name>service-tools</name>
+	<packaging>jar</packaging>
+	<properties>
+		<base64.version>2.3.8</base64.version>
+		<spatial4j.version>0.5</spatial4j.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<!-- Base64相关包 -->
+		<dependency>
+			<groupId>net.iharder</groupId>
+			<artifactId>base64</artifactId>
+			<version>${base64.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.spatial4j</groupId>
+			<artifactId>spatial4j</artifactId>
+			<version>${spatial4j.version}</version>
+		</dependency>
+	</dependencies>
+	<!-- 构建信息配置 -->
+	<build>
+		<finalName>service-tools</finalName>
+	</build>
+</project>

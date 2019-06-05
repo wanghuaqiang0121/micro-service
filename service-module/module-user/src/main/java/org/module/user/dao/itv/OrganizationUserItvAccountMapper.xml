@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.itv.OrganizationUserItvAccountMapper">
+ 
+ 
+  <!-- 以上itv详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.itv.OrganizationUserItvAccount" resultType="map">
+    SELECT 
+	    bouia.id, 
+	    bouia.organization_user_id organizationUserId, 
+	    bouia.itv_sn itvSn, 
+	    bouia.`password`,
+		bouia.`status`,
+	    bouia.create_date createDate
+    FROM 
+    	base_organization_user_itv_account bouia
+    <where>
+	    <if test="id != null">
+	    	bouia.id = #{id}
+	    </if>
+	    <if test="organizationUserId != null">
+    		AND bouia.organization_user_id = #{organizationUserId} 
+	    </if>
+	    <if test="itvSn != null and itvSn != ''">
+	    	AND bouia.itv_sn = #{itvSn}
+	    </if>
+	    <if test="password != null and password != ''">
+	    	AND bouia.password = #{password}
+	    </if>
+	    <if test="status != null">
+	    	AND bouia.status = #{status}
+	    </if>
+    </where> 
+    	
+  </select>
+  
+  <delete id="delete" parameterType="org.module.user.domain.itv.OrganizationUserItvAccount">
+  	DELETE FROM base_organization_user_itv_account
+  	WHERE id=#{id}
+  </delete>
+  
+  <!-- 查询重复 -->
+  <select id="getRepeat" parameterType="org.module.user.domain.itv.OrganizationUserItvAccount" resultType="map">
+    SELECT 
+	    bouia.id, 
+	    bouia.organization_user_id organizationUserId, 
+	    bouia.itv_sn itvSn, 
+	    bouia.`password`,
+		bouia.`status`,
+	    bouia.create_date createDate
+    FROM 
+    	base_organization_user_itv_account bouia
+    WHERE 
+    	bouia.organization_user_id = #{organizationUserId} AND
+    	bouia.itv_sn = #{itvSn} AND
+    	bouia.status = #{status}
+  </select>
+  
+  <!-- itv绑定医生 -->
+  <insert id="insert" parameterType="org.module.user.domain.itv.OrganizationUserItvAccount" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_user_itv_account (
+    	organization_user_id, 
+    	itv_sn, 
+		password, 
+		status, 
+		create_date
+      )
+    values (
+	    #{organizationUserId}, 
+	    #{itvSn}, 
+	    #{password}, 
+	    #{status}, 
+	    #{createDate}
+      )
+  </insert>
+  
+  <!-- itv绑定医生列表 -->
+  <select id="getList" parameterType="org.module.user.domain.itv.OrganizationUserItvAccount" resultType="map">
+    SELECT 
+	    bouia.id, 
+	    bouia.organization_user_id organizationUserId, 
+	    bouia.itv_sn itvSn, 
+	    bouia.`status`,
+	    bouia.create_date createDate,
+	    bdi.`name`,
+		bou.sex,
+		bou.phone
+    FROM 
+    	base_organization_user_itv_account bouia
+    LEFT JOIN base_organization_user bou ON bou.id = bouia.organization_user_id
+	LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+    WHERE
+    	bouia.itv_sn = #{itvSn}
+  </select>
+</mapper>

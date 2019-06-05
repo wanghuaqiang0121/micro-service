@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.MedicalOrganizationTypeMapper">
+
+
+  <!-- 查询是否重复 -->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.MedicalOrganizationType" resultType="map">
+	select id, name,code, create_date createDate
+	from base_medical_organization_type
+	WHERE code = #{code}
+  </select>
+  
+  <!-- 新增医疗机构类别表 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.MedicalOrganizationType" keyProperty="id" useGeneratedKeys="true">
+    insert into base_medical_organization_type (name,code, create_date
+      )
+    values (#{name},#{code}, #{createDate}
+      )
+  </insert>
+  
+  <!-- 修改医疗机构类别表 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.MedicalOrganizationType">
+    update base_medical_organization_type
+    set id=#{id}
+    <if test="name!=null and name!=''">
+    ,name = #{name}
+    </if>
+     <if test="code!=null and code!=''">
+    ,code = #{code}
+    </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 查询医疗机构类型表详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.MedicalOrganizationType" resultType="map">
+    select id, name,code, create_date createDate
+    from base_medical_organization_type
+    where id = #{id}
+  </select>
+  
+  <!-- 查询医疗机构类型表列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.MedicalOrganizationType" resultType="map">
+    select id, name,code, create_date createDate
+    from base_medical_organization_type
+    <where>
+       <if test="name!=null and name !=''">
+        `name` like    CONCAT(CONCAT('%', #{name}), '%')
+       </if>
+    </where>
+  </select>
+</mapper>

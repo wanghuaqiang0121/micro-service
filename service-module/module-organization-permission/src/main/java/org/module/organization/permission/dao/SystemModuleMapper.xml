@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.SystemModuleMapper">
+
+<!--新增 系统模块 -->
+<insert id="insert" parameterType="org.module.organization.permission.domain.SystemModule" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO base_system_module(`name`,`code`,role,index,logo,create_date,remark) VALUES (#{name},#{code},#{role},#{index},#{logo},#{createDate},#{remark})
+</insert>
+
+<!--修改系统模块  -->
+<update id="update" parameterType="org.module.organization.permission.domain.SystemModule">
+	UPDATE  base_system_module SET id=#{id}
+	<if test="name!=null and name!=''">
+	,`name`=#{name}
+	</if>
+	<if test="code!=null and code!=''">
+	,code=#{code}
+	</if>
+	<if test="role!=null and role!=''">
+	,role=#{role}
+	</if>
+	<if test="index!=null and index!=''">
+	,index=#{index}
+	</if>
+	<if test="logo!=null and logo!=''">
+	,logo=#{logo}
+	</if>
+	<if test="remark!=null">
+	,remark=#{remark}
+	</if>
+  WHERE id=#{id}
+</update>
+<!--查询系统模块数据唯一性  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.SystemModule" resultType="map">
+	SELECT
+		bsm.id,
+		bsm.`code`,
+		bsm.`name`,
+		bsm.role
+	FROM
+		base_system_module bsm
+	WHERE
+		bsm.`code` = #{code}
+</select>
+<!--查询系统模块详情  -->
+<select id="getOne" parameterType="org.module.organization.permission.domain.SystemModule" resultType="map">
+	SELECT
+		bsm.id,
+		bsm.`code`,
+		bsm.`name`,
+		bsm.role,
+		bsm.`index`,
+		bsm.logo,
+		bsm.create_date createDate,
+		bsm.remark
+	FROM
+		base_system_module bsm
+	WHERE
+	    bsm.id=#{id}
+</select>
+<!--查询系统模块列表  -->
+<select id="getList" parameterType="org.module.organization.permission.domain.SystemModule" resultType="map">
+SELECT
+		bsm.id,
+		bsm.`code`,
+		bsm.`name`,
+		bsm.role,
+		bsm.`index`,
+		bsm.logo,
+		bsm.create_date createDate,
+		bsm.remark
+	FROM
+		base_system_module bsm
+		<where>
+		  <if test="name!=null and name!=''">
+		     bsm.`name`  like CONCAT(CONCAT('%', #{name}), '%')
+		  </if>
+		  <if test="code!=null and code!=''">
+		   and  bsm.`code`  like CONCAT(CONCAT('%', #{code}), '%')
+		  </if>
+		</where>
+</select>
+</mapper>

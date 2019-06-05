@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.ReadFilmRechargeRecordMapper">
+
+<insert id="insert" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord" useGeneratedKeys="true" keyProperty="id">
+INSERT INTO base_read_film_recharge_record (organization_id,recharge_money,invoice_number,status,remark,remaining_sum,create_time,lock_money) 
+	VALUES (#{organizationId},#{rechargeMoney},#{invoiceNumber},#{status},#{remark},#{remainingSum},#{createTime},#{lockMoney})
+</insert>
+
+<select id="getOne" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord" resultType="map">
+SELECT
+	brfrr.id,
+	brfrr.organization_id organizationId,
+	brfrr.invoice_number invoiceNumber,
+	brfrr.recharge_money rechargeMoney,
+	brfrr.`status`,
+	brfrr.remark,
+	brfrr.create_time createTime,
+	brfrr.remaining_sum remainingSum,
+	brfrr.lock_money lockMoney,
+	bo.`name` organizationName
+FROM
+	base_read_film_recharge_record brfrr
+LEFT JOIN base_organization bo ON brfrr.organization_id = bo.id
+WHERE brfrr.id=#{id}
+</select>
+
+<select id="getList" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord" resultType="map">
+SELECT
+	brfrr.id,
+	brfrr.organization_id organizationId,
+	brfrr.invoice_number invoiceNumber,
+	brfrr.recharge_money rechargeMoney,
+	brfrr.`status`,
+	brfrr.remark,
+	brfrr.create_time createTime,
+	brfrr.remaining_sum remainingSum,
+	brfrr.lock_money lockMoney,
+	bo.`name` organizationName
+FROM
+	base_read_film_recharge_record brfrr
+LEFT JOIN base_organization bo ON brfrr.organization_id = bo.id
+	<where>
+	   <if test="organizationId!=null">
+	   		brfrr.organization_id=#{organizationId}
+	   </if>
+	   <if test="organizationName!=null and organizationName!=''">
+	   	and bo.`name` like CONCAT(CONCAT('%', #{organizationName}), '%')
+	   </if>
+	</where>
+	ORDER BY brfrr.create_time DESC
+</select>
+
+<select id="getRepeat" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord" resultType="map">
+SELECT
+	brfrr.id,
+	brfrr.organization_id organizationId,
+	brfrr.invoice_number invoiceNumber,
+	brfrr.recharge_money rechargeMoney,
+	brfrr.`status`,
+	brfrr.create_time createTime,
+	brfrr.remark
+FROM
+	base_read_film_recharge_record brfrr
+WHERE invoice_number=#{invoiceNumber}
+</select>
+
+<update id="update" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord">
+update base_read_film_recharge_record SET id=#{id}
+	<if test="status!=null">
+	,status=#{status}
+	</if>
+	<if test="remark!=null and remark!=''">
+	,remark=#{remark}
+	</if>
+	<if test="remainingSum!=null">
+	,remaining_sum=#{remainingSum}
+	</if>
+	<if test="lockMoney!=null">
+	,lock_money=#{lockMoney}
+	</if>
+	  WHERE id = #{id}
+</update>
+
+<select id="getOrganizationList" parameterType="org.module.platform.configuration.domain.ReadFilmRechargeRecord" resultType="map">
+SELECT
+	id,
+	`name`,
+	`code`
+FROM
+	base_organization
+<where>
+   <if test="organizationName!=null and organizationName!=''">
+   `name` like CONCAT(CONCAT('%', #{organizationName}), '%')
+   </if>
+</where>
+</select>
+</mapper>

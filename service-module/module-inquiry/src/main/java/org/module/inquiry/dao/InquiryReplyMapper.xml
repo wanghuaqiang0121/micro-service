@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.inquiry.dao.InquiryReplyMapper">
+  
+  <delete id="delete" parameterType="org.module.inquiry.domain.InquiryReply">
+    DELETE FROM base_inquiry_reply
+    WHERE id = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.inquiry.domain.InquiryReply">
+    INSERT INTO base_inquiry_reply (id, inquiry_id, type, 
+      content, create_date)
+    VALUES (#{id}, #{inquiryId}, #{type}, 
+      #{content}, #{createDate})
+  </insert>
+  
+  <update id="update" parameterType="org.module.inquiry.domain.InquiryReply">
+    UPDATE base_inquiry_reply
+    SET inquiry_id = #{inquiryId},
+      type = #{type},
+      content = #{content},
+      create_date = #{createDate}
+    WHERE id = #{id}
+  </update>
+  
+  <select id="getOne" parameterType="org.module.inquiry.domain.InquiryReply" resultType="map">
+    SELECT 
+    	id, 
+    	inquiry_id inquiryId, 
+    	type, content, 
+    	create_date createDate
+    FROM base_inquiry_reply
+    WHERE id = #{id}
+  </select>
+  
+  <select id="getInquiriesNum" parameterType="org.module.inquiry.domain.InquiryReply" resultType="map">
+    SELECT 
+    	#{inquiriesNum}-COUNT(bir.id) inquiriesNum
+    FROM base_inquiry_reply bir
+    WHERE bir.inquiry_id = #{inquiryId} 
+    	AND bir.type = #{type}
+  </select>
+  
+  <select id="getList" parameterType="org.module.inquiry.domain.InquiryReply" resultType="map">
+    SELECT 
+    	id, 
+    	inquiry_id inquiryId, 
+    	type, content, 
+    	create_date createDate
+    FROM base_inquiry_reply
+  </select>
+</mapper>

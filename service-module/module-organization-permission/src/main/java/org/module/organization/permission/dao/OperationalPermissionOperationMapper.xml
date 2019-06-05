@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.OperationalPermissionOperationMapper">
+
+<!--查询权限操作关联表数据重复  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.OperationalPermissionOperation" resultType="map">
+	SELECT 
+		id
+	FROM base_operational_permission_operation 
+	WHERE operational_permission_id = #{operationalPermissionId} 
+		AND operational_operation_id = #{operationalOperationId}
+</select>
+
+<!--新增权限操作关联表  -->
+<insert id="insert"  parameterType="org.module.organization.permission.domain.OperationalPermissionOperation" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_operational_permission_operation(operational_permission_id,operational_operation_id) VALUES (#{operationalPermissionId},#{operationalOperationId})
+</insert>
+
+<!--删除权限操作关联表  -->
+<delete id="delete" parameterType="org.module.organization.permission.domain.OperationalPermissionOperation">
+DELETE FROM base_operational_permission_operation WHERE operational_permission_id=#{operationalPermissionId} AND operational_operation_id=#{operationalOperationId}
+</delete>
+
+<!--查询该权限拥有和未拥有的操作  -->
+<select id="getPermissionOperationIsChoose" parameterType="org.module.organization.permission.domain.OperationalPermissionOperation" resultType="map">
+	SELECT
+		boo.id,
+		boo.`code`,
+		boo.`name`,
+		boo.remark,
+		boo.is_used isUsed,
+	IF (
+		bopo.operational_operation_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_operational_permission_operation bopo
+	RIGHT JOIN base_operational_operation boo ON boo.id = bopo.operational_operation_id
+	AND bopo.operational_permission_id = #{operationalPermissionId}
+	LEFT JOIN base_operational_permission boper ON boper.id = bopo.operational_permission_id
+	WHERE boo.is_used = 1
+	   	<if test="name!=null and name!=''">
+		   and boo.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+	   	<if test="code!=null and code!=''">
+		    and boo.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+</select> 
+ </mapper>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.OrganizationTeamMapper">
+
+
+	<resultMap type="map" id="baseDoctorMap">
+		<result column="id" property="id" />
+		<collection property="doctors" column="id" javaType="list" select="getBaseDoctorList" />
+	</resultMap>
+
+	<!--查询机构团队详情 -->
+	<select id="getOne" parameterType="org.module.organization.team.domain.OrganizationTeam" resultMap="baseDoctorMap">
+		SELECT
+			bot.id,
+			bot.organization_id organizationId,
+			bot.organization_site_id organizationSiteId,
+			bot.`name`,
+			bot.logo,
+			bot.picture,
+			bot.`status`,
+			bot.create_date createDate,
+			bot.remark,
+			bot.experties,
+			bot.protocol,
+			bot.phone,
+			bo.`name` organizationName,
+			bo.`code`,
+			bo.logo organizationLogo,
+			bo.phone organizationPhone,
+			bo.picture organizationPicture,
+			bo.province,
+			bo.city,
+			bo.area,
+			bo.street,
+			bo.community,
+			bo.address,
+			(SELECT COUNT(DISTINCT bus.user_id) FROM base_user_sign bus WHERE bus.organization_team_id=bot.id and bus.`status`=1 ) userNumber,
+			bo.lat,
+			bo.lng
+		FROM
+			base_organization_team bot
+			LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+			LEFT JOIN base_organization_site bos ON bot.organization_site_id = bos.id
+		WHERE bot.id=#{id}
+	</select>
+
+	<!-- 获取该团队下的医生成员信息 -->
+	<select id="getBaseDoctorList" parameterType="int" resultType="map">
+	SELECT
+		bou.id,
+		bou.`name`,
+		bou.sex,
+		bou.birthday,
+		bou.phone,
+		bou.photo,
+		bou.account,
+		bout.is_manager isManager,
+		bout.duty,
+		bout.position,
+		bdi.grade,
+		bdi.post,
+		bdi.remark,
+		bdl.`name` doctorLevelName,
+		bdc.`name` doctorCategoryName,
+		bdi.certification,
+		(
+			SELECT
+				group_concat(bds.`name`)
+			FROM
+				base_doctor_doctor_skill bdds
+			LEFT JOIN base_doctor_skill bds ON bds.id = bdds.doctor_skill_id
+			WHERE
+				bdds.doctor_info_id = bdi.id
+		) skill
+	FROM
+		base_organization_user_team bout
+	LEFT JOIN base_organization_user bou ON bout.organization_user_id = bou.id
+	LEFT JOIN base_doctor_info bdi ON bou.id = bdi.organization_user_id
+	LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+	LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id
+	WHERE
+		bout.organization_team_id = #{id}
+		GROUP BY bou.id
+	</select>
+
+
+	<resultMap type="map" id="baseServicePackageMap">
+		<result column="id" property="id" />
+		<collection property="servicePackages" column="id"
+			javaType="list" select="getBaseServicePackageList" />
+	</resultMap>
+	<!-- 查询机构团队列表 -->
+	<select id="getList" parameterType="org.module.organization.team.domain.OrganizationTeam" resultMap="baseServicePackageMap">
+		SELECT
+			bot.id,
+			bot.organization_id organizationId,
+			bot.organization_site_id organizationSiteId,
+			bot.`name`,
+			bot.logo,
+			bot.picture,
+			bot.`status`,
+			bot.create_date createDate,
+			bot.remark,
+			bot.experties,
+			bot.protocol,
+			bo.`name` organizationName,
+			bo.`code`,
+			bo.logo organizationLogo,
+			bo.phone,
+			bo.picture organizationPicture,
+			(SELECT COUNT(DISTINCT bus.user_id) FROM base_user_sign bus WHERE
+			bus.organization_team_id=bot.id and bus.`status`=1) userNumber,
+			(SELECT COUNT(bout.organization_user_id) FROM base_organization_user_team bout WHERE bout.organization_team_id = bot.id)  doctorNumber,
+			bou.`name` teamLeader,
+			bo.province,
+			bo.city,
+			bo.area,
+			bo.street,
+			bo.community,
+			bo.address,
+			bo.lng,
+			bo.lat,
+			fn_print_distance(#{organization.lng},#{organization.lat},bo.lng,bo.lat) distance
+		FROM
+			base_organization_team bot
+			LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+			LEFT JOIN base_organization_user_team bout ON bout.organization_team_id = bot.id
+			LEFT JOIN base_organization_user_team manage ON manage.organization_team_id = bot.id AND manage.is_manager = TRUE
+			LEFT JOIN base_organization_user bou ON bou.id = manage.organization_user_id
+		<where>
+			<if test="name!=null and name!=''">
+				bot.name like CONCAT(CONCAT('%', #{name}), '%')
+			</if>
+			<if test="organizationId!=null">
+				and bot.organization_id=#{organizationId}
+			</if>
+			<if test="organizationSiteId!=null">
+				and bot.organization_site_id=#{organizationSiteId}
+			</if>
+			<if test="status!=null">
+				and bot.status=#{status}  
+			</if>
+			<if test="code !=null and code !='' ">
+				and bo.`code`=#{code}
+			</if>
+			<if test="province !=null and province!=''">
+				and bo.province=#{province}
+			</if>
+			<if test="city !=null and city!=''">
+				and bo.city=#{city}
+			</if>
+			<if test="area !=null and area!=''">
+				and bo.area=#{area}
+			</if>
+			<if test="organization!=null and organization.lng!=null and organization.lat!=null">
+				<if test="organization.rectangle !=null">
+					and (
+						(bo.lng BETWEEN #{organization.rectangle.minX} and
+						#{organization.rectangle.maxX}) or (bo.lat BETWEEN
+						#{organization.rectangle.minY} and
+						#{organization.rectangle.maxY})
+					)
+				</if>
+			</if>
+		</where>
+		GROUP BY bot.id
+		<if test="organization!=null">
+			<choose>
+				<when test="organization.maxRaidus !=null and organization.minRaidus !=null ">
+					HAVING distance &lt;= #{organization.maxRaidus} and distance &gt;=
+					#{organization.minRaidus}
+				</when>
+				<otherwise>
+					<if test="organization.maxRaidus !=null">
+						HAVING distance &lt;= #{organization.maxRaidus}
+					</if>
+					<if test="organization.minRaidus !=null">
+						HAVING distance &gt;= #{organization.minRaidus}
+					</if>
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY distance
+	</select>
+
+	<!-- 团队服务包列表 -->
+	<select id="getBaseServicePackageList" parameterType="int" resultType="map">
+		SELECT
+			btosp.id,
+			btosp.doctor_team_id doctorTeamId,
+			btosp.organization_service_package_id organizationServicePackageId,
+			btosp.remark,
+			bosp.acquisitive,
+			bosp.cover,
+			bosp.`name`,
+			bosp.original_price originalPrice,
+			btosp.price,
+			(
+				SELECT 
+					COUNT(uspo.id) 
+				FROM 
+					base_user_service_package_order uspo 
+				WHERE
+					uspo.organization_service_package_id=bosp.id
+			) userNumber
+		FROM
+			base_team_organization_service_package btosp
+			LEFT JOIN base_organization_service_package bosp ON btosp.organization_service_package_id = bosp.id
+		WHERE
+		    btosp.doctor_team_id =#{id}
+	</select>
+
+</mapper>

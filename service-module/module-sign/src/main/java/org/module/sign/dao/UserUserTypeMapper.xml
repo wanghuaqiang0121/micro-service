@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.sign.dao.UserUserTypeMapper">
+
+<delete id="delete" parameterType="org.module.sign.domain.UserUserType">
+    DELETE FROM base_user_user_type WHERE user_id=#{userId}
+</delete>
+
+
+<insert id="batchInsert" parameterType="list" >
+INSERT INTO base_user_user_type(
+	user_id,
+	user_type_id
+) 
+VALUES 
+<foreach collection="list" item="userUserType" separator=",">
+(
+	#{userUserType.userId},
+	#{userUserType.userTypeId}
+)
+</foreach>
+</insert>
+</mapper>

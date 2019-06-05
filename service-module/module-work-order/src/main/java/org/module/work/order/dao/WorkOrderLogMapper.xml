@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.work.order.dao.WorkOrderLogMapper">
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from base_work_order_log
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <!-- 添加工单日志 -->
+  <insert id="insert" parameterType="org.module.work.order.domain.WorkOrderLog">
+    INSERT INTO base_work_order_log 
+    	( log_type, launch_type, operation_user_id, 
+    	work_order_id, status, record, create_date)
+    VALUES 
+    	( #{logType}, #{launchType}, #{operationUserId}, 
+      #{workOrderId}, #{status}, #{record}, #{createDate})
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="org.module.work.order.domain.WorkOrderLog">
+    update base_work_order_log
+    set type = #{type,jdbcType=INTEGER},
+      work_order_id = #{workOrderId,jdbcType=INTEGER},
+      organization_user_id = #{organizationUserId,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      record = #{record,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  
+</mapper>

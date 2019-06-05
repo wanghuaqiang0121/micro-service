@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationUserRoleMapper">
+ <!-- 删除机构用户角色 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationUserRole">
+    delete from base_organization_user_role
+    where id = #{id}
+  </delete>
+  <!--新增机构用户角色  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationUserRole" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_user_role 
+    	( organization_user_id, organization_role_id, `status`)
+    values 
+    	( #{organizationUserId}, #{organizationRoleId}, #{status})
+  </insert>
+  <!--修改机构用户角色  -->
+  <update id="update" parameterType="org.module.organization.configure.domain.OrganizationUserRole">
+  	update base_organization_user_role set id = #{id}
+  	<if test="organizationUserId != null">
+  		,organization_user_id = #{organizationUserId}
+  	</if>
+  	<if test="organizationRoleId != null">
+  		,organization_role_id = #{organizationRoleId}
+  	</if>
+  	<if test="status != null">
+  		,status = #{status}
+  	</if>
+  	 where id = #{id}
+  </update>
+  
+  <!--查询机构用户角色重复数据  -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationUserRole"  resultType="map">
+	SELECT
+		id,
+		organization_user_id organizationUserId,
+		organization_role_id organizationRoleId,
+		`status`
+	FROM
+		base_organization_user_role
+	WHERE
+		organization_user_id = #{organizationUserId} and organization_role_id = #{organizationRoleId}  
+  </select>
+  <!--查询机构用户角色详情  -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.OrganizationUserRole"  resultType="map">
+	SELECT
+		id,
+		organization_user_id organizationUserId,
+		organization_role_id organizationRoleId,
+		`status`
+	FROM
+		base_organization_user_role
+	WHERE
+		id = #{id}  
+  </select>
+  
+  <!--查询机构用户角色列表  -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationUserRole"  resultType="map">
+		SELECT
+			bour.id organizationUserRoleId,
+			bour.organization_user_id organizationUserId,
+			bour.organization_role_id organizationRoleId,
+			bour.`status`,
+			bou.`name` organizationUserName,
+			boRole.id operationalRoleId,
+			boRole.`name` operationalRoleName,
+			boRole.is_used operationalRoleIsUsed
+		FROM
+			base_organization_user_role bour
+		LEFT JOIN base_organization_user bou ON bou.id = bour.organization_user_id
+		LEFT JOIN base_organization_role bor ON bor.id = bour.organization_role_id
+		LEFT JOIN base_operational_role boRole ON boRole.id = bor.operational_role_id 
+		
+		WHERE bour.`status` = 0 AND boRole.is_used = TRUE AND bor.`status` = 0
+			<if test="organizationUserId != null">
+	  			and bour.organization_user_id = #{organizationUserId}
+		  	</if>
+		  	<if test="organizationRoleId != null">
+		  		and	bour.organization_role_id = #{organizationRoleId}
+		  	</if>
+		  	<if test="operationalRoleName !=null and operationalRoleName !=''">
+				and boRole.`name` like CONCAT(CONCAT('%', #{operationalRoleName}), '%')
+			</if>
+		  	
+  </select>
+  <!--查询机构用户角色拥有和未拥有的角色  -->
+  <select id="getHaveAndNotHave" parameterType="org.module.organization.configure.domain.OrganizationUserRole"  resultType="map">
+		SELECT
+			bor.id organizationRoleId,
+			bor.organization_id organizationId,
+			bor.system_module_id systemModuleId,
+			bour.id organizationUserRoleId,
+			bour.organization_user_id organizationUserId,
+			boRole.id operationalRoleId,
+			boRole.`code` operationalRoleCode,
+			boRole.`name` operationalRoleName,
+			boRole.remark,
+			boRole.create_date createDate,
+			IF(
+			bour.id IS NULL,
+			FALSE,
+			TRUE
+			)isChoose
+			FROM
+			base_organization_role bor
+		LEFT JOIN base_organization_user_role bour ON bour.organization_role_id = bor.id AND bour.`status` = 0 AND bour.organization_user_id = #{organizationUserId}
+		LEFT JOIN base_operational_role boRole ON boRole.id = bor.operational_role_id 
+		WHERE bor.organization_id = #{organizationId} AND bor.system_module_id = #{moduleId} AND bor.`status` = 0 AND boRole.is_used =TRUE
+  </select>
+</mapper>

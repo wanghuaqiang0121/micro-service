@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.order.UserServiceMapper">
+  
+  <!-- 批量新增服务 -->
+  <insert id="insertByList" parameterType="list" >
+  	insert into base_user_service (name,user_id, user_service_package_order_id, service_type_id, times, lock_times, use_times,create_time,update_time) values
+  	<foreach collection="list"  separator="," item="userService">
+  	(#{userService.name},#{userService.userId}, #{userService.userServicePackageOrderId}, #{userService.serviceTypeId}, #{userService.times}, #{userService.lockTimes}, #{userService.useTimes},#{userService.createTime},#{userService.updateTime})
+	</foreach>
+  </insert>
+  
+  <!-- 用户服务列表 -->
+  <select id="getList" parameterType="org.module.user.domain.order.UserService" resultType="map">
+  	SELECT
+		bus.id,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bst.`name` serviceTypeName,
+		bus.times - bus.lock_times - bus.use_times availableTimes,
+		buspo.expire_date expireDate,
+		bot.`name` doctorTeamName
+	FROM
+		base_user_service bus
+	INNER JOIN base_service_type bst ON bst.id = bus.service_type_id 
+	<if test="serviceTypeCode!=null and serviceTypeCode!=''">
+		AND bst.code = #{serviceTypeCode}
+	</if>
+	LEFT JOIN base_user_service_package_order buspo ON buspo.id = bus.user_service_package_order_id
+	LEFT JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+	WHERE
+		bus.user_id = #{userId}
+  </select>
+	
+	
+  <resultMap type="map" id="appointmentServices">
+  	<result column="id" property="id"/>
+  	<collection property="packages" column="{id=id,userId=userId,businessCode=businessCode}" javaType="list" select="getPackages"></collection>
+  </resultMap>
+  <!-- 用户预约服务列表  -->
+  <select id="getAppointmentServiceList" parameterType="org.module.user.domain.order.UserService" resultMap="appointmentServices">
+	SELECT
+		bst.id,
+		bus.user_id userId,
+		bst.id serviceTypeId,
+		but.code businessCode,
+		bst.`name` serviceTypeName
+	FROM
+		base_user_service bus
+	INNER JOIN base_service_type bst ON bst.id = bus.service_type_id
+	INNER JOIN base_business_type but ON but.id = bst.business_type_id AND but.code = #{businessCode}
+	INNER JOIN base_user_service_package_order buspo ON buspo.id = bus.user_service_package_order_id AND buspo.expire_date &gt; NOW()
+  	INNER JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+	INNER JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+	WHERE
+		bus.user_id = #{userId}
+	GROUP BY bst.id
+  </select>
+  <!-- 用户预约服务包列表  -->
+  <select id="getPackages" parameterType="java.util.Map" resultType="map">
+	SELECT
+		bus.id userServiceId,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bst.id serviceTypeId,
+		bus.`name` serviceTypeName,
+		bus.times - bus.lock_times - bus.use_times availableTimes,
+		buspo.expire_date expireDate,
+		bot.id organizationTeamId,
+		bot.`name` organizationTeamName,
+		bosp.id organizationServicePackageId,
+		bo.id organizationId,
+		bo.`name` organizationName,
+		bosp.`name` organizationServicePackageName
+	FROM base_user_service bus
+	INNER JOIN base_service_type bst ON bst.id = bus.service_type_id
+	INNER JOIN base_business_type but ON but.id = bst.business_type_id AND but.code = #{businessCode}
+	INNER JOIN base_user_service_package_order buspo ON buspo.id = bus.user_service_package_order_id AND buspo.expire_date &gt; NOW() AND buspo.status = 2
+	INNER JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+	INNER JOIN base_organization bo ON bo.id = bosp.organization_id AND bo.`status` = 0
+	INNER JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+	WHERE
+		bus.user_id = #{userId}
+		AND bst.id = #{id}
+	GROUP BY buspo.id
+	ORDER BY buspo.id DESC
+  </select>
+  
+  <!-- 根据服务类型id查询服务列表  -->
+  <select id="getServicesByServiceTypeId" parameterType="org.module.user.domain.order.UserService" resultType="map">
+	SELECT
+		bs.id,
+		bs.service_type_id serviceTypeId,
+		bs.name,
+		bs.code,
+		bs.index,
+		bs.create_date createDate,
+		bs.remark
+	FROM
+		base_service bs
+	WHERE
+		bs.service_type_id = #{serviceTypeId}
+  </select>
+</mapper>

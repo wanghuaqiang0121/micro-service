@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.order.OrganizationPackageServiceMapper">
+  
+  <!-- 查询服务包内的服务列表-->
+  <select id="getList" parameterType="org.module.user.domain.order.OrganizationPackageService" resultType="map">
+	SELECT
+		bops.id,
+		bops.organization_service_package_id organizationServicePackageId,
+		bops.service_type_id serviceTypeId,
+		bops.price,
+		bops.`name`,
+		bosp.original_price originalPrice,
+		bops.times,
+		bosp.`name` organizationServicePackageName,
+		bosp.service_package_type_id servicePackageTypeId,
+		bst.`name` serviceTypeName,
+		bst.`explain`,
+		bst.`status`
+	FROM
+		base_organization_package_service bops
+	LEFT JOIN base_organization_service_package bosp ON bosp.id = bops.organization_service_package_id
+	LEFT JOIN base_service_type bst ON bst.id = bops.service_type_id
+	<where>
+		<if test="organizationServicePackageId !=null ">
+			bops.organization_service_package_id=#{organizationServicePackageId}
+		</if>
+		<if test="serviceTypeId !=null ">
+			and bops.service_type_id=#{serviceTypeId}
+		</if>
+	</where>
+  </select>
+</mapper>

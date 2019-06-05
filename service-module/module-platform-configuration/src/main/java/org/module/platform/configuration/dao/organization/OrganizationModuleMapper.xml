@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.OrganizationModuleMapper">
+
+<!--新增机构和模块关联  -->
+<insert id="insert" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" useGeneratedKeys="true" keyProperty="id">
+	insert into base_organization_module (organization_id,system_module_id,`status`) values (#{organizationId},#{systemModuleId},#{status})
+</insert>
+
+<select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" resultType="map">
+	SELECT
+		id,
+		organization_id organizationId,
+		system_module_id systemModuleId,
+		`status`
+	FROM
+		base_organization_module
+	WHERE
+		organization_id = #{organizationId}
+	AND system_module_id = #{systemModuleId}
+</select>
+
+<!--查询机构模块列表  -->
+<select id="getList" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" resultType="map">
+	SELECT
+		bom.system_module_id systemModuleId,
+		bom.organization_id organizationId,
+		bsm.`code`,
+		bsm.`index`,
+		bsm.logo,
+		bsm.`name`,
+		bsm.remark,
+		bsm.role,
+		bo.`name` organizationName 
+	FROM
+		base_organization_module bom
+	LEFT JOIN base_organization bo ON bom.organization_id = bo.id
+	LEFT JOIN base_system_module bsm ON bom.system_module_id = bsm.id
+	WHERE
+		bom.`status` = 0
+		<if test="organizationId!=null">
+		AND  bom.organization_id =#{organizationId}
+		</if>
+		<if test="systemModuleId!=null">
+		AND bom.system_module_id =#{systemModuleId}
+		</if>
+</select>
+
+<!-- 机构和模块关联详情 -->
+<select id="getOne" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" resultType="map">
+	SELECT
+		bom.system_module_id systemModuleId,
+		bom.organization_id organizationId
+	FROM
+		base_organization_module bom
+	WHERE
+	 bom.id = #{id}
+</select>
+
+<!-- 查询机构关联和未关联的模块列表 -->
+<select id="queryOrganizationModuleIsChoose" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" resultType="map">
+	SELECT
+		bsm.id,
+		bsm.`code`,
+		bsm.`index`,
+		bsm.logo,
+		bsm.`name`,
+		bsm.remark,
+		bsm.role,
+		bom.id organizationModuleId,
+	IF (
+		bom.system_module_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_organization_module bom
+	RIGHT JOIN base_system_module bsm ON bsm.id = bom.system_module_id
+	AND bom.organization_id = #{organizationId} AND bom.`status`=0
+</select>
+
+
+<!-- 删除机构和模块关联  逻辑删除 -->
+<update id="update" parameterType="org.module.platform.configuration.domain.organization.OrganizationModule" >
+	update base_organization_module set `status`=#{status}  where id=#{id}
+</update>
+
+</mapper>

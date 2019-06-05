@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.DoctorOrganizationDepartmentDutyMapper">
+
+
+<!-- 新增医生机构部门关联表  -->
+<insert id="insert" parameterType="org.module.platform.configuration.domain.organization.DoctorOrganizationDepartmentDuty" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_doctor_organization_department_duty(status,organization_user_id,department_id,organization_id,post,remark,is_manager,authorize_aptitude,is_local,work_number) 
+VALUES (#{status},#{organizationUserId},#{departmentId},#{organizationId},#{post},#{remark},#{isManager},#{authorizeAptitude},#{isLocal},#{workNumber})
+</insert>
+ 
+<!-- 查询是否重复 -->
+<select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.DoctorOrganizationDepartmentDuty" resultType="map">
+	SELECT 
+		id,
+		organization_user_id organizationUserId,
+		department_id departmentId,
+		organization_id organizationId,
+		post,
+		is_manager isManager,
+		authorize_aptitude authorizeAptitude,
+		remark
+	FROM base_doctor_organization_department_duty
+	<where>
+		<if test="organizationUserId != null">
+			organization_user_id = #{organizationUserId}
+		</if>
+		<if test="organizationId != null">
+			AND organization_id = #{organizationId}
+		</if>
+		<if test="isManager != null">
+			AND is_manager = #{isManager}
+		</if>
+	</where>
+</select>
+
+<!-- 修改 -->
+<update id="update">
+	UPDATE base_doctor_organization_department_duty
+	<set>
+		<if test="authorizeAptitude!=null and authorizeAptitude!=''">
+			authorize_aptitude = #{authorizeAptitude}
+		</if>
+		<if test="workNumber!=null and workNumber!=''">
+			, work_number = #{workNumber}
+		</if>
+	</set>
+	<where>
+		<if test="organizationUserId != null">
+			organization_user_id = #{organizationUserId}
+		</if>
+		<if test="organizationId != null">
+			AND organization_id = #{organizationId}
+		</if>
+		<if test="isManager != null">
+			AND is_manager = #{isManager}
+		</if>		
+	</where>
+</update>
+
+<!-- 管理员详情 -->
+<select id="getOne" parameterType="org.module.platform.configuration.domain.organization.DoctorOrganizationDepartmentDuty" resultType="map">
+ SELECT
+	bdodd.id,
+	bdodd.organization_user_id organizationUserId,
+	bdodd.department_id departmentId,
+	bdodd.organization_id organizationId,
+	bdodd.post,
+	bdodd.work_number workNumber,
+	bdodd.is_manager isManager,
+	bdodd.authorize_aptitude authorizeAptitude,
+	bou.`name`,
+	bou.certificate_number certificateNumber,
+	bou.certificate_type_name certificateTypeName,
+	bou.certificate_type certificateType,
+	bou.positive,
+	bou.opposite,
+	bou.sex,
+	bou.birthday,
+	bou.phone,
+	bou.`status`,
+	bou.photo,
+	bou.account,
+	bou.create_date createDate,
+	bou.remark,
+	bou.organization_person_type_id organizationPersonTypeId,
+	bopt.`name` organizationPersonTypeName
+FROM
+	base_doctor_organization_department_duty bdodd
+INNER JOIN base_organization_user bou ON bdodd.organization_user_id = bou.id
+LEFT JOIN base_organization_person_type bopt ON bou.organization_person_type_id = bopt.id
+WHERE bdodd.organization_user_id=#{organizationUserId} and bdodd.is_manager=TRUE 
+</select>
+</mapper>

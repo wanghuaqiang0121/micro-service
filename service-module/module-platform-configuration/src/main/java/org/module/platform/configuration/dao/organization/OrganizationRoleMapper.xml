@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.OrganizationRoleMapper">
+  
+	<!-- 新增机构和角色关联 -->
+	<insert id="insert" parameterType="org.module.platform.configuration.domain.organization.OrganizationRole" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_organization_role 
+			( organization_id,system_module_id, operational_role_id, status)
+		VALUES 
+			( #{organizationId},#{systemModuleId}, #{operationalRoleId}, #{status})
+	</insert>
+  
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.ModuleOperationalRole" resultType="map">
+		SELECT
+		id,
+		organization_id organizationId,
+		system_module_id systemModuleId,
+		operational_role_id operationalRoleId,
+		`status`
+		FROM
+		base_organization_role
+		WHERE organization_id = #{organizationId} AND system_module_id =#{systemModuleId} AND operational_role_id =#{operationalRoleId}
+  </select>
+  	<!-- 查询机构在该模块下拥有和未拥有的角色列表 -->
+ 	<select id="moduleOperationalRoleList" parameterType="org.module.platform.configuration.domain.organization.ModuleOperationalRole" resultType="map">
+		SELECT 
+			bor.id,
+			bogr.id organizationRoleId,
+			bor.`code`,
+			bor.is_used AS isUsed,
+			bor.create_date AS createDate,
+			bor.remark,
+			IF(
+				bogr.`status` is FALSE,
+				TRUE,
+				FALSE
+			) isChoose,
+			bor.`name` 
+		FROM base_module_operational_role bmor
+		INNER JOIN base_operational_role bor on bor.id =bmor.operational_role_id  AND bor.is_used = TRUE  
+		LEFT JOIN base_organization_role bogr on bogr.operational_role_id=bor.id 
+			AND bogr.system_module_id=bmor.system_module_id AND bogr.organization_id = #{organizationId} <!--and  bogr.`status` = 0 -->
+		WHERE bmor.system_module_id = #{systemModuleId}
+		<if test="roleName!=null and roleName!=''">
+			AND  bor.`name`  like CONCAT(CONCAT('%', #{roleName}), '%')
+		</if>
+		<if test="code!=null and code!=''">
+			AND  bor.`code`  like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+ 	</select>
+ 	
+ 	<!-- 查询机构和权限关联列表 -->
+ 	<select id="getList" parameterType="org.module.platform.configuration.domain.organization.OrganizationRole" resultType="map">
+ 		SELECT 
+ 			bopr.id,
+ 			bopr.name,
+ 			bopr.code,
+ 			bopr.is_used AS isUsed,
+ 			bopr.create_date AS createDate,
+ 			bopr.remark,
+ 			borr.id AS organizationRoleId
+ 		FROM base_organization_role borr
+ 		INNER JOIN base_operational_role bopr ON borr.operational_role_id = bopr.id
+ 		WHERE borr.system_module_id = #{systemModuleId} AND borr.organization_id = #{organizationId} AND borr.status = 0
+ 	</select>
+ 	
+ 	<!-- 删除机构和权限关联表 -->
+ 	<update id="update" parameterType="org.module.platform.configuration.domain.organization.OrganizationRole">
+ 		UPDATE base_organization_role SET status = #{status} WHERE id = #{id}
+ 	</update>
+ 	
+ 	<delete id="batchDelete" parameterType="org.module.platform.configuration.domain.organization.OrganizationRole">
+ 		DELETE FROM base_organization_role WHERE organization_id = #{organizationId} AND system_module_id = #{systemModuleId}
+ 	</delete>
+ 	
+ 	<!-- 批量添加 -->
+ 	<insert id="batchInsert" parameterType="list">
+ 		INSERT INTO base_organization_role 
+			( organization_id,system_module_id, operational_role_id, status)
+		VALUES 
+		<foreach collection="list" item="item" separator=",">
+		( #{item.organizationId},#{item.systemModuleId}, #{item.operationalRoleId}, #{item.status})
+		</foreach>
+ 	</insert>
+</mapper>

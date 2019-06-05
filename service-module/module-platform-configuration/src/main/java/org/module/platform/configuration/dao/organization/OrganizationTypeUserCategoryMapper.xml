@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.OrganizationTypeUserCategoryMapper">
+	
+	<!-- 获取机构类型用户类型关联列表 -->
+	<select id="getList" parameterType="org.module.platform.configuration.domain.organization.OrganizationTypeUserCategory" resultType="map">
+		SELECT
+			botuc.id,
+			bot.id AS organizationTypeId,
+			bot.name AS organizationTypeName,
+			bot.is_referral AS isReferral,
+			bot.create_date AS organizationTypeCreateDate,
+			bopt.id AS personTypeId,
+			bopt.name AS personTypeName,
+			bopt.code AS personTypeCode,
+			bopt.interface_url AS interfaceUrl,
+			bopt.create_date AS personTypeCreateDate
+		FROM base_organization_type_user_category botuc
+		INNER JOIN base_organization_type bot ON bot.id = botuc.organization_type_id
+		INNER JOIN base_organization_person_type bopt ON bopt.id = botuc.organization_person_type_id
+		<where>
+			<if test="organizationTypeId !=null">
+				botuc.organization_type_id = #{organizationTypeId}
+			</if>
+			<if test="organizationPersonTypeId !=null">
+				AND botuc.organization_person_type_id = #{organizationPersonTypeId}
+			</if>
+		</where>
+	</select>
+	
+	
+	<select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.OrganizationTypeUserCategory" resultType="map">
+		SELECT 
+			id, 
+			organization_type_id AS organizationTypeId,
+			organization_person_type_id AS organizationPersonTypeId
+		FROM base_organization_type_user_category
+		WHERE organization_type_id = #{organizationTypeId} AND organization_person_type_id = #{organizationPersonTypeId}
+	</select>
+	
+	<!--新增机构类型用户类型关联-->
+	<insert id="insert" parameterType="org.module.platform.configuration.domain.organization.OrganizationTypeUserCategory" keyProperty="id" useGeneratedKeys="true">
+		INSERT INTO base_organization_type_user_category(
+			organization_type_id,organization_person_type_id
+		)VALUES(
+			#{organizationTypeId}, #{organizationPersonTypeId})
+	</insert>
+	
+	<!-- 删除机构类型用户类型关联 -->
+	<delete id="delete" parameterType="org.module.platform.configuration.domain.organization.OrganizationTypeUserCategory">
+		DELETE FROM base_organization_type_user_category WHERE id = #{id}
+	</delete>
+</mapper>

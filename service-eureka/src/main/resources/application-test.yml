@@ -1,0 +1,20 @@
+server:
+  port: 1100
+spring:
+  application:
+    name: service-eureka
+eureka:
+  instance:
+    hostname: localhost
+    health-check-url-path: /actuator/health
+    home-page-url-path: /actuator
+    status-page-url-path: /actuator/info
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}:${spring.application.name}
+  client:
+    healthcheck:
+      enabled: true
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/

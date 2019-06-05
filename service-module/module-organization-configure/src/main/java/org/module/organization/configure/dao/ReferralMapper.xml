@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.ReferralMapper">
+ 
+ <!--修改转诊  -->
+  <update id="update" parameterType="org.module.organization.configure.domain.Referral">
+    update base_referral
+      set id = #{id}
+      <if test="departmentId != null">
+      		,department_id = #{departmentId}
+      </if>
+      <if test="organizationTeamId != null">
+      		,organization_team_id = #{organizationTeamId}
+      </if>
+      <if test="organizationUserId != null">
+      		,organization_user_id = #{organizationUserId}
+      </if>
+      <if test="number != null and number != ''">
+      		,number = #{number}
+      </if>
+      <if test="diagnosis != null and diagnosis != ''">
+      		,diagnosis = #{diagnosis}
+      </if>
+      <if test="reason != null and reason != ''">
+      		,reason = #{reason}
+      </if>
+      <if test="objective != null and objective != ''">
+      		,objective = #{objective}
+      </if>
+      <if test="picture != null and picture != ''">
+      		,picture = #{picture}
+      </if>
+      <if test="evaluateStar != null and evaluateStar != ''">
+      		,evaluate_star = #{evaluateStar}
+      </if>
+      <if test="status != null">
+      		,status = #{status}
+      </if>
+      <if test="chiefComplaint != null and chiefComplaint != ''">
+      		,chief_complaint = #{chiefComplaint}
+      </if>
+      <if test="adviceBefore != null and adviceBefore != ''">
+      		,advice_before = #{adviceBefore}
+      </if>
+      <if test="adviceAfter != null and adviceAfter != ''">
+      		,advice_after = #{adviceAfter}
+      </if>
+      <if test="evaluateText != null and evaluateText != ''">
+      		,evaluate_text = #{evaluateText}
+      </if>
+    	where id = #{id}
+  </update>
+  <!-- 查询分诊到我机构的转诊单 -->
+  <select id="getReferralByOrganizationId" parameterType="org.module.organization.configure.domain.Referral" resultType="map">
+			SELECT
+				br.id,
+				br.work_order_id workOrderId,
+				br.user_id userId,
+				br.launch_organization_team_id launchOrganizationTeamId,
+				br.launch_organization_user_id launchOrganizationUserId,
+				br.organization_id organizationId,
+				br.department_id departmentId,
+				br.organization_team_id organizationTeamId,
+				br.organization_user_id organizationUserId,
+				ou.`name` OrganizationUserName,
+				br.number,
+				br.reason,
+				br.`status` `status`,
+				br.create_date createDate,
+				bu.`name` userName,
+				bu.phone userPhone,
+				bot.`name` organizationTeamName,
+				bot.phone organizationTeamPhone,
+				bou.`name` launchOrganizationUserName,
+				bou.phone launchOrganizationUserPhone
+			FROM
+				base_referral br
+			LEFT JOIN base_user bu ON bu.id = br.user_id
+			LEFT JOIN base_organization_team bot ON bot.id = br.launch_organization_team_id
+			LEFT JOIN base_organization_user bou ON bou.id = br.launch_organization_user_id
+			LEFT JOIN base_organization_user ou ON ou.id = br.organization_user_id
+			WHERE 
+			 br.organization_id = #{organizationId}
+			<if test=" NeedTriage == true ">
+			 AND br.organization_team_id IS NULL
+			</if>
+  </select>
+  <!-- 查询分诊到我机构科室的转诊单 -->
+  <select id="getReferralByDepartment" parameterType="org.module.organization.configure.domain.Referral" resultType="map">
+			SELECT
+				br.id,
+				br.work_order_id workOrderId,
+				br.user_id userId,
+				br.launch_organization_team_id launchOrganizationTeamId,
+				br.launch_organization_user_id launchOrganizationUserId,
+				br.organization_id organizationId,
+				br.department_id departmentId,
+				br.organization_team_id organizationTeamId,
+				br.organization_user_id organizationUserId,
+				br.number,
+				br.chief_complaint chiefComplaint,
+				br.diagnosis,
+				br.reason,
+				br.objective,
+				br.advice_before adviceBefore,
+				br.advice_after adviceAfter,
+				br.picture,
+				br.evaluate_star evaluateStar,
+				br.evaluate_text evaluateText,
+				br.`status` `status`,
+				br.create_date createDate,
+				bu.`name` userName,
+				bu.phone userPhone,
+				bot.`name` organizationTeamName,
+				bot.phone organizationTeamPhone,
+				bou.`name` organizationUserName,
+				bou.phone organizationUserPhone
+			FROM
+				base_referral br
+			LEFT JOIN base_user bu ON bu.id = br.user_id
+			LEFT JOIN base_organization_team bot ON bot.id = br.launch_organization_team_id
+			LEFT JOIN base_organization_user bou ON bou.id = br.launch_organization_user_id
+			WHERE 
+			br.organization_team_id IS NULL AND br.department_id IS NOT NULL
+			AND br.organization_id = #{organizationId}
+  </select>
+  <!-- 查询转诊详情 -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.Referral" resultType="map">
+			SELECT
+				br.id,
+				br.work_order_id workOrderId,
+				br.user_id userId,
+				br.launch_organization_team_id launchOrganizationTeamId,
+				br.launch_organization_user_id launchOrganizationUserId,
+				br.organization_id organizationId,
+				br.department_id departmentId,
+				br.organization_team_id organizationTeamId,
+				br.organization_user_id organizationUserId,
+				br.number,
+				br.reason,
+				br.evaluate_text evaluateText,
+				br.`status` `status`,
+				br.create_date createDate,
+				bu.`name` userName,
+				bu.phone userPhone,
+				bot.`name` organizationTeamName,
+				bot.phone organizationTeamPhone,
+				bou.`name` organizationUserName,
+				bou.phone organizationUserPhone
+			FROM
+				base_referral br
+			LEFT JOIN base_user bu ON bu.id = br.user_id
+			LEFT JOIN base_organization_team bot ON bot.id = br.launch_organization_team_id
+			LEFT JOIN base_organization_user bou ON bou.id = br.launch_organization_user_id
+			WHERE 
+			br.id = #{id}
+  </select>
+</mapper>

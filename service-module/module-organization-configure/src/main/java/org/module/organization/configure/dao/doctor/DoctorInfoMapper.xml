@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.DoctorInfoMapper">
+<!-- 新增 -->
+<insert id="insert" parameterType="org.module.organization.configure.domain.doctor.DoctorInfo" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO base_doctor_info(
+		organization_user_id,
+		hospital_department_id,
+		doctor_level_id,
+		name,
+		school,
+		post,
+		grade,
+		certification,
+		certification_photo,
+		is_professor,
+		create_date,
+		remark
+	) 
+	VALUES (
+		#{organizationUserId},
+		#{hospitalDepartmentId},
+		#{doctorLevelId},
+		#{name},
+		#{school},
+		#{post},
+		#{grade},
+		#{certification},
+		#{certificationPhoto},
+		#{isProfessor},
+		#{createDate},
+		#{remark}
+	)
+</insert>
+
+<!--检查数据是否重复  -->
+<select id="getRepeat" parameterType="org.module.organization.configure.domain.doctor.DoctorInfo" resultType="map">
+	SELECT 
+		id,
+		organization_user_id organizationUserId,
+		hospital_department_id hospitalDepartmentId,
+		doctor_level_id doctorLevelId,
+		name,
+		school,
+		post,
+		grade,
+		certification,
+		certification_photo certificationPhoto,
+		is_professor isProfessor,
+		create_date createDate,
+		remark
+	FROM 
+	    base_doctor_info 
+    <where>
+    	<if test="certification != null and certification !=''">
+    		certification=#{certification}
+    	</if>
+    </where> 
+</select>
+
+ <!-- 医生信息详情 -->
+	<resultMap type="map" id="doctorInfoMap">
+		<result column="id" property="id"/>
+		<collection property="doctorSkills" column="id" javaType="list" select="getDoctorSkill"/>
+	</resultMap>
+	
+	<select id="getOne" parameterType="org.module.organization.configure.domain.doctor.DoctorInfo" resultMap="doctorInfoMap">
+	SELECT
+		bdi.id,
+		bdi.organization_user_id organizationUserId,
+		bdi.hospital_department_id hospitalDepartmentId,
+		bhd.name hospitalDepartmentName,
+		bdi.doctor_level_id doctorLevelId,
+		bdi.name,
+		bdi.school,
+		bdi.post,
+		bdi.grade,
+		bdi.certification,
+		bdi.certification_photo certificationPhoto,
+		bdi.is_professor isProfessor,
+		bdi.create_date createDate,
+		bdi.remark,
+		bdl.id doctorLevelId,
+		bdl.name doctorLevelName,
+		bdc.id doctorCategoryId,
+		bdc.name doctorCategoryName
+	FROM
+		base_doctor_info bdi
+		LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+		LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id
+		LEFT JOIN base_hospital_department bhd ON bhd.id = bdi.hospital_department_id
+	WHERE
+		bdi.organization_user_id = #{id}
+	</select>
+	<!-- 医生的领域 -->
+	<select id="getDoctorSkill" parameterType="int" resultType="map">
+	SELECT
+		bdds.id doctorDoctorSkillId,
+		bdds.doctor_info_id doctorInfoId,
+		bds.id doctorSkillId,
+		bds.`name` doctorSkillName,
+		bds.remark doctorSkillRemark,
+		bds.create_date doctorSkillCreateDate
+	FROM
+		base_doctor_doctor_skill bdds
+	LEFT JOIN base_doctor_skill bds ON bds.id = bdds.doctor_skill_id
+	WHERE
+		bdds.doctor_info_id = #{id}
+	</select>
+	
+	<!--修改医生信息  -->
+	<update id="update" parameterType="org.module.organization.configure.domain.doctor.DoctorInfo" >
+		UPDATE base_doctor_info SET id=#{id}
+			<if test="hospitalDepartmentId!=null">
+				,hospital_department_id=#{hospitalDepartmentId}
+			</if>
+			<if test="doctorLevelId!=null">
+				,doctor_level_id=#{doctorLevelId}
+			</if>
+			<if test="post!=null and post!=''">
+				,post=#{post}
+			</if>
+			<if test="name!=null and name!=''">
+				,name=#{name}
+			</if>
+			<if test="school!=null and school!=''">
+				,school=#{school}
+			</if>
+			<if test="grade!=null">
+				,grade=#{grade}
+			</if>
+			<if test="isProfessor!=null">
+				,is_professor=#{isProfessor}
+			</if>
+			<if test="certification!=null and certification!=''">
+				,certification=#{certification}
+			</if>
+			<if test="certificationPhoto!=null">
+				,certification_photo=#{certificationPhoto}
+			</if>
+			<if test="remark !=null">
+				,remark=#{remark}
+			</if>
+		 WHERE id=#{id}
+	</update>
+</mapper>

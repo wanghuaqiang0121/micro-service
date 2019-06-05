@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.BoneStandardGradeMapper">
+  
+  <!-- 骨标准评级表删除 -->
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.BoneStandardGrade">
+    delete from base_bone_standard_grade
+    where id = #{id}
+  </delete>
+  
+  <!-- 骨标准评级表新增 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.BoneStandardGrade" useGeneratedKeys="true" keyProperty="id">
+    insert into base_bone_standard_grade (  bone_type, 
+      bone_grade, feature_description, create_date, 
+      bone_photo)
+    values (  #{boneType}, 
+      #{boneGrade}, #{featureDescription}, #{createDate}, 
+      #{bonePhoto,jdbcType=VARCHAR})
+  </insert>
+  
+  <!-- 骨标准评级表修改 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.BoneStandardGrade">
+    update base_bone_standard_grade SET id=#{id}
+     <if test="boneType!=null and boneType!=''">
+      ,bone_type = #{boneType}
+      </if>
+      <if test="boneGrade!=null and boneGrade!=''">
+      ,bone_grade = #{boneGrade}
+      </if>
+      <if test="featureDescription!=null and featureDescription!=''">
+      ,feature_description = #{featureDescription}
+      </if>
+      <if test="bonePhoto!=null and bonePhoto!=''">
+      ,bone_photo = #{bonePhoto}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 骨标准评级表详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.BoneStandardGrade" resultType="map">
+    select id,  bone_type boneType, bone_grade boneGrade, feature_description featureDescription, create_date createDate, bone_photo bonePhoto
+    from base_bone_standard_grade
+    where id = #{id}
+  </select>
+  
+  <!-- 骨标准评级表列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.BoneStandardGrade" resultType="map">
+	SELECT id, bone_type boneType, bone_grade boneGrade,
+	feature_description featureDescription, create_date createDate,
+	bone_photo bonePhoto
+	FROM base_bone_standard_grade
+	<where>
+		<if test="boneType!=null and boneType!=''">
+			bone_type like CONCAT(CONCAT('%', #{boneType}), '%')
+		</if>
+		<if test="boneGrade!=null and boneGrade!=''">
+			and bone_grade like CONCAT(CONCAT('%', #{boneGrade}), '%')
+		</if>
+	</where>
+	ORDER BY bone_type,bone_grade ASC
+  </select>
+</mapper>

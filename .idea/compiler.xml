@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="module-organization-user" />
+        <module name="module-inquiry" />
+        <module name="module-organization-configure" />
+        <module name="module-bespeak" />
+        <module name="module-team-permission" />
+        <module name="service-eureka" />
+        <module name="module-organization-team" />
+        <module name="module-organization-permission" />
+        <module name="service-zuul" />
+        <module name="module-bone-age" />
+        <module name="module-sign" />
+        <module name="module-platform-configuration" />
+        <module name="module-common" />
+        <module name="service-core" />
+        <module name="module-work-order" />
+        <module name="module-user" />
+        <module name="service-redis" />
+        <module name="service-tools" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="micro-service" target="1.8" />
+      <module name="module-bespeak" target="1.8" />
+      <module name="module-bone-age" target="1.8" />
+      <module name="module-common" target="1.8" />
+      <module name="module-inquiry" target="1.8" />
+      <module name="module-organization-configure" target="1.8" />
+      <module name="module-organization-permission" target="1.8" />
+      <module name="module-organization-team" target="1.8" />
+      <module name="module-organization-user" target="1.8" />
+      <module name="module-platform-configuration" target="1.8" />
+      <module name="module-sign" target="1.8" />
+      <module name="module-team-permission" target="1.8" />
+      <module name="module-user" target="1.8" />
+      <module name="module-work-order" target="1.8" />
+      <module name="service-core" target="1.8" />
+      <module name="service-eureka" target="1.8" />
+      <module name="service-module" target="1.8" />
+      <module name="service-redis" target="1.8" />
+      <module name="service-tools" target="1.8" />
+      <module name="service-zuul" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationMapper">
+ 
+
+  <select id="getOne" parameterType="org.module.organization.configure.domain.Organization" resultType="map">
+	SELECT
+		bo.id,
+		bo.`code`,
+		bo.pid,
+		bo.organization_type_id organizationTypeId,
+		bo.`name`,
+		bo.`status`,
+		bo.phone,
+		bo.logo,
+		bo.picture,
+		bo.create_date createDate,
+		bmoi.id medicalOrganizationInfoId,
+		bo.remark
+	FROM
+		base_organization bo
+	LEFT JOIN base_medical_organization_info bmoi ON bmoi.organization_id = bo.id
+	WHERE
+		bo.id = #{id}    
+  </select>
+</mapper>

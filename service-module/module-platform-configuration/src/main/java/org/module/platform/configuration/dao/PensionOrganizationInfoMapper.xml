@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.PensionOrganizationInfoMapper">
+
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.PensionOrganizationInfo">
+    delete from base_pension_organization_info
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增养老机构扩展信息 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.PensionOrganizationInfo" keyProperty="id" useGeneratedKeys="true">
+    insert into base_pension_organization_info ( organization_id, service_province, 
+      service_city, service_area, response_time, 
+      aptitude, create_date)
+    values ( #{organizationId}, #{serviceProvince}, 
+      #{serviceCity}, #{serviceArea}, #{responseTime}, 
+      #{aptitude}, #{createDate})
+  </insert>
+  
+  <!--  修改养老机构扩展信息 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.PensionOrganizationInfo">
+	update base_pension_organization_info SET id=#{id}
+		<if test="organizationId!=null ">
+			,organization_id = #{organizationId}
+		</if>
+		<if test="serviceProvince!=null and serviceProvince!=''">
+			,service_province = #{serviceProvince}
+		</if>
+		<if test="serviceCity!=null and serviceCity!=''">
+			,service_city = #{serviceCity}
+		</if>
+		<if test="serviceArea!=null and serviceArea!=''">
+			,service_area = #{serviceArea}
+		</if>
+		<if test="responseTime!=null ">
+			,response_time = #{responseTime}
+		 </if>
+		<if test="aptitude!=null and aptitude!=''">
+			,aptitude = #{aptitude}
+		</if>
+	where id = #{id}
+  </update>
+  
+  <!-- 查询养老机构扩展信息详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.PensionOrganizationInfo" resultType="map">
+    SELECT
+		bpoi.id,
+		bpoi.organization_id organizationId,
+		bpoi.service_province serviceProvince,
+		bpoi.service_city serviceCity,
+		bpoi.service_area serviceArea,
+		bpoi.response_time responseTime,
+		bpoi.aptitude,
+		bpoi.create_date createDate,
+		bo.`name` organizationName
+	FROM
+		base_pension_organization_info bpoi
+	LEFT JOIN base_organization bo ON bo.id = bpoi.organization_id
+	WHERE
+		bpoi.id = #{id}
+  </select>
+  
+  <!-- 查询养老机构扩展信息列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.PensionOrganizationInfo" resultType="map">
+    SELECT
+		bpoi.id,
+		bpoi.organization_id organizationId,
+		bpoi.service_province serviceProvince,
+		bpoi.service_city serviceCity,
+		bpoi.service_area serviceArea,
+		bpoi.response_time responseTime,
+		bpoi.aptitude,
+		bpoi.create_date createDate,
+		bo.`name` organizationName
+	FROM
+		base_pension_organization_info bpoi
+	LEFT JOIN base_organization bo ON bo.id = bpoi.organization_id
+  </select>
+</mapper>

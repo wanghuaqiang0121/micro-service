@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.BoneScoreTableMapper">
+ 
+  <!-- 骨头类型列表 -->
+  <select id="getBoneType" parameterType="org.module.platform.configuration.domain.BoneScoreTable" resultType="map">
+    SELECT
+		bone_type boneType
+	FROM
+		base_bone_score_table
+	GROUP BY
+		bone_type
+  </select>
+  
+  <!-- 骨头等级列表 -->
+  <select id="getBoneGrade" parameterType="org.module.platform.configuration.domain.BoneScoreTable" resultType="map">
+  	SELECT
+		bone_grade boneGrade
+	FROM
+		base_bone_score_table
+	GROUP BY
+		bone_grade
+  </select>
+
+</mapper>

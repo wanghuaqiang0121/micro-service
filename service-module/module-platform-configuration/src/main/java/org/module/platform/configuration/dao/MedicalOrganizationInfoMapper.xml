@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.MedicalOrganizationInfoMapper">
+  
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.MedicalOrganizationInfo" resultType="map">
+    SELECT
+		bmoi.id,
+		bmoi.organization_id organizationId,
+		bmoi.organization_grade_id organizationGradeId,
+		bmoi.medical_organization_type_id medicalOrganizationTypeId,
+		bmoi.administrative_organization_id administrativeOrganizationId,
+		bmoi.is_administrative isAdministrative,
+		bmoi.nature,
+		bmoi.contract_protocol_prefix contractProtocolPrefix,
+		bmoi.create_date create_date
+		FROM
+		base_medical_organization_info bmoi
+	WHERE bmoi.organization_id = #{organizationId} 
+	      
+  </select>
+  
+  <!-- 新增医疗机构扩展 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.MedicalOrganizationInfo" keyProperty="id" useGeneratedKeys="true">
+    insert into 
+    base_medical_organization_info (organization_id, organization_grade_id, medical_organization_type_id, administrative_organization_id,  is_administrative, nature, contract_protocol_prefix, create_date)
+    values 
+    (#{organizationId}, #{organizationGradeId}, #{medicalOrganizationTypeId}, #{administrativeOrganizationId}, #{isAdministrative}, #{nature}, #{contractProtocolPrefix},#{createDate})
+  </insert>
+  
+  <!-- 修改医疗机构扩展 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.MedicalOrganizationInfo">
+    update base_medical_organization_info
+    set id=#{id} 
+    <if test="administrativeOrganizationId!=null">
+      ,administrative_organization_id = #{administrativeOrganizationId}
+    </if>
+    <if test="organizationId!=null">
+      ,organization_id = #{organizationId}
+    </if>
+    <if test="organizationGradeId!=null">
+    ,organization_grade_id=#{organizationGradeId}
+    </if>
+    <if test="medicalOrganizationTypeId!=null">
+    ,medical_organization_type_id=#{medicalOrganizationTypeId}
+    </if>
+    <if test="isAdministrative!=null">
+    ,is_administrative=#{isAdministrative}
+    </if>
+    <if test="nature!=null">
+    ,nature=#{nature}
+    </if>
+    <if test="contractProtocolPrefix!=null and contractProtocolPrefix!=''">
+    , contract_protocol_prefix = #{contractProtocolPrefix}
+    </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 查询医疗机构扩展详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.MedicalOrganizationInfo" resultType="map">
+	SELECT
+		bmoi.id,
+		bmoi.organization_id organizationId,
+		bmoi.organization_grade_id organizationGradeId,
+		bmoi.medical_organization_type_id medicalOrganizationTypeId,
+		bmoi.administrative_organization_id administrativeOrganizationId,
+		bmoi.is_administrative isAdministrative,
+		bmoi.nature,
+		bmoi.contract_protocol_prefix contractProtocolPrefix,
+		bmoi.create_date createDate,
+		bo.`name` organizationName,
+		bmot.`name` organizationTypeName,
+		bog.`name` organizationGradeName,
+		boga.`name` administrativeOrganizationName
+	FROM
+		base_medical_organization_info bmoi
+	INNER JOIN base_organization bo ON bmoi.organization_id = bo.id
+	LEFT JOIN base_medical_organization_type bmot ON bmoi.medical_organization_type_id = bmot.id
+	LEFT JOIN base_organization_grade bog ON bmoi.organization_grade_id = bog.id
+	LEFT JOIN base_organization boga ON bmoi.administrative_organization_id = boga.id
+	<where>
+		<if test="id != null">
+			bmoi.id = #{id}
+		</if>
+		<if test="organizationId != null">
+			AND bo.id = #{organizationId}
+		</if>
+	</where>
+  </select>
+  
+  
+  <select id="getList" parameterType="org.module.platform.configuration.domain.MedicalOrganizationInfo" resultType="map">
+   SELECT
+		bmoi.id,
+		bmoi.organization_id organizationId,
+		bmoi.organization_grade_id organizationGradeId,
+		bmoi.medical_organization_type_id medicalOrganizationTypeId,
+		bmoi.administrative_organization_id administrativeOrganizationId,
+		bmoi.is_administrative isAdministrative,
+		bmoi.nature,
+		bmoi.contract_protocol_prefix contractProtocolPrefix,
+		bmoi.create_date createDate,
+		bo.`name` organizationName,
+		bmot.`name` organizationTypeName,
+		bog.`name` organizationGradeName,
+		boga.`name` administrativeOrganizationName
+	FROM
+		base_medical_organization_info bmoi
+	LEFT JOIN base_organization bo ON bmoi.organization_id = bo.id
+	LEFT JOIN base_medical_organization_type bmot ON bmoi.medical_organization_type_id = bmot.id
+	LEFT JOIN base_organization_grade bog ON bmoi.organization_grade_id = bog.id
+	LEFT JOIN base_organization boga ON bmoi.administrative_organization_id = boga.id
+	<where>
+	   <if test="organizationId!=null">
+       bmoi.organization_id = #{organizationId}
+     </if>
+    <if test="organizationGradeId!=null">
+    and bmoi.organization_grade_id=#{organizationGradeId}
+    </if>
+    <if test="medicalOrganizationTypeId!=null">
+    and bmoi.medical_organization_type_id=#{medicalOrganizationTypeId}
+    </if>
+    <if test="isAdministrative!=null">
+    and bmoi.is_administrative=#{isAdministrative}
+    </if>
+	</where>
+  </select>
+</mapper>

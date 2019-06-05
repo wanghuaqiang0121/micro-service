@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.UserTypeMapper">
+
+	
+
+    <!-- 查询人群类型列表 -->
+    <select id="getList" parameterType="org.module.organization.team.domain.UserType" resultType="map">
+       SELECT
+	       but.id,
+	       but.name,
+	       but.apply_type as applyType,
+	       but.is_used as isUsed,
+	       but.create_date as createDate,
+	       but.remark
+       FROM base_organization_user_type bout 
+       INNER JOIN base_user_type but ON but.id = bout.user_type_id
+       <where>
+        <if test="teamId !=null">
+      		bout.organization_id = (SELECT bom.organization_id
+				FROM base_organization_team bom WHERE bom.id = #{teamId}
+			)
+		</if>
+		<if test="name !=null and name !=''">
+			and but.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="applyType !=null">
+			and but.apply_type=#{applyType}
+		</if>
+		<if test="isUsed !=null">
+			and but.is_used=#{isUsed}
+		</if>
+		GROUP BY but.id
+	</where>
+    </select>
+
+  
+</mapper>

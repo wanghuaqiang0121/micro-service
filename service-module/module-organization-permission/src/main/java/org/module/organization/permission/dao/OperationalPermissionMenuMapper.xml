@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.OperationalPermissionMenuMapper">
+<!-- 检查权限菜单关联表数据重复 -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.OperationalPermissionMenu" resultType="map">
+	SELECT 
+		id
+	FROM base_operational_permission_menu 
+	WHERE operational_permission_id = #{operationalPermissionId} 
+		AND operational_menu_id = #{operationalMenuId}
+</select>
+
+<!--新增权限菜单关联表  -->
+<insert id="insert"  parameterType="org.module.organization.permission.domain.OperationalPermissionMenu" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_operational_permission_menu(operational_permission_id,operational_menu_id) VALUES (#{operationalPermissionId},#{operationalMenuId})
+</insert>
+
+<!--删除权限菜单关联表  -->
+<delete id="delete" parameterType="org.module.organization.permission.domain.OperationalPermissionMenu">
+DELETE FROM base_operational_permission_menu WHERE operational_permission_id=#{operationalPermissionId} AND operational_menu_id=#{operationalMenuId}
+</delete>
+
+<!--查询该权限拥有和未拥有的菜单  -->
+<select id="getPermissionMenuIsChoose" parameterType="org.module.organization.permission.domain.OperationalPermissionMenu" resultType="map">
+	SELECT
+		bom.id,
+		bom.`code`,
+		bom.icon,
+		bom.`name`,
+		bom.pid,
+		bom.remark,
+		bom.is_used isUsed,
+	IF (
+		bopm.operational_menu_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_operational_permission_menu bopm
+	RIGHT JOIN base_operational_menu bom ON bom.id = bopm.operational_menu_id
+	AND bopm.operational_permission_id = #{operationalPermissionId}
+	LEFT JOIN base_operational_permission bop ON bop.id = bopm.operational_permission_id
+	WHERE bom.is_used = 1
+	   	<if test="name!=null and name!=''">
+		   and bom.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+	   	<if test="code!=null and code!=''">
+		    and bom.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+</select> 
+ </mapper>

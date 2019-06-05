@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationServicePackageMapper">
+ 
+  <!-- 删除机构服务包 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationServicePackage">
+    DELETE FROM base_organization_service_package
+    WHERE id = #{id}
+  </delete>
+  
+  <!--新增机构服务包   -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" keyProperty="id" useGeneratedKeys="true">
+    insert into base_organization_service_package 
+    	( organization_id, audit_organization_id,service_package_type_id, name, price, status, acquisitive_type,acquisitive, cover, create_date, 
+         remark, protocol,pid,audit_remark,original_price)
+    values
+       ( #{organizationId}, #{auditOrganizationId},#{servicePackageTypeId}, #{name}, #{price}, #{status}, #{acquisitiveType},#{acquisitive}, #{cover}, #{createDate}, 
+        #{remark}, #{protocol},#{pid},#{auditRemark},#{originalPrice})
+  </insert>
+  
+  <!-- 查询服务包是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" resultType="map">
+	SELECT
+		bosp.id,
+		bosp.organization_id organizationId,
+		bosp.audit_organization_id auditOrganizationId, 
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.`name`,
+		bosp.price,
+		bosp.`status`,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.acquisitive,
+		bosp.original_price originalPrice,
+		bosp.cover,
+		bosp.protocol,
+		bosp.create_date createDate,
+		bosp.remark
+	FROM
+		base_organization_service_package bosp
+	WHERE
+		bosp.organization_id=#{organizationId} AND 
+		bosp.service_package_type_id=#{servicePackageTypeId} AND 
+		bosp.`name`=#{name} AND 
+		bosp.`status`=#{status}
+  </select>
+  
+  <!-- 定义查询服务包详情结果集-->
+  <resultMap type="map" id="servicePackageMap">
+	<result column="id" property="id"/>
+	<collection property="packageService" column="id" javaType="list" select="getPackageServiceList"/>
+	<collection property="packageUserType" column="id" javaType="list" select="getPackageUserTypeList"/>
+  </resultMap>
+  <!-- 查询详情 -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" resultMap="servicePackageMap">
+	SELECT
+		bosp.id,
+		bosp.organization_id organizationId,
+		bosp.audit_organization_id auditOrganizationId,
+		bo.`name` auditOrganizationName,
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.`name`,
+		bosp.price,
+		bosp.`status`,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.acquisitive,
+		bosp.original_price originalPrice,
+		bosp.cover,
+		bosp.create_date createDate,
+		bosp.remark,
+		bosp.audit_remark auditRemark,
+		bosp.protocol
+	FROM
+		base_organization_service_package bosp
+	INNER JOIN base_organization bo ON bo.id = bosp.audit_organization_id
+	WHERE
+		bosp.id =  #{id}
+  </select>
+    <!-- 查询包内的服务项列表 -->
+  <select id="getPackageServiceList" parameterType="int" resultType="map">
+	SELECT
+		bops.id,
+		bops.organization_service_package_id organizationServicePackageId,
+		bops.service_type_id serviceTypeId,
+		bops.price,
+		bops.times,
+		bst.`name` serviceTypeName,
+		bops.name,
+		bst.`status`
+	FROM
+		base_organization_package_service bops
+	LEFT JOIN base_service_type bst ON bst.id = bops.service_type_id
+	WHERE bops.organization_service_package_id=#{id}
+  </select>
+  
+  <!--  查询服务包的人群类型列表-->
+  <select id="getPackageUserTypeList" parameterType="int" resultType="map">
+	SELECT
+		boput.id,
+		boput.organization_service_package_id organizationServicePackageId,
+		boput.user_type_id userTypeId,
+		bbosp.`name` organizationServicePackageName,
+		but.`name` userTypeName,
+		but.is_used isUsed,
+		but.apply_type applyType
+	FROM
+		base_organization_package_user_type boput
+	LEFT JOIN base_organization_service_package bbosp ON bbosp.id = boput.organization_service_package_id
+	LEFT JOIN base_user_type but ON but.id = boput.user_type_id
+	WHERE
+		boput.organization_service_package_id = #{id}
+  </select>
+  
+  
+  <!-- 修改服务包 -->
+  <update id="update" parameterType="org.module.organization.configure.domain.OrganizationServicePackage">
+    UPDATE base_organization_service_package SET id=#{id}
+   	<if test="auditOrganizationId !=null">
+     ,audit_organization_id = #{auditOrganizationId}
+   	</if>
+   	<if test="servicePackageTypeId !=null">
+     ,service_package_type_id = #{servicePackageTypeId}
+   	</if>
+   	<if test="name !=null and name !=''">
+     ,name = #{name}
+   	</if>
+   	<if test="protocol !=null and protocol !=''">
+     ,protocol = #{protocol}
+   	</if>
+   	<if test="price !=null">
+     ,price = #{price}
+   	</if>
+   	<if test="originalPrice!=null">
+   	,original_price=#{originalPrice}
+   	</if>
+   	<if test="status !=null">
+     ,status = #{status}
+   	</if>   	
+   	<if test="acquisitiveType !=null">
+     ,acquisitive_type = #{acquisitiveType}
+   	</if>
+   	<if test="acquisitive !=null">
+     ,acquisitive = #{acquisitive}
+   	</if>
+   	<if test="cover !=null and cover !=''">
+     ,cover = #{cover}
+   	</if>
+   	<if test="remark !=null">
+     ,remark = #{remark}
+   	</if>
+   	<if test="auditRemark !=null and auditRemark !=''">
+     ,audit_remark = #{auditRemark}
+   	</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 查询父机构服务包列表 -->
+  <select id="getParentOrganizationPackages" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" resultType="map">
+    SELECT
+		bosp.id,
+		bosp.pid,
+		bosp.organization_id organizationId,
+		bosp.audit_organization_id auditOrganizationId,
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.name,
+		bosp.price,
+		bosp.status,
+		bosp.original_price originalPrice,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.acquisitive,
+		bosp.cover,
+		bosp.create_date createDate,
+		bosp.remark,
+		bosp.protocol,
+		bspt.`name` servicePackageTypeName,
+		bo.`name` organizationName,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId
+	FROM
+		base_organization_service_package bosp
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+	<where>
+		<if test="name !=null and name !=''">
+			bosp.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="status !=null">
+			and bosp.status = #{status}
+		</if>
+		<if test="servicePackageTypeId !=null ">
+			and bosp.service_package_type_id=#{servicePackageTypeId}
+		</if>
+		<if test="organizationId !=null ">
+			and bosp.organization_id = (
+					SELECT
+						bo.pid
+					FROM
+						base_organization bo
+					WHERE
+						bo.id = #{organizationId}
+				)
+		</if>
+		ORDER BY bosp.create_date DESC
+	</where>
+  </select>
+  
+  <!-- 查询服务包列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" resultType="map">
+     SELECT
+		bosp.id,
+		bosp.pid,
+		bosp.organization_id organizationId,
+		bosp.audit_organization_id auditOrganizationId,
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.name,
+		bosp.price,
+		bosp.original_price originalPrice,
+		bosp.status,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.acquisitive,
+		bosp.cover,
+		bosp.create_date createDate,
+		bosp.remark,
+		bosp.audit_remark auditRemark,
+		bosp.protocol,
+		bspt.`name` servicePackageTypeName,
+		bo.`name` organizationName,
+		bo.phone organizationPhone,
+		IF (bops.id IS NULL, FALSE, TRUE) isHaveService,
+		bo.organization_type_id organizationTypeId
+	FROM
+		base_organization_service_package bosp
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+	LEFT JOIN base_organization_package_service bops ON bops.organization_service_package_id=bosp.id
+	<where>
+		<if test="name !=null and name !=''">
+			bosp.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="servicePackageTypeId !=null ">
+			and bosp.service_package_type_id=#{servicePackageTypeId}
+		</if>
+		<if test="organizationId !=null ">
+			and bosp.organization_id=#{organizationId}
+		</if>
+		<if test="auditOrganizationId !=null ">
+			and bosp.audit_organization_id=#{auditOrganizationId}
+		</if>
+		<if test="status !=null ">
+			and bosp.status=#{status}
+		</if>
+	</where>
+	GROUP BY bosp.id
+	ORDER BY bosp.create_date DESC
+  </select>
+  <!-- 查询某团队有或者没有的服务包列表 -->
+  <select id="getOrganizationServiceAuthorizationTeamPackages" parameterType="org.module.organization.configure.domain.OrganizationServicePackage" resultType="map">
+		SELECT
+			bosp.id,
+			bosp.`name`,
+			bosp.price,
+			bosp.original_price originalPrice,
+			bosp.`status`,
+			bosp.acquisitive,
+			bosp.acquisitive_type acquisitiveType,
+			bosp.cover,
+			bosp.pid,
+			bosp.protocol,
+			bosp.service_package_type_id servicePackageTypeId,
+			bspt.`name` servicePackageTypeName,
+			bosp.audit_organization_id auditOrganizationId,
+			btosp.doctor_team_id doctorTeamId,
+			btosp.price teamOrganizationServicePackagePrice
+		FROM
+			base_organization_service_package bosp
+		LEFT JOIN base_team_organization_service_package btosp ON btosp.organization_service_package_id = bosp.id AND btosp.doctor_team_id = #{organizationTeamId}
+		LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+		WHERE bosp.`status` = 3 AND bosp.organization_id =#{organizationId}
+		<if test="name !=null and name !=''">
+			and	bosp.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		ORDER BY bosp.create_date DESC
+  </select>
+</mapper>

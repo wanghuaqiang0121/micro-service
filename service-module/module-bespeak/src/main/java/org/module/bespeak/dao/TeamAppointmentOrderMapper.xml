@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bespeak.dao.TeamAppointmentOrderMapper">
+  
+  <delete id="delete" parameterType="org.module.bespeak.domain.TeamAppointmentOrder">
+    delete from base_team_appointment_order
+    where id = #{id}
+  </delete>
+  <insert id="insert" parameterType="org.module.bespeak.domain.TeamAppointmentOrder" useGeneratedKeys="true" keyProperty="id">
+    insert into base_team_appointment_order (appointment_no, user_id, user_service_id,
+      team_appointment_configure_detail_id, appointment_date, 
+      status, create_date)
+    values (#{appointmentNo}, #{userId}, #{userServiceId},
+      #{teamAppointmentConfigureDetailId}, #{appointmentDate}, 
+      #{status}, #{createDate})
+  </insert>
+  
+  <update id="update" parameterType="org.module.bespeak.domain.TeamAppointmentOrder">
+    update base_team_appointment_order
+    set appointment_no = #{appointmentNo},
+      user_id = #{userId},
+      team_appointment_configure_detail_id = #{teamAppointmentConfigureDetailId},
+      appointment_date = #{appointmentDate},
+      status = #{status},
+      create_date = #{createDate}
+    where id = #{id}
+  </update>
+  
+  <!-- 取消订单 -->
+  <update id="cancelOrder" parameterType="org.module.bespeak.domain.TeamAppointmentOrder">
+    UPDATE base_team_appointment_order
+    SET 
+      status = #{status}
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 查询预约号 -->
+  <select id="getAppointmentNo" parameterType="org.module.bespeak.domain.TeamAppointmentOrder" resultType="map">
+    SELECT
+		IF (
+			(MAX(btao.appointment_no) + 1) IS NULL,
+			(
+				SELECT
+					btacd.start_no
+				FROM
+					base_team_appointment_configure_detail btacd
+				WHERE
+					btacd.id = #{teamAppointmentConfigureDetailId}
+			),
+			(MAX(btao.appointment_no) + 1)
+		) appointmentNo
+	FROM
+		base_team_appointment_order btao
+	WHERE
+		btao.team_appointment_configure_detail_id = #{teamAppointmentConfigureDetailId}
+		AND btao.appointment_date = #{appointmentDate}
+  </select>
+  
+  
+  <!-- 订单详情 -->
+  <select id="getOne" parameterType="org.module.bespeak.domain.TeamAppointmentOrder" resultType="map">
+    SELECT 
+    	id, appointment_no appointmentNo,
+    	user_id userId, 
+    	team_appointment_configure_detail_id teamAppointmentConfigureDetailId, 
+    	appointment_date appointmentDate, 
+    	status, 
+    	create_date createDate
+    FROM base_team_appointment_order
+    <where>
+    	<if test="id != null">
+    		id = #{id}
+    	</if>
+    	<if test="userId != null">
+    		AND user_id = #{userId}
+    	</if>
+    	<if test="userServiceId != null">
+    		AND user_service_id = #{userServiceId}
+    	</if>
+    	<if test="status != null">
+    		AND status = #{status}
+    	</if>
+    	<if test="appointmentDate != null">
+    		AND appointment_date = #{appointmentDate}
+    	</if>
+    </where>
+  </select>
+  
+  <!-- 用户组预约列表 -->
+  <select id="getList" parameterType="org.module.bespeak.domain.TeamAppointmentOrder" resultType="map">
+     SELECT 
+    	btao.id, btao.appointment_no appointmentNo,
+    	btao.user_id userId,
+    	bu.`name` userName,
+    	buug.relation relation,
+		fn_print_system_code_result (buug.relation, ';', 'gx') relationName, 
+    	btao.user_service_id userServiceId,
+    	btao.team_appointment_configure_detail_id teamAppointmentConfigureDetailId, 
+    	btao.appointment_date appointmentDate, 
+    	btao.status, 
+    	btao.create_date createDate,
+    	bo.`name` organizationName,
+    	btac.`name`
+    FROM base_team_appointment_order btao
+    LEFT JOIN base_user bu ON bu.id = btao.user_id
+    LEFT JOIN base_user_user_group buug ON buug.user_id = bu.id AND buug.user_group_id = (
+		SELECT
+			bug.id
+		FROM
+			base_user_group bug
+		WHERE
+			bug.user_id = #{userId}
+	)
+    LEFT JOIN base_team_appointment_configure_detail btacd ON  btacd.id = btao.team_appointment_configure_detail_id 
+    LEFT JOIN base_team_appointment_configure btac ON  btac.id = btacd.team_appointment_configure_id
+    LEFT JOIN base_organization_team bot ON bot.id = btac.organization_team_id
+	LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+    WHERE btao.user_id
+ 	IN (
+		SELECT
+			bu.id userId
+		FROM
+			base_user_user_group buug
+		LEFT JOIN base_user bu ON bu.id = buug.user_id
+		WHERE
+			buug.user_group_id = (
+				SELECT
+					bug.id
+				FROM
+					base_user_group bug
+				WHERE
+					bug.user_id = #{userId}
+			)
+	)
+	ORDER BY btao.create_date DESC
+  </select>
+</mapper>

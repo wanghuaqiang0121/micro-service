@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.DoctorLevelMapper">
+
+  <delete id="delete" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel">
+    delete from base_doctor_level
+    where id = #{id}
+  </delete>
+  
+  <!-- 新增医生职称（医生级别） -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_doctor_level ( doctor_category_id, name, create_date,remark)
+    VALUES ( #{doctorCategoryId}, #{name}, #{createDate}, #{remark})
+  </insert>
+  
+  <!-- 修改医生职称（医生级别） -->
+  <update id="update" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel">
+    update base_doctor_level SET id=#{id}
+    <if test="doctorCategoryId!=null ">
+     ,doctor_category_id = #{doctorCategoryId}
+     </if>
+     <if test="name!=null and name!=''">
+      ,name = #{name}
+      </if>
+     <if test="remark!=null and remark!=''">
+      ,remark = #{remark}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 查询医生职称（医生级别）详情 -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel" resultType="map">
+    select id, doctor_category_id doctorCategoryId, name, create_date createDate,remark
+    from base_doctor_level
+    where id = #{id}
+  </select>
+  
+  <!-- 查询医生职称（医生级别）是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel" resultType="map">
+    SELECT id, doctor_category_id doctorCategoryId, name, create_date createDate,remark
+    FROM base_doctor_level
+    <where>
+    	<if test="name!=null and name!=''">
+    		name = #{name} 
+    	</if>
+    	<if test="doctorCategoryId!=null">
+    		AND doctor_category_id = #{doctorCategoryId}
+    	</if>
+    </where> 
+  </select>
+  
+  <!-- 医生职称（医生级别）列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.doctor.DoctorLevel" resultType="map">
+    SELECT 
+    	bdl.id, 
+    	bdl.doctor_category_id doctorCategoryId, 
+    	bdl.name, 
+    	bdl.create_date createDate,
+    	bdl.remark,
+    	bdc.name doctorCategoryName
+    FROM base_doctor_level bdl
+    LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id
+    <where>
+    	<if test="name!=null and name!=''">
+    		bdl.name like CONCAT(CONCAT('%', #{name}), '%')
+    	</if>
+    	<if test="doctorCategoryId!=null">
+    		AND bdl.doctor_category_id = #{doctorCategoryId}
+    	</if>
+    </where> 
+  </select>
+</mapper>

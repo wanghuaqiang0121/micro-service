@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.BoneAgeOrderLogMapper">
+
+	<!--新增骨龄检测工单日志 -->
+	<insert id="insert" parameterType="org.module.bone.age.domain.BoneAgeOrderLog" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO
+		base_bone_age_order_log(bone_age_order_id,user_id,organization_team_id,organization_user_id,status,height,weight,
+		x_ray,x_ray_no,algorithm,radius_level ,ulna_level
+		,metacarpal_1_level,metacarpal_3_level,metacarpal_5_level,near_phalanges_1_level,
+		near_phalanges_3_level,near_phalanges_5_level,in_phalanges_3_level,in_phalanges_5_level,far_phalanges_1_level,far_phalanges_3_level,
+		far_phalanges_5_level,bone_age,forecast_height,doctor_forecast_height,min_forecast_height,doctor_min_forecast_height,max_forecast_height,
+		doctor_max_forecast_height,result,advise,create_date,head_bone_level,hamate_level,pyramidal_bone_level,moon_bone_level,scaphoid_level,most_of_the_horns_level,small_polyhorns_level)
+	VALUES
+		(#{boneAgeOrderId},#{userId},#{organizationTeamId},#{organizationUserId},#{status},#{height},#{weight},#{xRay},#{xRayNo},#{algorithm},#{radiusLevel},#{ulnaLevel},
+		#{metacarpal1Level},#{metacarpal3Level},#{metacarpal5Level},#{nearPhalanges1Level},#{nearPhalanges3Level},#{nearPhalanges5Level},
+		#{inPhalanges3Level},#{inPhalanges5Level},#{farPhalanges1Level},#{farPhalanges3Level},#{farPhalanges5Level},#{boneAge},#{forecastHeight},
+		#{doctorForecastHeight},#{minForecastHeight},#{doctorMinForecastHeight},#{maxForecastHeight},#{doctorMaxForecastHeight},
+		#{result},#{advise},#{createDate},#{headBoneLevel},#{hamateLevel},#{pyramidalBoneLevel},#{moonBoneLevel},#{scaphoidLevel},#{mostOfTheHornsLevel},#{smallPolyhornsLevel})
+	</insert>
+</mapper>

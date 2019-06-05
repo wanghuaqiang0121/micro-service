@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.OrganizationServicePackageMapper">
+ 
+ 
+  
+  
+  
+  <!-- 定义查询服务包详情结果集-->
+  <resultMap type="map" id="servicePackageMap">
+	<result column="id" property="id"/>
+	<collection property="packageService" column="id" javaType="list" select="getPackageServiceList"/>
+	<collection property="packageUserType" column="id" javaType="list" select="getPackageUserTypeList"/>
+  </resultMap>
+  <!-- 查询详情 -->
+  <select id="getOne" parameterType="org.module.organization.team.domain.OrganizationServicePackage" resultMap="servicePackageMap">
+    SELECT 
+    	bosp.id, 
+    	bosp.organization_id organizationId, 
+    	bosp.audit_organization_id auditOrganizationId, 
+    	bosp.service_package_type_id servicePackageTypeId, 
+    	bosp.name, 
+   		bosp.price, 
+    	bosp.original_price originalPrice,
+    	bosp.status, 
+    	bosp.acquisitive_type acquisitiveType, 
+    	bosp.acquisitive, 
+    	bosp.cover, 
+    	bosp.create_date createDate, 
+    	bosp.remark, 
+    	(
+	    	SELECT 
+	    		COUNT(cuspo.id) 
+	    	FROM 
+	    		base_user_service_package_order cuspo 
+	    	WHERE cuspo.organization_service_package_id=bosp.id 
+	    	AND cuspo.status=2
+    	) orderNumber,
+    	bosp.protocol
+    FROM base_organization_service_package bosp
+    WHERE id = #{id}
+  </select>
+  <!-- 查询包内的服务项列表 -->
+  <select id="getPackageServiceList" parameterType="int" resultType="map">
+	SELECT
+		bops.organization_service_package_id organizationServicePackageId,
+		bops.service_type_id serviceTypeId,
+		bops.price,
+		bops.times,
+		bst.`name` serviceTypeName,
+		bst.`status`
+	FROM
+		base_organization_package_service bops
+	LEFT JOIN base_service_type bst ON bst.id = bops.service_type_id
+	WHERE bops.organization_service_package_id=#{id}
+  </select>
+  
+  <!--  查询服务包的人群类型列表-->
+  <select id="getPackageUserTypeList" parameterType="int" resultType="map">
+	SELECT
+		boput.id,
+		boput.organization_service_package_id organizationServicePackageId,
+		boput.user_type_id userTypeId,
+		bbosp.`name` organizationServicePackageName,
+		but.`name` userTypeName,
+		but.is_used isUsed,
+		but.apply_type applyType
+	FROM
+		base_organization_package_user_type boput
+	LEFT JOIN base_organization_service_package bbosp ON bbosp.id = boput.organization_service_package_id
+	LEFT JOIN base_user_type but ON but.id = boput.user_type_id
+	WHERE
+		boput.organization_service_package_id = #{id}
+  </select>
+  
+  
+  
+  
+  <!-- 查询服务包列表 -->
+  <select id="getList" parameterType="org.module.organization.team.domain.OrganizationServicePackage" resultType="map">
+     SELECT
+		bosp.id,
+		bosp.pid,
+		bosp.organization_id organizationId,
+		bosp.audit_organization_id auditOrganizationId,
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.name,
+		bosp.price,
+		bosp.original_price originalPrice,
+		bosp.status,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.acquisitive,
+		bosp.cover,
+		bosp.create_date createDate,
+		bosp.remark,
+		bosp.protocol,
+		bspt.`name` servicePackageTypeName,
+		bo.`name` organizationName,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId
+	FROM
+		base_organization_service_package bosp
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_service_package_type bspt ON bspt.id = bosp.service_package_type_id
+	<where>
+		<if test="name !=null and name !=''">
+			bosp.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="servicePackageTypeId !=null ">
+			and bosp.service_package_type_id=#{servicePackageTypeId}
+		</if>
+		<if test="organizationId !=null ">
+			and bosp.organization_id=#{organizationId}
+		</if>
+		<if test="auditOrganizationId !=null ">
+			and bosp.audit_organization_id=#{auditOrganizationId}
+		</if>
+		<if test="province !=null and province!=''">
+				and bo.province=#{province}
+			</if>
+			<if test="city !=null and city!=''">
+				and bo.city=#{city}
+			</if>
+			<if test="area !=null and area!=''">
+				and bo.area=#{area}
+			</if>
+			<if test="code !=null and code !='' ">
+				and bo.`code`=#{code}
+			</if>
+	</where>
+  </select>
+</mapper>

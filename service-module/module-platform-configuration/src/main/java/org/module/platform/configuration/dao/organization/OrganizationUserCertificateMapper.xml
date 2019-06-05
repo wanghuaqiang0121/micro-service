@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.OrganizationUserCertificateMapper">
+	<!-- 检查数据是否重复 -->
+	<select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.OrganizationUserCertificate" resultType="map">
+		SELECT 
+			bouc.id,
+			bouc.organization_user_id organizationUserId,
+			bouc.certificate_type certificateType,
+			bouc.certificate_number certificateNumber,
+			bouc.positive,
+			bouc.opposite,
+			bouc.images,
+			bouc.create_date createDate
+		FROM base_organization_user_certificate bouc
+		WHERE bouc.certificate_type = #{certificateType} AND 
+			bouc.certificate_number = #{certificateNumber}
+	</select>
+  <!-- 批量添加用户证件 -->
+  <insert id="batchInsert" parameterType="list">
+    INSERT INTO base_organization_user_certificate (
+    	organization_user_id, certificate_type, 
+      	certificate_number, positive, opposite, 
+      	images, create_date
+    )
+    VALUES
+   <foreach collection="list" separator="," item="organizationUserCertificate">
+    ( 
+    	#{organizationUserCertificate.organizationUserId}, #{organizationUserCertificate.certificateType}, 
+     	#{organizationUserCertificate.certificateNumber}, #{organizationUserCertificate.positive}, #{organizationUserCertificate.opposite}, 
+    	#{organizationUserCertificate.images}, #{organizationUserCertificate.createDate}
+    )
+     </foreach>
+  </insert>
+  
+  
+</mapper>

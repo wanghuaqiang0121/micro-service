@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.inquiry.dao.InquiryMapper">
+  
+  <delete id="delete" parameterType="org.module.inquiry.domain.Inquiry">
+    delete from base_inquiry
+    where id = #{id}
+  </delete>
+  
+  <!-- 添加问询 -->
+  <insert id="insert" parameterType="org.module.inquiry.domain.Inquiry" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_inquiry (user_id, organization_team_id, 
+      organization_user_id, content, status, 
+      satisfaction, evaluate, accept_date, 
+      create_date)
+    VALUES ( #{userId}, #{organizationTeamId}, 
+      #{organizationUserId}, #{content}, #{status}, 
+      #{satisfaction}, #{evaluate}, #{acceptDate}, 
+      #{createDate})
+  </insert>
+  
+  <!-- 修改问询 -->
+  <update id="update" parameterType="org.module.inquiry.domain.Inquiry">
+    UPDATE base_inquiry SET  id = #{id}
+    	<if test="satisfaction != null">
+    		,satisfaction = #{satisfaction}
+    	</if>
+    	<if test="evaluate != null and evaluate != ''">
+    		,evaluate = #{evaluate}
+    	</if>
+    	<if test="status != null">
+    		,status = #{status}
+    	</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 问询详情 -->
+  <resultMap type="map" id="inquiryMap">
+  	<result column="id" property="id"/>
+  	<collection property="inquiryReplys" column="{id=id}" javaType="list" select="getInquiryReplys"></collection>
+  </resultMap>
+  <select id="getOne" parameterType="org.module.inquiry.domain.Inquiry" resultMap="inquiryMap">
+    SELECT
+		bi.id,
+		bi.user_id userId,
+		bu.`name` userName,
+		bi.organization_team_id organizationTeamId,
+		bot.`name` organizationTeamName,
+		bi.organization_user_id organizationUserId,
+	  	bou.`name` organizationUserName,
+	  	bou.photo organizationUserPhoto,
+		bo.id organizationId,
+		bo.`name`organizationName,
+		bdi.id doctorId,
+		bou.`name` doctorName,
+		bdi.post doctorPost,
+		bdl.id doctorLevelId,
+		bdl.`name` doctorLevelName,
+		bi.content,
+		bi.`status`,
+		bi.satisfaction,
+		bi.evaluate,
+		(
+			SELECT 
+		    	#{inquiryReply.inquiriesNum}-COUNT(bir.id) inquiriesNum
+		    FROM base_inquiry_reply bir
+		    WHERE bir.inquiry_id = #{id}
+		    	AND bir.type = #{inquiryReply.type}
+	    ) inquiriesNum,
+		bi.accept_date acceptDate,
+		bi.create_date createDate
+	FROM
+		base_inquiry bi
+	LEFT JOIN base_user bu ON bu.id = bi.user_id
+	LEFT JOIN base_organization_team bot ON bot.id = bi.organization_team_id 
+	LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+	LEFT JOIN base_organization_user bou ON bou.id = bi.organization_user_id 
+	LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+	LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+	LEFT JOIN base_doctor_organization_department_duty bdodd ON bdodd.organization_user_id = bou.id and bdodd.organization_id = bo.id
+    WHERE bi.id = #{id}
+  </select>
+  <select id="getInquiryReplys" parameterType="java.util.Map" resultType="map">
+    SELECT
+		bir.id,
+		bir.type,
+		bir.content,
+		bir.create_date createDate
+	FROM
+		base_inquiry_reply bir
+	WHERE bir.inquiry_id = #{id}
+	ORDER BY bir.create_date ASC
+  </select>
+  
+  <!-- 用户组问询列表 -->
+  <select id="getList" parameterType="org.module.inquiry.domain.Inquiry" resultType="map">
+    SELECT
+		bi.id,
+		bi.user_id userId,
+		bu.`name` userName,
+		bi.organization_team_id organizationTeamId,
+		bot.`name` organizationTeamName,
+		buug.relation relation,
+		fn_print_system_code_result (buug.relation, ';', 'gx') relationName,
+		bi.organization_user_id organizationUserId,
+		bi.content,
+		bi.`status`,
+		bi.satisfaction,
+		bi.evaluate,
+		bi.accept_date acceptDate,
+		bi.create_date createDate
+	FROM
+		base_inquiry bi
+	LEFT JOIN base_user bu ON bu.id = bi.user_id
+	LEFT JOIN base_user_user_group buug ON buug.user_id = bu.id AND buug.user_group_id = (
+		SELECT
+			bug.id
+		FROM
+			base_user_group bug
+		WHERE
+			bug.user_id = #{userId}
+	)
+	LEFT JOIN base_organization_team bot ON bot.id = bi.organization_team_id
+	WHERE    	
+    	bi.user_id 
+	 	IN (
+			SELECT
+				bu.id userId
+			FROM
+				base_user_user_group buug
+			LEFT JOIN base_user bu ON bu.id = buug.user_id
+			WHERE
+				buug.user_group_id = (
+					SELECT
+						bug.id
+					FROM
+						base_user_group bug
+					WHERE
+						bug.user_id = #{userId}
+				)
+		)
+  </select>
+</mapper>

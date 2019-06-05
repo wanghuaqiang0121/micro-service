@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.DepartmentMapper">
+
+<!-- 新增  -->
+<insert id="insert" parameterType="org.module.organization.configure.domain.Department" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_department(organization_id,`name`,create_date,remark) VALUES (#{organizationId},#{name},#{createDate},#{remark})
+</insert>
+
+<!-- 科室列表  -->
+<select id="getList" parameterType="org.module.organization.configure.domain.Department" resultType="map">
+SELECT
+	bd.id,
+	bd.`name`,
+	bd.organization_id organizationId,
+	bd.create_date createDate,
+	bo.`name` organizationName,
+	bd.remark
+FROM
+	base_department bd
+LEFT JOIN base_organization bo ON bd.organization_id = bo.id 
+	<where>
+		   <if test="organizationId!=null">
+		    bd.organization_id=#{organizationId} 
+		   </if>
+		    <if test="name!=null and name!=''">
+		   and  bd.name  like CONCAT(CONCAT('%', #{name}), '%')
+		   </if>
+	</where>
+</select>
+
+<!-- 检查数据重复 -->
+<select id="getRepeat" parameterType="org.module.organization.configure.domain.Department" resultType="map">
+SELECT id ,`name`,organization_id organizationId,create_date createDate FROM base_department WHERE name=#{name} and organization_id=#{organizationId}
+</select>
+
+<!-- 修改数据 -->
+<update id="update" parameterType="org.module.organization.configure.domain.Department">
+UPDATE base_department SET id=#{id}
+   <if test="name!=null and name!=''">
+    ,`name` =#{name}
+   </if>
+   <if test="organizationId!=null">
+     ,organization_id=#{organizationId}
+	</if>
+	 <if test="remark!=null">
+    ,remark =#{remark}
+   </if>
+ WHERE id=#{id}
+</update>
+
+<!-- 删除 -->
+<delete id="delete" parameterType="org.module.organization.configure.domain.Department" >
+DELETE FROM base_department WHERE id=#{id}
+</delete>
+
+<!-- 查询详情 -->
+<select id="getOne" parameterType="org.module.organization.configure.domain.Department" resultType="map">
+SELECT
+	bd.id,
+	bd.`name`,
+	bd.organization_id organizationId,
+	bd.create_date createDate,
+	bo.`name` organizationName,
+	bd.remark
+FROM
+	base_department bd
+LEFT JOIN base_organization bo ON bd.organization_id = bo.id 
+ WHERE bd.id=#{id}
+</select>
+
+
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.HeightForecastFactorTableMapper">
+
+  <select id="getDetali" parameterType="org.module.bone.age.domain.HeightForecastFactorTable" resultType="org.module.bone.age.domain.HeightForecastFactorTable">
+	SELECT
+		bhfft.id,
+		bhfft.type,
+		bhfft.age,
+		bhfft.height_coefficient heightCoefficient,
+		bhfft.age_coefficient ageCoefficient,
+		bhfft.r_bone_coefficient rBoneCoefficient,
+		bhfft.constant,
+		bhfft.standard_deviation standardDeviation,
+		bhfft.multiple_correlation_coefficient multipleCorrelationCoefficient,
+		bhfft.sex,
+		bhfft.menarche_type menarcheType,
+		bhfft.menarche_coefficient menarcheCoefficient,
+		bhfft.last_year_height_add_coefficient lastYearHeightAddCoefficient,
+		bhfft.last_year_r_bone_add_coefficient lastYearRBoneAddCoefficient
+	FROM
+		base_height_forecast_factor_table bhfft
+    <where>
+    	<if test="sex != null">
+    		bhfft.sex = #{sex}
+    	</if>
+    	<if test="age != null">
+    		AND bhfft.age = #{age}
+    	</if>
+    	<if test="type != null">
+    		AND bhfft.type = #{type}
+    	</if>
+    	<if test="menarcheType != null">
+    		AND bhfft.menarche_type = #{menarcheType}
+    	</if>
+    </where>
+  </select>
+</mapper>

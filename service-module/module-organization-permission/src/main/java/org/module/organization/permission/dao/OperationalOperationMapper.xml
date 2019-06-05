@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.OperationalOperationMapper">
+
+<!--新增机构操作  -->
+<insert id="insert" parameterType="org.module.organization.permission.domain.OperationalOperation" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO base_operational_operation(`name`,`code`,is_used,create_date,remark) VALUES (#{name},#{code},#{isUsed},#{createDate},#{remark})
+</insert>
+
+<!--修改机构操作  -->
+<update id="update" parameterType="org.module.organization.permission.domain.OperationalOperation">
+	UPDATE  base_operational_operation SET id=#{id}
+	<if test="name!=null and name!=''">
+	,`name`=#{name}
+	</if>
+	<if test="code!=null and code!=''">
+	,code=#{code}
+	</if>
+	<if test="isUsed!=null">
+	,is_used=#{isUsed}
+	</if>	
+	<if test="remark!=null">
+	,remark=#{remark}
+	</if>
+  WHERE id=#{id}
+</update>
+<!--查询数据唯一性  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.OperationalOperation" resultType="map">
+	SELECT
+		boo.id,
+		boo.`code`,
+		boo.`name`
+	FROM
+		base_operational_operation boo
+	WHERE
+		boo.`code` = #{code}
+</select>
+<!--查询机构操作详情  -->
+<select id="getOne" parameterType="org.module.organization.permission.domain.OperationalOperation" resultType="map">
+	SELECT
+		boo.id,
+		boo.`code`,
+		boo.`name`,
+		boo.is_used isUsed,	
+		boo.create_date createDate,	
+		boo.remark
+	FROM
+		base_operational_operation boo
+	WHERE
+	    boo.id=#{id}
+</select>
+<!--查询机构操作列表  -->
+<select id="getList" parameterType="org.module.organization.permission.domain.OperationalOperation" resultType="map">
+	SELECT
+		boo.id,
+		boo.`code`,
+		boo.`name`,
+		boo.is_used isUsed,
+		boo.create_date createDate,
+		boo.remark
+	FROM
+		base_operational_operation boo
+	<where>
+		<if test="isUsed!=null">
+			boo.is_used = #{isUsed}
+		</if>
+		<if test="name!=null and name!=''">
+			and boo.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="code!=null and code!=''">
+			and boo.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+	</where>
+</select>
+</mapper>

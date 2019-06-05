@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.UserOrganizationTeamMapper">
+	
+	<insert id="insert" parameterType="org.module.organization.team.domain.UserOrganizationTeam">
+		INSERT INTO base_user_organization_team(
+			user_id,
+			organization_team_id,
+			is_sign,
+			is_increment_service,
+			is_single_service
+		)VALUES(
+			#{userId},
+			#{organizationTeamId},
+			#{isSign},
+			#{isIncrementService},
+			#{isSingleService})
+	</insert>
+	
+	<select id="getRepeat" parameterType="org.module.organization.team.domain.UserOrganizationTeam" resultType="map">
+		SELECT
+			id,
+			user_id AS userId,
+			organization_team_id AS organizationTeamId,
+			is_sign AS isSign,
+			is_increment_service AS isIncrementService,
+			is_single_service AS isSingleService
+		FROM base_user_organization_team
+		WHERE user_id = #{userId} AND organization_team_id = #{organizationTeamId}
+	</select>
+	
+	
+	<update id="update" parameterType="org.module.organization.team.domain.UserOrganizationTeam">
+		UPDATE base_user_organization_team SET
+			id = #{id}
+			<if test="isSign !=null">
+				,is_sign = #{isSign}
+			</if>
+			<if test="isIncrementService !=null">
+				,is_increment_service = #{isIncrementService}
+			</if>
+			<if test="isSingleService !=null">
+				,is_single_service = #{isSingleService}
+			</if>
+		WHERE id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.common.dao.CodeTableMapper">
+  <!-- 新增码表信息 -->
+  <insert id="insert" parameterType="org.module.common.domain.CodeTable">
+    insert into base_code_table (type, code,value, desc)
+    values (#{type}, #{code}, #{value}, #{desc})
+  </insert>
+
+  <!-- 修改码表信息 -->
+  <update id="update" parameterType="org.module.common.domain.CodeTable">
+    update base_code_table set id=#{id}
+    <if test="type !=null and type !=''">
+	   ,type = #{type}
+    </if>
+    <if test="code !=null and code !=''">
+  	   ,code = #{code}
+    </if>
+    <if test="value !=null and value !=''">
+	   ,value = #{value}
+    </if>
+    <if test="desc !=null and desc !=''">
+	   ,desc = #{desc}
+    </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 查询码表信息详情 -->
+  <select id="getOne" parameterType="org.module.common.domain.CodeTable" resultType="map">
+  SELECT
+		bct.id,
+		bct.type,
+		bct.`code`,
+		bct.`value`,
+		bct.`desc`
+	FROM
+		base_code_table bct
+    WHERE  bct.id = #{id}
+  </select>
+  
+  <!-- 查询码表列表 -->
+  <select id="getList" parameterType="org.module.common.domain.CodeTable" resultType="map">
+	SELECT
+		bct.id,
+		bct.type,
+		bct.`code`,
+		bct.`value`,
+		bct.`desc`
+	FROM
+		base_code_table bct
+    <where>
+    	<if test="type !=null and type !=''">
+    		bct.type=#{type}
+    	</if>
+    	<if test="code !=null and code !=''">
+    		and bct.code=#{code}
+    	</if>
+    	<if test="value !=null and value !=''">
+    		and bct.value=#{value}
+    	</if>
+    </where>
+  </select>
+</mapper>

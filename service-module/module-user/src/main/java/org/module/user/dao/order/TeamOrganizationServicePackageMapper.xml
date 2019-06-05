@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.order.TeamOrganizationServicePackageMapper">
+  <!-- 查询是否重复 -->
+  <select id="getRepeat" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage" resultType="map">
+    SELECT 
+    	tosp.id, 
+    	tosp.doctor_team_id doctorTeamId, 
+    	tosp.organization_service_package_id organizationServicePackageId, 
+    	tosp.price, 
+    	tosp.status, 
+    	tosp.create_date createDate, 
+    	tosp.remark
+    FROM 
+    	base_team_organization_service_package tosp
+    WHERE 
+    	tosp.doctor_team_id = #{doctorTeamId} AND 
+    	tosp.organization_service_package_id = #{organizationServicePackageId}
+  </select>
+  
+  <!-- 查询详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage" resultType="map">
+    SELECT 
+    	tosp.id, 
+    	tosp.doctor_team_id doctorTeamId, 
+    	tosp.organization_service_package_id organizationServicePackageId, 
+    	tosp.price, 
+    	bosp.original_price originalPrice,
+    	tosp.status, 
+    	tosp.create_date createDate, 
+    	bowi.merchant_number merchantNumber,
+    	bowi.app_id appId,
+    	bowi.app_secret appSecret,
+	    bowi.pay_key payKey,
+	    bowi.wechat_id wechatId,
+	    bowi.wechat_key wechatKey,
+    	tosp.remark
+    FROM 
+    	base_team_organization_service_package tosp
+    LEFT JOIN base_organization_service_package bosp ON bosp.id = tosp.organization_service_package_id
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+    WHERE 
+    	tosp.id = #{id}
+  </select>
+  
+  <!-- 删除团队机构服务包关联 -->
+  <delete id="delete" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage">
+    DELETE FROM base_team_organization_service_package
+    WHERE doctor_team_id = #{doctorTeamId} AND organization_service_package_id = #{organizationServicePackageId}
+  </delete>
+  
+  <!-- 添加团队机构服务包关联表 -->
+  <insert id="insert" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_team_organization_service_package (
+    	doctor_team_id, 
+    	organization_service_package_id, 
+        price, 
+        status, 
+        create_date, 
+        remark
+    )
+    VALUES (
+    	#{doctorTeamId}, 
+    	#{organizationServicePackageId}, 
+        #{price}, 
+        #{status}, 
+        #{createDate}, 
+        #{remark}
+    )
+  </insert>
+  
+  <!-- 修改团队机构服务包关联 -->
+  <update id="update" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage">
+    UPDATE base_team_organization_service_package SET id = #{id}
+		<if test="price != null">
+        	,price = #{price}
+		</if>
+		<if test="status != null">
+	        ,status = #{status}
+		</if>
+		<if test="createDate != null">
+	        ,create_date = #{createDate}
+		</if>
+		<if test="remark != null">
+	        ,remark = #{remark}
+		</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 团队机构服务包列表 -->
+  <select id="getList" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage" resultType="map">
+    SELECT 
+    	tosp.id, 
+    	tosp.doctor_team_id doctorTeamId, 
+    	tosp.organization_service_package_id organizationServicePackageId, 
+    	tosp.price teamServicePackagePrice, 
+    	tosp.status teamServicePackageStatus, 
+    	tosp.create_date teamServicePackageCreateData, 
+    	tosp.remark teamServicePackageRemark,
+    	osp.`name` organizationServicePackageName
+    FROM base_team_organization_service_package tosp
+    	LEFT JOIN base_organization_service_package osp ON osp.id = tosp.organization_service_package_id
+    WHERE tosp.doctor_team_id = #{doctorTeamId}
+  </select>
+  
+  <!-- 根据机构服务包id查询是否有团队使用 -->
+  <select id="getListByOrganizationServicePackageId" parameterType="org.module.user.domain.order.TeamOrganizationServicePackage" resultType="map">
+    SELECT 
+    	tosp.id, 
+    	tosp.doctor_team_id doctorTeamId, 
+    	tosp.organization_service_package_id organizationServicePackageId, 
+    	tosp.price teamServicePackagePrice, 
+    	tosp.status teamServicePackageStatus, 
+    	tosp.create_date teamServicePackageCreateData, 
+    	tosp.remark teamServicePackageRemark,
+    	osp.`name` organizationServicePackageName
+    FROM base_team_organization_service_package tosp
+    	LEFT JOIN base_organization_service_package osp ON osp.id = tosp.organization_service_package_id
+    WHERE tosp.organization_service_package_id = #{organizationServicePackageId}
+  </select>
+  
+</mapper>

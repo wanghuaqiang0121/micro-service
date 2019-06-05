@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.DoctorSkillMapper">
+  
+  <!--新增医生技能  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.doctor.DoctorSkill" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_doctor_skill 
+     	(name, create_date, remark)
+    VALUES 
+    	(#{name}, #{createDate}, #{remark})
+  </insert>
+  <!--修改医生技能  -->
+  <update id="update" parameterType="org.module.organization.configure.domain.doctor.DoctorSkill">
+    UPDATE base_doctor_skill SET id = #{id}
+    <if test="name!=null name!=''">
+    ,name = #{name}
+    </if>
+    <if test="remark!=null">
+     remark = #{remark}
+    </if>
+    WHERE id = #{id}
+  </update>
+  <!--查询医生技能详情  -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.doctor.DoctorSkill" resultType="map">
+	SELECT
+		id,
+		`name`,
+		create_date createDate,
+		remark
+	FROM
+		base_doctor_skill
+   WHERE id=#{id}
+  </select>
+  
+  <!--查询医生技能列表  -->
+       <select id="selectAll" parameterType="org.module.organization.configure.domain.doctor.DoctorSkill" resultType="map">
+		  SELECT
+				id,
+				`name`,
+				create_date createDate,
+				remark
+			FROM
+				base_doctor_skill
+			<where>
+			  <if test="name!=null and name !=''">
+	    	     name like CONCAT(CONCAT('%', #{name}), '%')
+	          </if>
+			</where>
+      </select>
+  
+</mapper>

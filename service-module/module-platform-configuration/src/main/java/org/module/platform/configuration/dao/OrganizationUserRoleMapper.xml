@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationUserRoleMapper">
+  
+ 
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.OrganizationUserRole" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_user_role (organization_user_id, organization_role_id
+      )
+    values ( #{organizationUserId}, #{organizationRoleId}
+      )
+  </insert>
+ 
+</mapper>

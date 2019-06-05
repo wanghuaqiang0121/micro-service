@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.DoctorDoctorSkillMapper">
+  
+  <!-- 删除医生擅长领域关联 -->
+  <delete id="deleteByDoctorInfoId" parameterType="org.module.organization.configure.domain.doctor.DoctorDoctorSkill">
+    DELETE FROM base_doctor_doctor_skill
+    WHERE doctor_info_id = #{doctorInfoId}
+  </delete>
+  
+  <!-- 新增医生医生领域关联 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.doctor.DoctorDoctorSkill" keyProperty="id" useGeneratedKeys="true">
+    INSERT INTO base_doctor_doctor_skill (doctor_info_id, doctor_skill_id)
+    VALUES ( #{doctorInfoId}, #{doctorSkillId} )
+  </insert>
+  
+  <update id="update" parameterType="org.module.organization.configure.domain.doctor.DoctorDoctorSkill">
+    UPDATE base_doctor_doctor_skill  SET id = #{id}
+    <if test="doctorInfoId!=null">
+   ,doctor_info_id = #{doctorInfoId},
+    </if>
+    <if test="doctorSkillId!=null">
+    ,doctor_skill_id = #{doctorSkillId}
+    </if>
+    WHERE id = #{id}
+  </update>
+  
+  <select id="getOne" parameterType="org.module.organization.configure.domain.doctor.DoctorDoctorSkill" resultType="map">
+	SELECT
+		id,
+		doctor_info_id doctorInfoId,
+		doctor_skill_id doctorSkillId
+	FROM
+		base_doctor_doctor_skill
+	WHERE
+		id =  #{id}
+  </select>
+  
+  <select id="getList" parameterType="org.module.organization.configure.domain.doctor.DoctorDoctorSkill" resultType="map">
+	SELECT
+		id,
+		doctor_info_id doctorInfoId,
+		doctor_skill_id doctorSkillId
+	FROM
+		base_doctor_doctor_skill
+  </select>
+</mapper>

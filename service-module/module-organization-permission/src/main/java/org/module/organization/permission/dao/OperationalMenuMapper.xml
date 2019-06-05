@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.OperationalMenuMapper">
+
+<!--新增  -->
+<insert id="insert" parameterType="org.module.organization.permission.domain.OperationalMenu" keyProperty="id" useGeneratedKeys="true">
+	INSERT INTO base_operational_menu(pid,`name`,`code`,is_used,icon,create_date,remark,type,sort) VALUES (#{pid},#{name},#{code},#{isUsed},#{icon},#{createDate},#{remark},#{type},#{sort})
+</insert>
+
+<!--修改  -->
+<update id="update" parameterType="org.module.organization.permission.domain.OperationalMenu">
+	UPDATE  base_operational_menu SET id=#{id}
+	<if test="pid!=null">
+	,pid=#{pid}
+	</if>
+	<if test="name!=null and name!=''">
+	,`name`=#{name}
+	</if>
+	<if test="code!=null and code!=''">
+	,code=#{code}
+	</if>
+	<if test="icon!=null">
+	,icon=#{icon}
+	</if>
+	<if test="type!=null">
+	,type=#{type}
+	</if>
+	<if test="sort!=null">
+	,sort=#{sort}
+	</if>
+	<if test="isUsed!=null">
+	,is_used=#{isUsed}
+	</if>	
+	<if test="remark!=null">
+	,remark=#{remark}
+	</if>
+  WHERE id=#{id}
+</update>
+<!--查询数据唯一性  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.OperationalMenu" resultType="map">
+	SELECT
+		bom.id,
+		bom.`code`,
+		bom.`name`,
+		bom.type
+	FROM
+		base_operational_menu bom
+	WHERE
+		bom.`code` = #{code}
+</select>
+<!--查询详情  -->
+<select id="getOne" parameterType="org.module.organization.permission.domain.OperationalMenu" resultType="map">
+	SELECT
+		bom.id,
+		bom.`code`,
+		bom.`name`,
+		bom.is_used isUsed,		
+		bom.remark,
+		bom.pid,
+		bom.icon,
+		bom.type,
+		bom.sort,
+		om.`name` pName,
+		om.`code` pCode,
+		om.icon pIcon
+	FROM
+		base_operational_menu bom
+		LEFT JOIN base_operational_menu om ON om.id = bom.pid
+	WHERE
+	    bom.id=#{id}
+</select>
+<!--查询列表  -->
+<select id="getList" parameterType="org.module.organization.permission.domain.OperationalMenu" resultType="map">
+SELECT
+		bom.id,
+		bom.`code`,
+		bom.`name`,
+		bom.is_used isUsed,		
+		bom.remark,
+		bom.pid,
+		bom.icon,
+		bom.type,
+		bom.sort
+	FROM
+		base_operational_menu bom
+		<where>
+		  <if test="pid!=null and pid ==0 ">
+		     bom.pid IS NULL
+		  </if>
+		  <if test="pid!=null and pid !=0 ">
+		   and  bom.pid = #{pid}
+		  </if>
+		  <if test="isUsed!=null">
+		   and  bom.is_used = #{isUsed}
+		  </if>
+		  <if test="type!=null">
+		   and  bom.type = #{type}
+		  </if>
+		  <if test="name!=null and name!=''">
+		   and  bom.`name`  like CONCAT(CONCAT('%', #{name}), '%')
+		  </if>
+		  <if test="code!=null and code!=''">
+		   and  bom.`code`  like CONCAT(CONCAT('%', #{code}), '%')
+		  </if>
+		</where>
+</select>
+</mapper>

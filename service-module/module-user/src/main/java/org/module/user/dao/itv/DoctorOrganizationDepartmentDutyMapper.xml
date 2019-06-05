@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.itv.DoctorOrganizationDepartmentDutyMapper">
+
+
+
+<!-- 机构下的成员列表 -->
+<select id="getOrganizationMemberList" parameterType="org.module.user.domain.itv.DoctorOrganizationDepartmentDuty" resultType="map">
+	SELECT
+		bdodtd.id,
+		bdodtd.organization_user_id organizationUserId,
+		bdodtd.department_id departmentId,
+		bdodtd.organization_id organizationId,
+		bdodtd.post,
+		bdodtd.remark,
+		bou.`name` organizationUserName,
+		bou.phone organizationUserPhone,
+	    bou.sex,	   
+	    bde.`name` departmentName,
+	    bou.account,
+	    bou.birthday,
+	      TIMESTAMPDIFF(YEAR,bou.birthday, CURDATE()) age, 
+	    bou.photo,
+	    bou.`status` organizationUserStatus,
+	    bou.remark organizationUserRemark,
+	    bo.`name` organizationName,
+	    bo.`code` organizationCode,
+	    bo.logo organizationLogo,
+	    bo.phone organizationPhone,
+	    bo.picture organizationPicture,
+	    bo.`status` organizationStatus
+	FROM
+		base_doctor_organization_department_duty bdodtd
+	LEFT JOIN base_organization_user bou ON bdodtd.organization_user_id = bou.id
+	LEFT JOIN base_department bde ON bdodtd.department_id = bde.id
+	LEFT JOIN base_organization bo ON bdodtd.organization_id=bo.id
+	<where>
+		<if test="organizationId!=null">
+		    bdodtd.organization_id =#{organizationId}
+		</if>
+		<if test="departmentId !=null">
+			and bdodtd.department_id =#{departmentId}
+		</if>
+		<if test="organizationUserId!=null">
+		    and bdodtd.organization_user_id =#{organizationUserId}
+		</if>
+	</where>
+</select>
+</mapper>

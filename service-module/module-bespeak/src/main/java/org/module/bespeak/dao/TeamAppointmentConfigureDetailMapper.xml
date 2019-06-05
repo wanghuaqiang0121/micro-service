@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bespeak.dao.TeamAppointmentConfigureDetailMapper">
+  
+  <delete id="delete" parameterType="org.module.bespeak.domain.TeamAppointmentConfigureDetail">
+    DELETE FROM base_team_appointment_configure_detail
+    WHERE id = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.bespeak.domain.TeamAppointmentConfigureDetail">
+    INSERT INTO base_team_appointment_configure_detail (id, team_appointment_configure_id, start_date, 
+      end_date, start_no, end_no, 
+      create_date)
+    VALUES (#{id}, #{teamAppointmentConfigureId}, #{startDate}, 
+      #{endDate}, #{startNo}, #{endNo}, 
+      #{createDate})
+  </insert>
+  
+  <update id="update" parameterType="org.module.bespeak.domain.TeamAppointmentConfigureDetail">
+    UPDATE base_team_appointment_configure_detail
+    SET team_appointment_configure_id = #{teamAppointmentConfigureId},
+      start_date = #{startDate},
+      end_date = #{endDate},
+      start_no = #{startNo},
+      end_no = #{endNo},
+      create_date = #{createDate}
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 团队预约配置详情 -->
+  <select id="getOne" parameterType="org.module.bespeak.domain.TeamAppointmentConfigureDetail" resultType="map">
+    SELECT btacd.id, 
+    	btacd.team_appointment_configure_id teamAppointmentConfigureId, 
+    	btacd.start_date startDate, 
+    	btacd.end_date endDate, 
+    	btacd.start_no startNo, 
+      	btacd.end_no endNo, 
+    	btacd.create_date createDate,
+		bot.`name` teamName,
+		bs.`name` serviceName,
+		bo.`name` organizatioName,
+		bowi.app_id appId
+    FROM base_team_appointment_configure_detail btacd
+    LEFT JOIN base_team_appointment_configure btac ON btac.id = btacd.team_appointment_configure_id
+	LEFT JOIN base_organization_team bot ON bot.id = btac.organization_team_id
+	LEFT JOIN base_service bs ON bs.id = btac.service_id
+	LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+	LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+    WHERE btacd.id = #{id}
+  </select>
+  
+  <select id="getList" parameterType="org.module.bespeak.domain.TeamAppointmentConfigureDetail" resultType="map">
+    SELECT id, 
+    	team_appointment_configure_id teamAppointmentConfigureId, 
+    	start_date startDate, 
+    	end_date endDate, 
+    	start_no startNo, 
+    	end_no endNo, 
+    	create_date createDate
+    FROM base_team_appointment_configure_detail
+  </select>
+</mapper>

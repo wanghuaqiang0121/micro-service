@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.UserMapper">
+	<!-- 判断数据是否重复 -->
+	<select id="getUserByPhone" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT bu.id, bu.`name`, bu.phone, bu.birthday, bu.sex FROM base_user bu
+		<where>
+			<if test="phone !=null and phone != ''">
+				 bu.phone = #{phone}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询用户微信 -->
+	<select id="getWechat" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT
+			bu.id,
+			bu.`name` userName,
+			buw.appid userAppId,
+			buw.openid userOpenId
+		FROM
+			base_user bu
+		INNER JOIN base_user_wechat buw ON buw.user_id = bu.id
+		WHERE bu.id=#{id}
+		ORDER BY buw.create_date desc
+		LIMIT 1
+	</select>
+	<!-- 查询用户组 -->
+	<select id="getGroupList" parameterType="org.module.user.domain.User" resultType="map">
+	SELECT
+		u.phone
+	FROM
+		base_user_user_group uug
+	LEFT JOIN base_user_group ug ON ug.id = uug.user_group_id
+	LEFT JOIN base_user u ON u.id = ug.user_id
+	WHERE
+		uug.user_id = #{id}
+	</select>
+	
+	<!-- 判断数据是否重复 -->
+	<select id="getRepeat" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT bu.id, bu.`name`, bu.phone, bu.birthday, bu.sex FROM base_user bu
+		<where>
+			<if test="phone !=null and phone != ''">
+				 bu.phone = #{phone}
+			</if>
+			<if test="idCard != null and idCard != ''">
+				and bu.id_card = #{idCard}
+			</if>
+		</where>
+	</select>
+	<!-- 修改数据 -->
+	<update id="update" parameterType="org.module.user.domain.User">
+		UPDATE base_user set id=#{id}                         
+			<if test="name !=null and name != ''">                
+				,name=#{name}                                     
+			</if>                                                 
+			<if test="sex !=null ">                               
+				,sex=#{sex}                                       
+			</if>                                                
+			<if test="idCard !=null and idCard != ''">           
+				,id_card=#{idCard}                               
+			</if>                                                
+			<if test="birthday !=null ">                         
+				,birthday=#{birthday}                            
+			</if>                                                
+			<if test="phone !=null and phone != ''">             
+				,phone=#{phone}                                  
+			</if>                                                
+			<if test="phoneStatus !=null ">                      
+				,phone_status=#{phoneStatus}                     
+			</if>                                                
+			<if test="isBindWechat !=null ">                     
+				,is_bind_wechat=#{isBindWechat}
+			</if>
+			<if test="province !=null and province !=''">
+				,province=#{province}
+			</if>
+			<if test="source !=null">
+				,source=#{source}
+			</if>
+			<if test="terminalSource !=null">
+				,terminal_source=#{terminalSource}
+			</if>
+			<if test="city !=null and city !=''">
+				,city=#{city}
+			</if>
+			<if test="area !=null and area !=''">
+				,area=#{area}
+			</if>
+			<if test="street !=null and street !=''">
+				,street=#{street}
+			</if>
+			<if test="lng !=null">
+				,lng=#{lng}
+			</if>
+			<if test="lat !=null">
+				,lat=#{lat}
+			</if>
+			<if test="address !=null and address !=''">
+				,address=#{address}
+			</if>
+			<if test="status !=null">
+				,status=#{status}
+			</if>
+			<if test="updateDate !=null">
+				,update_date=#{updateDate}
+			</if>
+			<if test="createDate !=null">
+				,create_date=#{createDate}
+			</if>
+			<if test="photo !=null and photo != ''">
+				,photo=#{photo}
+			</if>
+			<if test="remark !=null and remark !=''">
+				,remark=#{remark}
+			</if>
+		WHERE id=#{id}
+	</update>
+	 <!-- 定义查询详情结果集-->
+   <resultMap type="map" id="userMap">
+		<result column="id" property="id"/>
+		<collection property="userType" column="id" javaType="list" select="getUserTypeList"/>
+		<collection property="certificate" column="id" javaType="list" select="getCertificateList"/>
+   </resultMap>
+	<!-- 查询详情 -->
+	<select id="getOne" parameterType="org.module.user.domain.User" resultMap="userMap">
+		SELECT
+			bu.id,
+			bu.`name`,
+			fn_print_system_code_result (buug.relation, ';', 'gx') relationName,
+			bu.sex,
+			bu.id_card idCard,
+			bu.birthday,
+			(DATE_FORMAT(FROM_DAYS(TO_DAYS(NOW())-TO_DAYS(bu.birthday)), '%Y')+0) age,
+			bu.phone,
+			bu.phone_status phoneStatus,
+			bu.province,
+			bu.city,
+			bu.area,
+			bu.street,
+			bu.lng,
+			bu.lat,
+			bu.address address,
+			bus.`status`,
+			bu.source,
+			bu.terminal_source terminalSource,
+			bu.is_bind_wechat isBindWeChat,
+			bu.create_date createDate,
+			bu.update_date updateDate,
+			bu.remark,
+			bu.photo,
+			bot.id doctorTeamId,
+			bot.`name` doctorTeamName,
+			bot.organization_id organizationId,
+			bo.`name` organizationName,
+			bo.logo organizationLogo,
+			bos.`name` siteName,
+			bus.`status` signStatus,
+			bus.close_reason closeReason,
+			bus.id signId,
+			bus.create_date signCreateDate,
+			bus.update_date signUpdateDate,
+			bug.id groupId,
+			bug.phone groupPhone
+		FROM
+			base_user bu
+		LEFT JOIN base_user_sign bus ON bus.user_id=bu.id
+		LEFT JOIN base_organization_team bot ON bot.id=bus.organization_team_id
+		LEFT JOIN base_organization bo ON bo.id=bot.organization_id
+		LEFT JOIN base_organization_site bos ON bos.id=bot.organization_site_id
+		LEFT JOIN base_user_group bug ON bug.user_id=bu.id
+		LEFT JOIN base_user_user_group buug ON buug.user_id = bu.id  
+			AND buug.user_group_id = #{userGroupId}
+			AND buug.user_id = #{id}
+		WHERE bu.id=#{id}
+	</select>
+	<!-- 查询用户证件列表 -->
+  	<select id="getCertificateList" parameterType="int" resultType="map">
+  	SELECT
+			buc.id,
+			buc.user_id userId,
+			fn_print_system_code_result (buc.certificate_type, ';', 'CV02.01.101') certificateTypeName,
+			buc.certificate_type certificateType,
+			buc.certificate_number certificateNumber,
+			buc.positive,
+			buc.opposite,
+			buc.images,
+			buc.create_date createDate
+		FROM
+			base_user_certificate buc
+		WHERE buc.user_id = #{id}
+  	</select>
+  	
+    <!-- 查询用户对应的人群类型 -->
+  	<select id="getUserTypeList" parameterType="int" resultType="map">
+		SELECT
+			buut.id,
+			but.id userTypeId,
+			but.`name` userTypeName
+		FROM
+			base_user_user_type buut
+		LEFT JOIN base_user_type but ON but.id = buut.user_type_id
+		WHERE
+			buut.user_id =#{id}
+  	</select>
+  	<!-- 用户组管理者的成员列表结果集 -->
+  <resultMap type="map" id="groupUserList">
+		<result column="id" property="id"/>
+		<collection property="userType" column="id" javaType="list" select="getGroupUserTypeList"/>
+  </resultMap>
+	<!-- 用户组管理者的成员列表 -->
+	<select id="getGroupUserList" parameterType="org.module.user.domain.User" resultMap="groupUserList">
+		SELECT
+			u.id,
+			u.`name`,
+			u.phone,
+			u.create_date createDate
+		FROM
+			base_user_user_group uug
+		LEFT JOIN base_user u ON u.id = uug.user_id
+		WHERE uug.user_group_id = (
+				SELECT ug.id FROM base_user_group ug
+				WHERE ug.user_id = #{id}
+			)
+		GROUP BY uug.user_id
+	</select>
+	
+  <!-- 查询用户对应的人群类型 -->
+  <select id="getGroupUserTypeList" parameterType="int" resultType="map">
+		SELECT
+			buut.id,
+			but.id userTypeId,
+			but.`name` userTypeName
+		FROM
+			base_user_user_type buut
+		LEFT JOIN base_user_type but ON but.id = buut.user_type_id
+		WHERE
+			buut.user_id =#{id}
+  </select>
+	<!-- 查询用户微信是否重复 -->
+	<select id="getWechatRepeat" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT
+			id
+		FROM
+			base_user_wechat uw
+		WHERE
+			uw.appid=#{wechat.appid} and uw.openid=#{wechat.openid}
+	</select>
+	<!-- 根据微信标识查询用户信息 -->
+	<select id="getUserByWechat" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT
+			u.id,u.`name`,u.photo,u.birthday,u.phone,u.sex,u.province,u.city,u.area,u.street,u.address,u.lat,u.lng,uw.id wechatId
+		FROM
+			base_user_wechat uw
+		LEFT JOIN base_user u ON u.id = uw.user_id
+		WHERE
+			uw.appid=#{wechat.appid} and uw.openid=#{wechat.openid}
+	</select>
+	<!-- 查询登陆信息 -->
+	<select id="getLoginMsg" parameterType="org.module.user.domain.User" resultType="map">
+		SELECT
+			u.id,u.`name`,u.photo,u.birthday,u.phone,u.sex,u.province,u.city,u.area,u.street,u.address,u.lat,u.lng
+		FROM
+			base_user u
+		WHERE
+			u.id = #{id}
+	</select>
+	<!-- 新增用户 -->
+	<insert id="insert" parameterType="org.module.user.domain.User" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO 
+		`base_user` (terminal_source, `name`, `sex`, `id_card`, `birthday`, `phone`, `phone_status`, `photo`, `province`, `city`, `area`, `street`, `lng`, `lat`, `address`, `status`, `is_bind_wechat`, `create_date`, `update_date`, `remark`) 
+		VALUES 
+		(#{terminalSource}, #{name}, #{sex}, #{idCard}, #{birthday}, #{phone}, #{phoneStatus}, #{photo}, #{province}, #{city}, #{area}, #{street}, #{lng}, #{lat}, #{address}, #{status}, #{isBindWechat}, #{createDate}, #{updateDate}, #{remark})
+	</insert>
+	<!-- 绑定微信 -->
+	<insert id="bindWechat" parameterType="org.module.user.domain.User" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO 
+		`base_user_wechat` ( `user_id`, `appid`, `openid`, `create_date`) 
+		VALUES 
+		( #{wechat.userId}, #{wechat.appid}, #{wechat.openid}, #{wechat.createDate})
+	</insert>
+	<update id="updateUserWechat" parameterType="org.module.user.domain.User">
+		UPDATE base_user_wechat uw
+		SET uw.login_date =#{wechat.loginDate}
+		WHERE
+			uw.id =#{wechat.id}
+	</update>
+</mapper>

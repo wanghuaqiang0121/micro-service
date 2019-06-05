@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.team.permission.dao.OrganizationTeamOperationMapper">
+  
+  <!-- 删除团队操作 -->
+  <delete id="delete" parameterType="org.module.team.permission.domain.OrganizationTeamOperation">
+    DELETE FROM base_organization_team_operation
+    WHERE id = #{id}
+  </delete>
+  
+  <!-- 新增团队操作 -->
+  <insert id="insert" parameterType="org.module.team.permission.domain.OrganizationTeamOperation" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_organization_team_operation (name, code, 
+      is_used, create_date, remark
+      )
+    VALUES (#{name}, #{code}, 
+      #{isUsed}, #{createDate}, #{remark}
+      )
+  </insert>
+  
+  <!-- 修改团队操作 -->
+  <update id="update" parameterType="org.module.team.permission.domain.OrganizationTeamOperation">
+    UPDATE base_organization_team_operation
+    SET id = #{id}
+    	<if test="name!=null and name!=''">
+    		,name = #{name}
+    	</if>
+    	<if test="code!=null">
+		    ,code = #{code}
+    	</if>
+	    <if test="isUsed!=null ">
+		    ,is_used = #{isUsed}
+    	</if>
+	    <if test="createDate!=null ">
+		    ,create_date = #{createDate}
+    	</if>
+	    <if test="remark!=null and remark!=''">
+		    ,remark = #{remark}
+    	</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 数据是否重复 -->
+  <select id="getRepeat" parameterType="org.module.team.permission.domain.OrganizationTeamOperation" resultType="map">
+    SELECT 
+    	id, 
+    	name, 
+    	code, 
+    	is_used isUsed, 
+    	create_date createDate, 
+    	remark
+    FROM base_organization_team_operation
+    WHERE code = #{code}
+  </select>
+  
+  <!-- 查看团队操作详情 -->
+  <select id="getOne" parameterType="org.module.team.permission.domain.OrganizationTeamOperation" resultType="map">
+    SELECT 
+    	id, 
+    	name, 
+    	code, 
+    	is_used isUsed, 
+    	create_date createDate, 
+    	remark
+    FROM base_organization_team_operation
+    WHERE id = #{id}
+  </select>
+  
+  <!-- 查看团队操作列表 -->
+  <select id="getList" parameterType="org.module.team.permission.domain.OrganizationTeamOperation" resultType="map">
+    SELECT 
+    	id, 
+    	name, 
+    	code, 
+    	is_used isUsed, 
+    	create_date createDate, 
+    	remark
+    FROM base_organization_team_operation
+	<where>
+	    <if test="name!=null and name!=''">
+	    	`name` like CONCAT(CONCAT('%', #{name}), '%')
+	    </if>
+	    <if test="code!=null and code!=''">
+	    and	`code` like CONCAT(CONCAT('%', #{code}), '%')
+	    </if>
+    </where>
+  </select>
+</mapper>

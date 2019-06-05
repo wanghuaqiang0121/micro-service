@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.work.order.dao.WorkOrderMapper">
+  
+  
+  <!-- 查询每天预约的人数 -->
+  <select id="getReservationNumber" parameterType="org.module.work.order.domain.WorkOrder" resultType="map">
+    SELECT
+	    bwo.appointment_date appointmentDate, 
+		COUNT(bwo.id) reservationNumber 
+	FROM
+		base_work_order bwo
+		LEFT JOIN base_user_service bus ON bwo.user_service_id=bus.id AND bus.service_type_id = #{userService.serviceTypeId}
+	<where>
+		<choose>
+			<when test="appointmentDate !=null and appointmentEndDate !=null">
+				and bwo.appointment_date&gt;= #{appointmentDate}
+				and bwo.appointment_date&lt;= #{appointmentEndDate}
+			</when>
+			<otherwise>
+				<if test="appointmentDate !=null">
+					and bwo.appointment_date&gt;= #{appointmentDate}
+				</if>
+				<if test="appointmentEndDate !=null">
+					and bwo.appointment_date&lt;= #{appointmentEndDate}
+				</if>
+			</otherwise>
+		</choose>
+	</where>
+	GROUP BY
+		bwo.appointment_date
+  </select>
+  
+  
+  <!-- 查询工单列表 -->
+  <select id="getList" parameterType="org.module.work.order.domain.WorkOrder" resultType="map">
+	SELECT
+		bwo.id,
+		bwo.user_id userId,
+		bwo.user_service_id userServiceId,
+		bwo.organization_team_id organizationTeamId,
+		bwo.number,
+		bwo.appointment_date appointmentDate,
+		bwo.`status`,
+		bwo.create_date createDate,
+		bwo.update_date updateDate
+	FROM
+		base_work_order bwo
+	LEFT JOIN base_user_service bus ON bus.id=bwo.user_service_id
+	LEFT JOIN base_user_type but ON but.id=bus.service_type_id
+	LEFT JOIN base_organization_team bdt ON bwo.organization_team_id = bdt.id
+	<where>
+		<if test="userId !=null">
+			and bwo.user_id=#{userId}
+		</if>
+		<if test="orderSources !=null">
+			and bwo.order_sources=#{orderSources}
+		</if>
+		<if test="organizationTeamId !=null">
+			and bwo.organization_team_id=#{organizationTeamId}
+		</if>
+		<if test="userServiceId !=null">
+			and bus.id=#{userServiceId}
+		</if>
+		<if test="statuss !=null">
+			<foreach collection="statuss" item="item" open="and bwo.`status` IN (" close=")" separator=",">
+				${item}
+			</foreach>
+		</if>
+	</where>
+  </select>
+  
+  <!-- 查询用户工单列表 -->
+  <select id="getListByUserId" parameterType="org.module.work.order.domain.WorkOrder" resultType="map">
+	SELECT
+		bwo.id,
+		bwo.organization_team_id organizationTeamId,
+		bwo.number,
+		bwo.order_sources orderSources,
+		bwo.launch_user_id launchUserId,
+		bu.`name` launchUserName,
+		bwo.organization_user_id organizationUserId,
+		bou.`name` launchDoctorName,
+		bou.photo doctorPhoto,
+		bdl.name doctorLevelName,
+  		bdc.name doctorCategoryName,
+		bwo.appointment_date appointmentDate,
+		bwo.`status`,
+		bwo.create_date createDate,
+		bwo.update_date updateDate,
+		bst.`name` serviceTypeName,
+		bwo.evaluate_star evaluateStar,
+		bwo.evaluate_text evaluateText,
+		bosp.`name` organizationServicePackageName,
+		bot.`name` organizationTeamName
+	FROM
+		base_work_order bwo
+	LEFT JOIN base_user_service bus ON bus.id = bwo.user_service_id
+	LEFT JOIN base_user_service_package_order buspo ON buspo.id = bus.user_service_package_order_id
+	INNER JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+	<if test="organizationServicePackage != null and organizationServicePackage.id != null">
+		AND bosp.id = #{organizationServicePackage.id}
+	</if>
+	LEFT JOIN base_service_type bst ON bst.id = bus.service_type_id
+	LEFT JOIN base_user bu ON bu.id = bwo.launch_user_id
+	LEFT JOIN base_organization_user bou ON bou.id = bwo.organization_user_id
+	LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id 
+	LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+	LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id
+	LEFT JOIN base_organization_team bot ON bwo.organization_team_id = bot.id
+	WHERE
+		bwo.user_id = #{userId}
+	GROUP BY
+		bwo.id
+	ORDER BY
+		bwo.update_date DESC
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from base_work_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <!-- 添加工单 -->
+  <insert id="insert" parameterType="org.module.work.order.domain.WorkOrder" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_work_order ( user_id, user_service_id,launch_user_id,
+      organization_team_id, organization_user_id, 
+      number, order_sources, appointment_date, 
+      remark, status, evaluate_star, 
+      evaluate_text, evaluate_date, close_reason_code, 
+      close_reason, notice, create_date, 
+      update_date)
+    VALUES ( #{userId}, #{userServiceId}, #{launchUserId},
+      #{organizationTeamId}, #{organizationUserId}, 
+      #{number}, #{orderSources}, #{appointmentDate}, 
+      #{remark}, #{status}, #{evaluateStar}, 
+      #{evaluateText}, #{evaluateDate}, #{closeReasonCode}, 
+      #{closeReason}, #{notice}, #{createDate}, 
+      #{updateDate})
+  </insert>
+  
+  <update id="updateByPrimaryKey" parameterType="org.module.work.order.domain.WorkOrder">
+    update base_work_order
+    set user_id = #{userId,jdbcType=INTEGER},
+      user_service_id = #{userServiceId,jdbcType=INTEGER},
+      organization_team_id = #{organizationTeamId,jdbcType=INTEGER},
+      organization_user_id = #{organizationUserId,jdbcType=INTEGER},
+      number = #{number,jdbcType=VARCHAR},
+      order_sources = #{orderSources,jdbcType=INTEGER},
+      appointment_date = #{appointmentDate,jdbcType=DATE},
+      remark = #{remark,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      evaluate_star = #{evaluateStar,jdbcType=REAL},
+      evaluate_text = #{evaluateText,jdbcType=VARCHAR},
+      evaluate_date = #{evaluateDate,jdbcType=TIMESTAMP},
+      close_reason_code = #{closeReasonCode,jdbcType=VARCHAR},
+      close_reason = #{closeReason,jdbcType=VARCHAR},
+      notice = #{notice,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  	
+	<update id="update" parameterType="org.module.work.order.domain.WorkOrder">
+		UPDATE base_work_order
+	    SET id = #{id}
+	    	<if test="userId !=null">
+	    		,user_id = #{userId}
+	    	</if>
+	    	<if test="userServiceId !=null">
+	    		,user_service_id = #{userServiceId}
+	    	</if>
+	    	<if test="organizationTeamId !=null">
+	    		,organization_team_id = #{organizationTeamId}
+	    	</if>
+	    	<if test="organizationUserId !=null">
+	    		,organization_user_id = #{organizationUserId}
+	    	</if>
+	    	<if test="number !=null">
+	    		,number = #{number}
+	    	</if>
+	    	<if test="orderSources !=null">
+	    		,order_sources = #{orderSources}
+	    	</if>
+	    	<if test="appointmentDate !=null">
+	    		,appointment_date = #{appointmentDate}
+	    	</if>
+	    	<if test="remark !=null">
+	    		,remark = #{remark}
+	    	</if>
+	    	<if test="status !=null">
+	    		,status = #{status}
+	    	</if>
+	    	<if test="evaluateStar !=null">
+	    		,evaluate_star = #{evaluateStar}
+	    	</if>
+	    	<if test="evaluateText !=null">
+	    		,evaluate_text = #{evaluateText}
+	    	</if>
+	    	<if test="evaluateDate !=null">
+	    		,evaluate_date = #{evaluateDate}
+	    	</if>
+	    	<if test="closeReasonCode !=null">
+	    		,close_reason_code = #{closeReasonCode}
+	    	</if>
+	    	<if test="closeReason !=null">
+	    		,close_reason = #{closeReason}
+	    	</if>
+	    	<if test="notice !=null">
+	    		,notice = #{notice}
+	    	</if>
+	    	<if test="updateDate !=null">
+	    		,update_date = #{updateDate}
+	    	</if>
+	    WHERE id = #{id}
+	</update>
+  
+  
+  	<select id="getWorkOrderDetail" parameterType="org.module.work.order.domain.WorkOrder" resultType="map">
+  		SELECT 
+  			id,
+  			launch_user_id AS launchUserId,
+  			user_id AS userId,
+  			user_service_id AS userServiceId,
+  			organization_team_id AS organizationTeamId,
+  			organization_user_id AS organizationUserId,
+  			number,
+  			order_sources AS orderSources,
+  			appointment_date AS appointmentDate,
+  			remark,
+  			status,
+  			evaluate_star AS evaluateStar,
+  			evaluate_text AS evaluate_text,
+  			evaluate_date AS evaluateDate,
+  			close_reason_code AS closeReasonCode,
+  			close_reason AS closeReason,
+  			notice,
+  			create_date AS createDate,
+  			update_date AS updateDate
+  		FROM base_work_order
+  		WHERE id = #{id}
+  	</select>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bespeak.dao.AppointmentTypeMapper">
+  
+  <delete id="delete" parameterType="org.module.bespeak.domain.AppointmentType">
+    DELETE FROM base_appointment_type
+    where id = #{id}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.bespeak.domain.AppointmentType">
+    INSERT INTO base_appointment_type (id, name, code, 
+      remark, create_date)
+    VALUES (#{id}, #{name}, #{code}, 
+      #{remark}, #{createDate})
+  </insert>
+  
+  <update id="update" parameterType="org.module.bespeak.domain.AppointmentType">
+    UPDATE base_appointment_type
+    SET name = #{name},
+      code = #{code},
+      remark = #{remark},
+      create_date = #{createDate}
+    WHERE id = #{id}
+  </update>
+  
+  <select id="getOne" parameterType="org.module.bespeak.domain.AppointmentType" resultType="map">
+    SELECT id, name, code, remark, create_date createDate
+    FROM base_appointment_type
+    WHERE id = #{id}
+  </select>
+  
+</mapper>

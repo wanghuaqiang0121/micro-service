@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.ServicePackageTypeMapper">
+
+
+	<!-- 新增服务包类型 -->
+	<insert id="insert" parameterType="org.module.platform.configuration.domain.ServicePackageType" useGeneratedKeys="true" keyProperty="id">
+	    INSERT INTO base_service_package_type(name,create_date,code,remark)
+	    VALUES (#{name},#{createDate},#{code},#{remark})
+	</insert>
+  
+	<!-- 服务包类型列表 -->
+    <select id="getList" parameterType="org.module.platform.configuration.domain.ServicePackageType" resultType="map">
+        SELECT id,name,create_date as createDate,code,remark FROM base_service_package_type
+        <where>
+        	<if test="name != null and name != ''">
+		    		`name` like CONCAT(CONCAT('%', #{name}), '%')
+		    </if>
+		    <if test="code != null and code != ''">
+		    	and	`code` like CONCAT(CONCAT('%', #{code}), '%')
+		    </if>
+		 </where>
+    </select>
+    
+    <!-- 机构服务包详情 -->
+    <select id="getOne" parameterType="org.module.platform.configuration.domain.ServicePackageType" resultType="map">
+        SELECT id,name,create_date as createDate,code,remark FROM base_service_package_type where id = #{id}
+    </select>
+    
+    <!-- 查询重复 -->
+    <select id="getRepeat" parameterType="org.module.platform.configuration.domain.ServicePackageType" resultType="map">
+        SELECT id,name,create_date as createDate,remark FROM base_service_package_type where code = #{code}
+    </select>
+    
+    <!-- 修改机构服务包 -->
+    <update id="update" parameterType="org.module.platform.configuration.domain.ServicePackageType" >
+        UPDATE base_service_package_type SET id=#{id}
+        <if test="name !=null and name != ''">
+        	,name = #{name}
+        </if>
+         <if test="code !=null and code != ''">
+        	,code = #{code}
+        </if>
+        <if test="remark!=null and remark!=''">
+        	,remark = #{remark}
+        </if>
+        where id=#{id}
+    </update>
+
+</mapper>

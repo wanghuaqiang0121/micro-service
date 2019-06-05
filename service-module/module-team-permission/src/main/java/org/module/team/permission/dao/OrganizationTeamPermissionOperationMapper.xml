@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.team.permission.dao.OrganizationTeamPermissionOperationMapper">
+  
+  <delete id="delete" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionOperation">
+    delete from base_organization_team_permission_operation
+    where organization_team_permission_id = #{organizationTeamPermissionId}
+    	AND organization_team_operation_id = #{organizationTeamOperationId}
+  </delete>
+  <!-- 新增团队权限操作关联 -->
+  <insert id="insert" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionOperation">
+    insert into base_organization_team_permission_operation (organization_team_permission_id, 
+      organization_team_operation_id)
+    values (#{organizationTeamPermissionId}, 
+      #{organizationTeamOperationId})
+  </insert>
+  
+  <!-- 判断数据是否重复 -->
+  <select id="getRepeat" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionOperation" resultType="map">
+    SELECT id, organization_team_permission_id organizationTeamPermissionId, organization_team_operation_id organizationTeamOperationId
+    FROM base_organization_team_permission_operation
+    WHERE organization_team_permission_id = #{organizationTeamPermissionId}
+    	AND organization_team_operation_id = #{organizationTeamOperationId}
+  </select>
+  
+  <!-- 判断数据是否重复 -->
+  <select id="getOne" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionOperation" resultType="map">
+    SELECT id, organization_team_permission_id organizationTeamPermissionId, organization_team_operation_id organizationTeamOperationId
+    FROM base_organization_team_permission_operation
+    WHERE id = #{id}
+  </select>
+  
+  <!-- 团队权限（拥有未拥有）的操作 -->
+  <select id="teamPermissionHaveAndNotHaveOperations" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionOperation" resultType="map">
+   SELECT 
+	   boto.id,
+	   boto.name,
+	   boto.code,
+	   boto.is_used isUsed,
+	   boto.create_date createDate,
+	   boto.remark,
+	   if(botpo.organization_team_operation_id IS NULL,
+	   		FALSE,
+	   		TRUE
+	   )isChoose
+    FROM base_organization_team_operation boto
+    LEFT JOIN base_organization_team_permission_operation botpo ON botpo.organization_team_operation_id =boto.id
+    AND botpo.organization_team_permission_id=#{organizationTeamPermissionId}
+    WHERE boto.is_used=1
+	    <if test="name!=null and name!=''">
+	      and   boto.`name` like CONCAT(CONCAT('%', #{name}), '%')
+	    </if>
+	    <if test="code!=null and code!=''">
+	     and    boto.`code` like CONCAT(CONCAT('%', #{code}), '%')
+	    </if>
+  </select>
+</mapper>

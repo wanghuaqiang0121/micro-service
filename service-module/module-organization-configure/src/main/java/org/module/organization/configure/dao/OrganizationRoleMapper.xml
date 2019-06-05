@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationRoleMapper">
+  
+  <!--新增机构角色  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationRole" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_role ( organization_id, module_operational_role_id
+      )
+    values ( #{organizationId}, #{moduleOperationalRoleId}
+      )
+  </insert>
+  
+  <!--查询本机构的角色列表（有没有给用户授权）  -->
+  <select id="getOrganizationRoleAuthorizationUserList" parameterType="org.module.organization.configure.domain.OrganizationRole" resultType="map">
+  
+		SELECT
+			bor.id,
+			bor.organization_id organizationId,
+			bmor.id moduleOperationalRoleId,
+			bmor.`name` moduleOperationalRoleName,
+			bmor.system_module_id systemModuleId,
+			boRole.id operationalRoleId,
+			boRole.`name` operationalRoleName,
+			boRole.is_used operationalRoleIsUsed,
+			boRole.is_manager operationalRoleIsManager,
+			bour.organization_user_id organizationUserId
+		FROM
+			base_organization_role bor
+		LEFT JOIN base_organization_user_role bour ON bour.organization_role_id = bor.id AND bour.organization_user_id = #{organizationUserId}
+		LEFT JOIN base_module_operational_role bmor ON bmor.id = bor.module_operational_role_id
+		LEFT JOIN base_operational_role boRole ON boRole.id = bmor.operational_role_id AND boRole.is_used = TRUE
+		WHERE
+			bor.organization_id = #{organizationId}  AND boRole.is_manager = FALSE
+  </select>
+ 
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.team.permission.dao.OrganizationTeamPermissionMenuMapper">
+  <!-- 删除团队权限菜单关联 -->
+  <delete id="delete" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionMenu">
+    DELETE FROM base_organization_team_permission_menu
+    WHERE organization_team_permission_id = #{organizationTeamPermissionId}
+    	AND organization_team_menu_id = #{organizationTeamMenuId}
+  </delete>
+  <!-- 新增团队权限菜单关联 -->
+  <insert id="insert" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionMenu">
+    INSERT INTO base_organization_team_permission_menu (organization_team_permission_id, 
+      organization_team_menu_id)
+    VALUES (#{organizationTeamPermissionId}, 
+      #{organizationTeamMenuId})
+  </insert>
+  
+  <!-- 判断数据是否重复 -->
+  <select id="getRepeat" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionMenu" resultType="map">
+    SELECT id, organization_team_permission_id organizationTeamPermissionId, organization_team_menu_id organizationTeamMenuId
+    FROM base_organization_team_permission_menu
+    WHERE organization_team_permission_id = #{organizationTeamPermissionId}
+    	AND organization_team_menu_id = #{organizationTeamMenuId}
+  </select>
+  
+  <!-- 团队权限（拥有未拥有）的菜单 -->
+  <select id="teamPermissionHaveAndNotHaveMenus" parameterType="org.module.team.permission.domain.OrganizationTeamPermissionMenu" resultType="map">
+    SELECT 
+	   botm.pid,
+	   botm.id,
+	   botm.name,
+	   botm.code,
+	   botm.icon,
+	   botm.is_used isUsed,
+	   botm.create_date createDate,
+	   botm.remark,
+	   if(botpm.organization_team_menu_id IS NULL,
+	   		FALSE,
+	   		TRUE
+	   )isChoose
+    FROM base_organization_team_menu botm 
+    LEFT JOIN base_organization_team_permission_menu botpm ON botm.id = botpm.organization_team_menu_id 
+    AND botpm.organization_team_permission_id=#{organizationTeamPermissionId}
+    WHERE botm.is_used=1
+    <if test="name!=null and name!=''">
+    and   botm.`name` like CONCAT(CONCAT('%', #{name}), '%')
+    </if>
+    <if test="code!=null and code!=''">
+   and    botm.`code` like CONCAT(CONCAT('%', #{code}), '%')
+    </if>
+  </select>
+</mapper>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.micro.service</groupId>
+		<artifactId>micro-service</artifactId>
+		<version>20180102.Alpha</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>service-module</artifactId>
+	<packaging>pom</packaging>
+
+	<properties>
+		<lang.version>2.6</lang.version>
+		<collections.version>3.2.2</collections.version>
+	</properties>
+
+	<!-- 依赖包配置 -->
+	<dependencies>
+		<!-- core项目依赖 -->
+		<dependency>
+			<groupId>org.micro.service</groupId>
+			<artifactId>service-core</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		
+		<!-- tools项目依赖 -->
+		<dependency>
+			<groupId>org.micro.service</groupId>
+			<artifactId>service-tools</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${lang.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>${collections.version}</version><!--$NO-MVN-MAN-VER$ -->
+		</dependency>
+		<!-- eureka -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+			<version>1.4.5.RELEASE</version><!--$NO-MVN-MAN-VER$-->
+			<exclusions>
+				<!-- 剔除Tomcat -->
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- actuator -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<!-- undertow -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-undertow</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+	</dependencies>
+	<!-- 子项目配置 -->
+	<modules>
+		<module>module-user</module>
+		<module>module-organization-user</module>
+		<module>module-platform-configuration</module>
+		<module>module-organization-configure</module>
+		<module>module-organization-team</module>
+		<module>module-sign</module>
+		<module>module-common</module>
+		<module>module-team-permission</module>
+		<module>module-bone-age</module>
+		<module>module-organization-permission</module>
+		<module>module-work-order</module>
+        <module>module-bespeak</module>
+    	<module>module-inquiry</module>
+  </modules>
+	<!-- 编译配置 -->
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.yml</include>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>

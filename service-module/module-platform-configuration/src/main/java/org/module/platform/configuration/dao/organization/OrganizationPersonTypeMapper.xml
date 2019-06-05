@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.organization.OrganizationPersonTypeMapper">
+	
+	<!-- 获取机构人员类型列表 -->
+	<select id="getList" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType" resultType="map">
+		SELECT
+			id,
+			name,
+			code,
+			role,			
+			create_date AS createDate
+		FROM base_organization_person_type
+		<where>
+		   <if test="name!=null and name!=''">
+		     `name` like    CONCAT(CONCAT('%', #{name}), '%')
+		   </if>
+		</where>
+	</select>
+	
+	<!-- 新增机构人员类型 -->
+	<insert id="insert" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType" keyProperty="id" useGeneratedKeys="true">
+		INSERT INTO base_organization_person_type(
+			code,name,role,create_date
+		)VALUES(
+			#{code},#{name},#{role},,#{createDate})
+	</insert>
+	
+	<select id="getRepeat" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType" resultType="map">
+		SELECT
+			id,
+			name,
+			code,
+			role,
+			create_date AS createDate
+		FROM base_organization_person_type
+		WHERE role = #{role}
+	</select>
+	
+	<select id="getOne" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType" resultType="map">
+		SELECT
+			id,
+			name,
+			role,
+			code,
+			create_date AS createDate
+		FROM base_organization_person_type
+		<where>
+			<if test="id!=null">
+				id = #{id}
+			</if>
+			<if test="code!=null and code!=''">
+				and code = #{code}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 修改机构人员类型 -->
+	<update id="update" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType">
+		UPDATE 
+			base_organization_person_type 
+		SET id = #{id}
+			<if test="name !=null and name !=''">
+				,name = #{name}
+			</if>
+			<if test="code !=null and code !=''">
+				,code = #{code}
+			</if>
+			<if test="role !=null and role !=''">
+				,role = #{role}
+			</if>			
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除机构人员类型 -->
+	<delete id="delete" parameterType="org.module.platform.configuration.domain.organization.OrganizationPersonType">
+		DELETE FROM base_organization_person_type WHERE id = #{id}
+	</delete>
+</mapper>

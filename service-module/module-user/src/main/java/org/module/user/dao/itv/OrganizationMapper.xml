@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.itv.OrganizationMapper">
+
+  <!-- 定义查询详情结果集 -->
+  <resultMap type="map" id="organizationMap">
+	<result column="id" property="id"/>
+	<collection property="site" column="id" javaType="list" select="getOrganizationSiteList"/>
+  </resultMap>
+  <!-- 检查机构详情 -->
+  <select id="getOne" parameterType="org.module.user.domain.itv.Organization" resultMap="organizationMap">
+		SELECT
+			bo.id,
+			bo.`code`,
+			bo.pid,
+			bo.organization_type_id organizationTypeId,
+			bo.`name`,
+			bo.`status`,
+			bo.phone,
+			bo.logo,
+			bo.picture,
+			bo.create_date createDate,
+			bo.remark,
+			bot.`name` organizationTypeName
+		FROM
+			base_organization bo
+		LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+		WHERE
+			bo.id = #{id}
+  </select>
+   <!-- 查询机构对应的站点列表 -->
+    <select id="getOrganizationSiteList" parameterType="int" resultType="map">
+		SELECT
+			bos.id,
+			bos.organization_id orgnizationId,
+			bos.`name`,
+			bos.picture,
+			bos.province,
+			bos.city,
+			bos.area,
+			bos.street,
+			bos.address,
+			bos.lng,
+			bos.lat,
+			bos.create_date createDate,
+			bos.remark
+		FROM
+			base_organization_site bos
+		WHERE
+			bos.organization_id=#{id}
+    </select>
+   <!-- 查询机构短信 -->
+    <select id="getSmsInfo" parameterType="org.module.user.domain.itv.Organization" resultType="map">
+	SELECT
+		osi.id,
+		osi.sign,
+		osi.total_frequency totalFrequency,
+		osi.use_frequency useFrequency
+	FROM
+		base_organization_sms_info osi
+	WHERE 
+		osi.organization_id=#{id}
+    </select>
+   <!-- 查询机构微信 -->
+    <select id="getWechatInfo" parameterType="org.module.user.domain.itv.Organization" resultType="map">
+	SELECT
+		owi.app_id appId
+	FROM
+		base_organization_wechat_info owi
+	WHERE 
+		owi.organization_id=#{id}
+    </select>
+  <!-- 检查机构列表 -->
+  <select id="getList" parameterType="org.module.user.domain.itv.Organization" resultType="map">
+	SELECT
+		bo.id,
+		bo.`code`,
+		bo.pid,
+		bo.organization_type_id organizationTypeId,
+		bo.create_type createType,
+		bo.`name`,
+		bo.`status`,
+		bo.phone,
+		bo.logo,
+		bo.picture,
+		bo.create_date createDate,
+		bo.remark,
+		bot.`name` organizationTypeName
+	FROM
+		base_organization bo
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	INNER JOIN base_organization_site boss ON boss.organization_id = bo.id
+	<if test="organizationSite != null">
+		<if test="organizationSite.province != null and organizationSite.province != ''">
+			AND boss.province = #{organizationSite.province}
+		</if>
+		<if test="organizationSite.city != null and organizationSite.city != ''">
+			AND boss.city = #{organizationSite.city}
+		</if>
+		<if test="organizationSite.area != null and organizationSite.area != ''">
+			AND boss.area = #{organizationSite.area}
+		</if>
+	</if>
+	<where>
+		<if test="id !=null">
+			(bo.id=#{id} or bo.pid=#{id})
+		</if>
+		<if test="code !=null and code !='' ">
+			and bo.`code`=#{code}
+		</if>
+		<if test="name !=null and name !='' ">
+			and bo.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="organizationTypeId !=null">
+			and bo.organization_type_id=#{organizationTypeId}
+		</if>
+		<if test="status !=null">
+			and bo.`status`=#{status}
+		</if>
+	</where>
+	GROUP BY bo.id
+  </select>
+  
+</mapper>

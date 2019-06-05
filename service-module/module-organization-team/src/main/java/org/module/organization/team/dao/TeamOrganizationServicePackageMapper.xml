@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.TeamOrganizationServicePackageMapper">
+  
+ 
+  <!-- 查询包内的服务项列表 -->
+  <select id="getPackageServiceList" parameterType="int" resultType="map">
+	SELECT
+		bops.organization_service_package_id organizationServicePackageId,
+		bops.service_type_id serviceTypeId,
+		bops.price,
+		bops.times,
+		bops.`name`,
+		bst.`name` serviceTypeName,
+		bst.`status`
+	FROM
+		base_organization_package_service bops
+	LEFT JOIN base_service_type bst ON bst.id = bops.service_type_id
+	WHERE bops.organization_service_package_id=#{organizationServicePackageId}
+  </select>
+  <!-- 定义查询服务包详情结果集-->
+  <resultMap type="map" id="teamPackageMap">
+	<result column="id" property="id"/>
+	<collection property="packageService" column="organizationServicePackageId" javaType="list" select="getPackageServiceList"/>
+  </resultMap>
+  <!-- 查询团队服务包详情 -->
+  <select id="getOne" parameterType="org.module.organization.team.domain.TeamOrganizationServicePackage" resultMap="teamPackageMap">
+	SELECT
+		btosp.id,
+		btosp.doctor_team_id doctorTeamId,
+		btosp.organization_service_package_id organizationServicePackageId,
+		btosp.price,
+		btosp.create_date createDate,
+		bosp.remark,
+		btosp.status,
+		bosp.`name`,
+		bosp.price organizationPrice,
+		bosp.original_price originalPrice,
+		<!-- bosp.discount, -->
+		<!-- ROUND(bosp.price * bosp.discount, 2) actualPrice, -->
+		bosp.acquisitive,
+		GROUP_CONCAT(DISTINCT but.`name`) userTypeName,
+		bosp.acquisitive_type acquisitiveType,
+		bosp.protocol,
+		bosp.service_package_type_id servicePackageTypeId,
+		bo.`name` organizationName,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId,
+		bot.`name` organizationTypeName,
+		bd.`name` doctorTeamName,
+		bd.phone teamPhone,
+		bspt.`name` servicePackageTypeName,
+		bos.`name` siteName,
+		(
+			SELECT 
+				COUNT(cuspo.id) 
+			FROM 
+				base_user_service_package_order cuspo 
+			WHERE 
+				cuspo.organization_service_package_id=btosp.organization_service_package_id 
+				AND cuspo.doctor_team_id = btosp.doctor_team_id
+				AND cuspo.status=2
+		) orderNumber,
+		bosp.cover,
+		bo.address organizationAddress,
+		bo.province,
+		bo.city,
+		bo.area,
+		bo.street,
+		bo.lng,
+		bo.lat,
+		bowi.app_id appId,
+		fn_print_distance(#{site.lng},#{site.lat},bos.lng,bos.lat) distance
+	FROM
+		base_team_organization_service_package btosp
+	LEFT JOIN base_organization_service_package bosp ON bosp.id = btosp.organization_service_package_id
+	LEFT JOIN base_service_package_type bspt ON bspt.id=bosp.service_package_type_id
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	LEFT JOIN base_organization_team bd ON bd.id = btosp.doctor_team_id
+	LEFT JOIN base_organization_site bos ON bos.id=bd.organization_site_id
+	LEFT JOIN base_organization_package_user_type boput ON boput.organization_service_package_id=btosp.organization_service_package_id
+	LEFT JOIN base_user_type but ON but.id=boput.user_type_id
+    where btosp.id = #{id}
+  </select>
+  
+  <!-- 查询团队服务包列表 -->
+  <select id="getList" parameterType="org.module.organization.team.domain.TeamOrganizationServicePackage" resultType="map">
+	SELECT
+		btosp.id,
+		btosp.doctor_team_id doctorTeamId,
+		btosp.organization_service_package_id organizationServicePackageId,
+		btosp.price,
+		btosp.create_date createDate,
+		bosp.remark,
+		btosp.`status`,
+		bosp.`name`,
+		bosp.protocol,
+		bosp.price organizationPrice,
+		bosp.original_price originalPrice,
+		<!-- bosp.discount, -->
+		bosp.acquisitive_type acquisitiveType,
+		<!-- ROUND(bosp.price * bosp.discount, 2) actualPrice, -->
+		bosp.acquisitive,
+		<!-- GROUP_CONCAT(DISTINCT but.`name`) userTypeName, -->
+		(
+			SELECT GROUP_CONCAT(DISTINCT but.`name`) from 
+			base_organization_package_user_type boput
+			LEFT JOIN base_user_type but ON but.id = boput.user_type_id
+			WHERE boput.organization_service_package_id = bosp.id
+		) userTypeName,
+		bosp.service_package_type_id servicePackageTypeId,
+		bosp.cover,
+		bo.`name` organizationName,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId,
+		bot.`name` organizationTypeName,
+		bd.`name` organizationTeamName,
+		bd.phone teamPhone,
+		bspt.`name` servicePackageTypeName,
+		bos.`name` siteName,
+		bo.id organizationId,
+		bo.address siteAddress,
+		bo.province,
+		bo.city,
+		bo.area,
+		bo.street,
+		bo.lng,
+		bo.lat,
+		IF((SELECT count(1) FROM base_organization_wechat_info bowi WHERE bowi.organization_id = bo.id) > 0 ,TRUE , FALSE) payOnline,
+		(
+			SELECT 
+				COUNT(cuspo.id) 
+			FROM base_user_service_package_order cuspo 
+			WHERE cuspo.organization_service_package_id=btosp.organization_service_package_id and cuspo.status=2
+		) orderNumber,
+		fn_print_distance(#{organization.lng},#{organization.lat},bo.lng,bo.lat) distance
+	FROM
+		base_team_organization_service_package btosp
+	LEFT JOIN base_organization_service_package bosp ON bosp.id = btosp.organization_service_package_id AND bosp.status = 3
+	LEFT JOIN base_service_package_type bspt ON bspt.id=bosp.service_package_type_id
+	LEFT JOIN base_organization bo ON bo.id = bosp.organization_id
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	LEFT JOIN base_organization_team bd ON bd.id = btosp.doctor_team_id
+	LEFT JOIN base_organization_site bos ON bos.id=bd.organization_site_id
+	LEFT JOIN base_organization_package_user_type boput ON boput.organization_service_package_id=btosp.organization_service_package_id
+	LEFT JOIN base_user_type but ON but.id=boput.user_type_id
+	<where>
+		<if test="doctorTeamId !=null">
+			btosp.doctor_team_id=#{doctorTeamId}
+		</if>
+		<if test="organizationServicePackageId !=null">
+			and btosp.organization_service_package_id=#{organizationServicePackageId}
+		</if>
+		<if test="status !=null">
+			and btosp.status=#{status}
+		</if>
+		<if test="servicePackageType !=null and servicePackageType.code !=null and servicePackageType.code !=''">
+			and bspt.code = #{servicePackageType.code}
+		</if>
+		<if test="code !=null and code !='' ">
+				and bo.`code`=#{code}
+			</if>
+			<if test="province !=null and province!=''">
+				and bo.province=#{province}
+			</if>
+			<if test="city !=null and city!=''">
+				and bo.city=#{city}
+			</if>
+			<if test="area !=null and area!=''">
+				and bo.area=#{area}
+			</if>
+		<if test="userTypeIds !=null">
+			<foreach collection="userTypeIds" item="item" open="and but.id IN (" close=")" separator=",">
+				${item}
+			</foreach>
+		</if>
+		<if test="organization!=null">
+		    <if test="organization.id !=null">
+		    	and bo.id = #{organization.id}
+		    </if>
+	        <if test="organization.rectangle !=null">
+		    	and (bo.lng BETWEEN #{organization.rectangle.minX} and #{organization.rectangle.maxX})  or (bo.lat BETWEEN  #{organization.rectangle.minY} and #{organization.rectangle.maxY})
+		    </if> 
+		</if> 
+		<if test="organizationServicePackage !=null ">
+			<if test="organizationServicePackage.status !=null ">
+				and bosp.status=#{organizationServicePackage.status}
+			</if>
+			<if test="organizationServicePackage.name !=null and organizationServicePackage.name !=''">
+				and bosp.name like CONCAT(CONCAT('%', #{organizationServicePackage.name}), '%')
+			</if>
+		</if>
+		<if test="isBasePublicHealth !=null and isBasePublicHealth==true">
+			and bspt.code = #{servicePackageTypeCode}
+		</if>
+		<if test="isBasePublicHealth !=null and isBasePublicHealth==false">
+			and bspt.code != #{servicePackageTypeCode}
+		</if>
+		<if test="servicePackageType !=null">
+			<if test="servicePackageType.id !=null">
+				and bosp.service_package_type_id=#{servicePackageType.id}
+			</if>
+		</if>
+	</where>
+	GROUP BY btosp.id
+	<if test="organization !=null and organization.lng!=null and organization.lat!=null">
+		<choose>
+			<when test="organization.maxRaidus !=null and organization.minRaidus !=null ">
+				HAVING distance &lt;= #{organization.maxRaidus} and  distance &gt;= #{organization.minRaidus}
+			</when>
+			<otherwise>
+				<if test="organization.maxRaidus !=null">
+			     	HAVING distance &lt;= #{organization.maxRaidus}
+			     </if>     
+			     <if test="organization.minRaidus !=null">
+			     	HAVING distance &gt;= #{organization.minRaidus}
+			     </if>   
+			</otherwise>
+		</choose>
+	</if>
+	<if test="sorts !=null">
+		<foreach collection="sorts" item="sort" open="order by " close="''">
+			<choose>
+				<when test="sort.field =='distance' or sort.field=='price' or sort.field=='orderNumber'">
+					${sort.field} ${sort.direction},
+				</when>
+			</choose>
+		</foreach>
+	</if>
+  </select>
+</mapper>

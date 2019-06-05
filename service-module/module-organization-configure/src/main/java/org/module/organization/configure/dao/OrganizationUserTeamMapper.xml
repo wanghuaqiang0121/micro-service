@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationUserTeamMapper">
+  <!-- 移除成员 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationUserTeam">
+	DELETE
+	FROM
+		base_organization_user_team
+	WHERE
+		organization_user_id = #{organizationUserId} AND
+		organization_team_id = #{organizationTeamId}
+  </delete>
+  
+  <!-- 添加机构用户，团队关联 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationUserTeam" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_organization_user_team 
+    	( position, organization_user_id,organization_team_id, duty, is_manager, create_date)
+    VALUES 
+    	( #{position}, #{organizationUserId},#{organizationTeamId}, #{duty}, #{isManager},#{createDate})
+  </insert>
+  
+  <!-- 查询是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationUserTeam" resultType="map">
+    SELECT 
+    	bddt.id, 
+    	bddt.position, 
+    	bddt.organization_user_id organizationUserId, 
+    	bddt.organization_team_id organizationTeamId, 
+    	bddt.duty, 
+    	bddt.is_manager isManager, 
+   		bddt.create_date createDate
+    FROM base_organization_user_team bddt
+    WHERE bddt.organization_user_id = #{organizationUserId} AND
+    	bddt.organization_team_id = #{organizationTeamId}
+  </select>
+  
+  <!-- 成员所在团队列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationUserTeam" resultType="map">
+    SELECT 
+    	bddt.id, 
+    	bddt.position, 
+    	bddt.organization_user_id organizationUserId, 
+    	bddt.organization_team_id organizationTeamId, 
+    	bddt.duty, 
+    	bddt.is_manager isManager, 
+   		bddt.create_date createDate,
+   		boot.organization_team_role_id organizationTeamRoleId,
+   		bot.name organizationTeamName,
+   		bot.experties,
+   		bot.logo,
+   		bot.organization_id organizationId,
+   		bot.picture,
+   		bot.protocol,
+   		bot.remark organizationTeamRemark, 
+   		bot.status organizationTeamStatus,
+   		bou.`name` organizationUserName,
+   		bou.account, 
+   		bou.phone, 
+   		bo.`name` organizationName,
+   		botr.`name` roleName
+    FROM base_organization_user_team bddt
+    LEFT JOIN base_organization_team bot ON bot.id = bddt.organization_team_id
+    LEFT JOIN base_organization bo ON bo.id = bot.organization_id
+    LEFT JOIN base_organization_user_team_role boot ON boot.organization_user_team_id = bddt.id
+    LEFT JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id
+    LEFT JOIN base_organization_user bou ON bou.id = bddt.organization_user_id
+    <where>
+    	<if test="organizationUserId != null">
+    		bddt.organization_user_id = #{organizationUserId}
+    	</if>
+    </where>
+    GROUP BY bot.id
+  </select>
+  <!-- 团队成员列表 -->
+  <select id="getTeamDoctors" parameterType="org.module.organization.configure.domain.OrganizationUserTeam" resultType="map">
+    SELECT 
+    	bou.id,
+    	bddt.id organizationUserTeamId,
+    	bddt.create_date createDate,
+    	bou.`name`,
+    	bou.account,
+    	bou.birthday,
+    	bou.sex,
+    	bou.phone,
+    	bou.photo,
+    	bou.remark,
+    	bou.create_date organizationUserCreateDate,
+    	bopt.id organizationPersonTypeId,
+    	bopt.name organizationPersonTypeName,
+    	bdi.certification,
+    	bdi.grade,
+    	bdi.`name`  doctorInfoName,
+    	bdi.school,
+    	bdl.name doctorLevelName,
+    	bdc.name doctorCategoryName,
+    	botr.`name` teamRoleName,
+    	bddt.is_manager isManager
+    FROM base_organization_user_team bddt
+    LEFT JOIN base_organization_user bou ON bou.id = bddt.organization_user_id AND bou.status = 0
+    LEFT JOIN base_organization_person_type bopt ON bopt.id = bou.organization_person_type_id
+    LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+    LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+    LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id 
+    LEFT JOIN base_organization_user_team_role boot ON boot.organization_user_team_id = bddt.id
+    LEFT JOIN base_organization_team_role botr ON botr.id = boot.organization_team_role_id
+    <where>
+    	<if test="organizationTeamId != null">
+    		bddt.organization_team_id = #{organizationTeamId}
+    	</if>
+    	<if test="organizationUser!=null and organizationUser.name!='' and organizationUser.name!=null">
+		    AND  bou.name  like CONCAT(CONCAT('%', #{organizationUser.name}), '%')
+		</if>
+    	<if test="organizationUser!=null and organizationUser.phone!='' and organizationUser.phone!=null">
+		    AND  bou.phone  like CONCAT(CONCAT('%', #{organizationUser.phone}), '%')
+		</if>
+    </where>
+    GROUP BY bou.id
+	ORDER BY bddt.create_date DESC
+  </select>
+  <!-- 团队拥有的机构用户 -->
+  <select id="getOrganizationUserMembers" parameterType="org.module.organization.configure.domain.OrganizationUserTeam" resultType="map">
+	SELECT
+		bou.id,
+		bou.`name`,
+		bou.phone,
+		bou.sex,
+		TIMESTAMPDIFF(
+			YEAR,
+			bou.birthday,
+			CURDATE()
+		) age,
+		bou.account,
+		bou.birthday,
+		bou.photo,
+		bou.`status`,
+		bou.remark,
+		bou.organization_person_type_id organizationPersonTypeId,
+		bopt.`name` organizationPersonTypeName,
+		bo.`name` organizationName
+	FROM
+		base_organization_user bou
+	LEFT JOIN base_doctor_organization_department_duty bdodd ON bdodd.organization_user_id = bou.id
+	LEFT JOIN base_organization bo ON bdodd.organization_id = bo.id
+	LEFT JOIN base_organization_person_type bopt ON bou.organization_person_type_id = bopt.id
+	WHERE
+		bou.id NOT IN (
+			SELECT
+				bddt.organization_user_id
+			FROM
+				base_organization_user_team bddt
+			WHERE
+				bddt.organization_team_id = #{organizationTeamId}
+		)
+	AND bou.`status` = 0
+	  <if test="name!=null and name!=''">
+	   and bou.name like CONCAT(CONCAT('%', #{name}), '%')
+	  </if>
+	  <if test="province!=null and province!=''">
+	  	AND bo.province = #{province}
+	  </if>
+	  <if test="city!=null and city!=''">
+	  	AND bo.city = #{city}
+	  </if>
+	  <if test="area!=null and area!=''">
+	  	AND bo.area = #{area}
+	  </if>
+	  <if test="street!=null and street!=''">
+	  	AND bo.street = #{street}
+	  </if>
+	  <if test="community!=null and community!=''">
+	  	AND bo.community = #{community}
+	  </if>
+  </select>
+</mapper>

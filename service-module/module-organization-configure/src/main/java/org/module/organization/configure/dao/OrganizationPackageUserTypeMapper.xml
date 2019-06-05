@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationPackageUserTypeMapper">
+  <!-- 删除单条服务包使用人群关联 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationPackageUserType">
+    DELETE FROM  base_organization_package_user_type
+    WHERE id = #{id}
+  </delete>
+  
+  <!-- 删除服务包所有使用人群关联 -->
+  <delete id="deleteByOrganizationPackageId" parameterType="org.module.organization.configure.domain.OrganizationPackageUserType">
+    DELETE FROM 
+    	base_organization_package_user_type
+    WHERE organization_service_package_id = #{organizationServicePackageId}
+  </delete>
+  
+  <!-- 添加服务包使用人群关联 -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationPackageUserType" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_organization_package_user_type (
+    	organization_service_package_id,
+    	user_type_id
+    )
+    VALUES (
+    	#{organizationServicePackageId},
+    	#{userTypeId}
+    )
+  </insert>
+  
+   <!-- 批量新增机构的服务类型 -->
+  <insert id="batchInsert" parameterType="list" >
+  	INSERT INTO base_organization_package_user_type (
+    	organization_service_package_id,
+    	user_type_id
+    )
+    VALUES
+  	<foreach collection="list"  separator="," item="organizationPackageUserType">
+	(
+		#{organizationPackageUserType.organizationServicePackageId}, 
+		#{organizationPackageUserType.userTypeId}
+	)
+	</foreach>
+  </insert>
+  
+  <!-- 查询是否存在重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationPackageUserType" resultType="map">
+    SELECT 
+    	id,
+    	organization_service_package_id organizationServicePackageId,
+    	user_type_id userTypeId
+    FROM base_organization_package_user_type
+    WHERE 
+    	organization_service_package_id = #{organizationServicePackageId}
+    	AND user_type_id = #{userTypeId}
+  </select>
+  
+  <!-- 查询服务包的人群类型列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationPackageUserType" resultType="map">
+	SELECT
+		boput.id,
+		boput.organization_service_package_id organizationServicePackageId,
+		boput.user_type_id userTypeId,
+		bosp.`name` organizationServicePackageName,
+		but.`name` userTypeName
+	FROM
+		base_organization_package_user_type boput
+	LEFT JOIN base_organization_service_package bosp ON bosp.id = boput.organization_service_package_id
+	LEFT JOIN base_user_type but ON but.id = boput.user_type_id
+	<where>
+		<if test="organizationServicePackageId !=null">
+			boput.organization_service_package_id = #{organizationServicePackageId} 
+		</if>
+		<if test="userTypeId !=null">
+			and boput.user_type_id=#{userTypeId}
+		</if>
+	</where>
+  </select>
+  
+</mapper>

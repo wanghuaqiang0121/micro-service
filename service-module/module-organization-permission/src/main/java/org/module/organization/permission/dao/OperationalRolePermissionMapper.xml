@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.OperationalRolePermissionMapper">
+<!--检查机构角色权限关联表的唯一性  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.OperationalRolePermission" resultType="map">
+	SELECT 
+		id
+	FROM base_operational_role_permission 
+	WHERE operational_permission_id = #{operationalPermissionId} 
+		AND operational_role_id = #{operationalRoleId}
+</select>
+
+<!--新增机构角色权限关联表  -->
+<insert id="insert"  parameterType="org.module.organization.permission.domain.OperationalRolePermission" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_operational_role_permission(operational_permission_id,operational_role_id) VALUES (#{operationalPermissionId},#{operationalRoleId})
+</insert>
+
+<!--删除机构角色权限关联表  -->
+<delete id="delete" parameterType="org.module.organization.permission.domain.OperationalRolePermission">
+DELETE FROM base_operational_role_permission WHERE operational_permission_id=#{operationalPermissionId} AND operational_role_id=#{operationalRoleId}
+</delete>
+
+<!--查询该角色拥有和未拥有的权限  -->
+<select id="getPermissionOperationIsChoose" parameterType="org.module.organization.permission.domain.OperationalRolePermission" resultType="map">
+	SELECT
+		bop.id,
+		bop.`code`,
+		bop.`name`,
+		bop.remark,
+		bop.is_used isUsed,
+	
+	IF (
+		borp.operational_permission_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_operational_role_permission borp
+	RIGHT JOIN base_operational_permission bop ON bop.id = borp.operational_permission_id
+	AND borp.operational_role_id = #{operationalRoleId}
+	LEFT JOIN base_operational_role bor ON bor.id = borp.operational_role_id
+	WHERE bop.is_used = 1
+	   	<if test="name!=null and name!=''">
+		   and bop.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+	   	<if test="code!=null and code!=''">
+		    and bop.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+</select> 
+ </mapper>

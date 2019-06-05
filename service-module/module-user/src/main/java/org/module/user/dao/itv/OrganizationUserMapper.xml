@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.itv.OrganizationUserMapper">
+	<!-- 用户登录 -->
+	<select id="getLoginMsg" parameterType="org.module.user.domain.itv.OrganizationUser" resultType="map">
+		SELECT
+			ou.id,
+			ou.`name`,
+			ou.birthday,
+			ou.is_init_password isInitPassword,
+			ou.phone,
+			ou.photo,
+			ou.sex
+		FROM
+			base_organization_user ou
+		WHERE
+			ou.id = #{id}
+	</select>
+	
+	<resultMap type="map" id="organizations">
+		<result column="organizationUserId" property="organizationUserId"/>
+		<collection property="teams" column="organizationUserId" javaType="list" select="getTeams"/>
+	</resultMap>
+	<!-- 查询医生所在机构对应的团队 -->
+	<select id="getOrganizationAndTeams" parameterType="org.module.user.domain.itv.OrganizationUser" resultMap="organizations">
+		SELECT
+			bdodd.organization_id organizationId,
+			bdodd.organization_user_id organizationUserId,
+			bo.`name` organizationName
+		FROM
+			base_doctor_organization_department_duty bdodd
+			LEFT JOIN base_organization bo ON bo.id = bdodd.organization_id AND bo.status = 0
+		WHERE
+			bdodd.organization_user_id = #{id}
+		GROUP BY bdodd.organization_user_id
+	</select>
+	<select id="getTeams"  parameterType="int" resultType="map">
+		SELECT
+			bddt.organization_team_id organizationTeamId,
+			bot.`name` organizationTeamName
+		FROM
+			base_organization_user_team bddt
+			INNER JOIN base_organization_team bot ON bot.id = bddt.organization_team_id
+		WHERE
+			bddt.organization_user_id = #{organizationUserId}
+		GROUP BY bddt.organization_team_id
+	</select>
+	
+	<!-- 根据电话号码查询医生信息 -->
+	<select id="getDoctorByPhone" parameterType="org.module.user.domain.itv.OrganizationUser" resultType="map">
+		SELECT
+			bou.id,
+			bdi.`name`,
+			bou.sex
+		FROM
+			base_organization_user bou
+		RIGHT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+		WHERE bou.phone = #{phone}
+	</select>
+	
+	
+</mapper>

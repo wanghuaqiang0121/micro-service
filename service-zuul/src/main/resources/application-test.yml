@@ -1,0 +1,152 @@
+server:
+  port: 4100
+spring:
+  application:
+    name: service-zuul
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      percentage: 1.0
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    service-url:
+      defaultZone: http://localhost:1100/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}:${spring.application.name}
+    metadata-map:
+      cluster: zuul
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enabled: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+zuul:
+  retryable: false
+  host:
+    socket-timeout-millis: 10000
+    connect-timeout-millis: 5000
+    max-per-route-connections: 50
+    max-total-connections: 5000
+  ignored-services: '*'
+  routes:
+    api-organization-permission:
+      path: /api/orgpermission/**
+      serviceId: module-organization-permission
+    api-user:
+      path: /api/user/**
+      serviceId: module-user
+    api-common:
+      path: /api/common/**
+      serviceId: module-common
+    api-sign:
+      path: /api/sign/**
+      serviceId: module-sign
+    api-organization:
+      path: /api/organization/**
+      serviceId: module-organization-user
+    api-bone-age:
+      path: /api/bone/age/**
+      serviceId: web-module-bone-age
+    api-team-permission:
+      path: /api/teampermission/**
+      serviceId: module-team-permission
+    api-organization-configure:
+      path: /api/organizationconfigure/**
+      serviceId: module-organization-configure
+    api-platform-configure:
+      path: /api/platformconfigure/**
+      serviceId: module-platform-configuration
+    api-organization-team:
+      path: /api/team/**
+      serviceId: module-organization-team
+    api-work-order:
+      path: /api/work/order/**
+      serviceId: module-work-order
+    api-appointment:
+      path: /api/appointment/**
+      serviceId: module-bespeak
+    api-inquiry:
+      path: /api/inquiry/**
+      serviceId: module-inquiry
+    api-module-medical:
+      path: /api/medical/**
+      serviceId: module-medical
+    api-service_order:
+      path: /api/serviceorder/**
+      serviceId: Module-ServiceOrder
+    api-businessmonitoring:
+      path: /api/businessmonitoring/**
+      serviceId: Module-BusinessMonitoring
+    api-hiscenter:
+      path: /api/hiscenter/**
+      serviceId: Module-HisCenter
+    api-HEIGHTMANAGEMENTUSER:
+      path: /api/height/**
+      serviceId: HEIGHTMANAGEMENTUSER
+module-organization-permission:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-bespeak:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-inquiry:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-user:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-common:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-sign:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-organization-user:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+web-module-bone-age:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-team-permission:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-organization-configure:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-platform-configuration:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-organization-team:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-work-order:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+module-medical:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+Module-ServiceOrder:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+Module-BusinessMonitoring:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+Module-HisCenter:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule
+HEIGHTMANAGEMENTUSER:
+  ribbon:
+    NFLoadBalancerRuleClassName: com.netflix.loadbalancer.WeightedResponseTimeRule

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.HospitalDepartmentMapper">
+  <!-- 删除医疗机构科室 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.HospitalDepartment">
+    delete from base_hospital_department
+    where id = #{id}
+  </delete>
+  
+  <!--新增医疗机构科室  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.HospitalDepartment" useGeneratedKeys="true" keyProperty="id">
+    insert into base_hospital_department
+    	 ( medical_organization_info_id, name, create_date, remark,status)
+     values 
+     	( #{medicalOrganizationInfoId}, #{name}, #{createDate}, #{remark},#{status})
+  </insert>
+  
+  <!-- 医疗机构科室修改 -->
+  <update id="update" parameterType="org.module.organization.configure.domain.HospitalDepartment">
+    update base_hospital_department SET id=#{id}
+	     <!-- <if test="medicalOrganizationInfoId !=null ">
+	     ,medical_organization_info_id = #{medicalOrganizationInfoId}
+	     </if> -->
+	     <if test="name!=null and name !=''">
+	      ,name = #{name}
+	      </if>
+	     <if test="remark!=null">
+	      ,remark = #{remark}
+	      </if>
+	       <if test="status!=null">
+	      ,status = #{status}
+	      </if>
+	    where id = #{id}
+  </update>
+  
+  <select id="getMedicalOrganizationInfo" parameterType="org.module.organization.configure.domain.HospitalDepartment" resultType="map">
+    SELECT
+		bmoi.id,
+		bmoi.organization_id organizationId,
+		bmoi.organization_grade_id organizationGradeId,
+		bmoi.medical_organization_type_id medicalOrganizationTypeId,
+		bmoi.administrative_organization_id administrativeOrganizationId,
+		bmoi.is_administrative isAdministrative,
+		bmoi.nature,
+		bmoi.contract_protocol_prefix contractProtocolPrefix,
+		bmoi.create_date createDate
+	FROM
+		base_medical_organization_info bmoi
+	WHERE
+		bmoi.organization_id =#{organizationId}
+  </select>
+  
+  <!-- 查询某机构的医疗机构科室是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.HospitalDepartment" resultType="map">
+	SELECT
+		id,
+		medical_organization_info_id medicalOrganizationInfoId,
+		`name`,
+		status,
+		create_date createDate,
+		remark
+	FROM
+		base_hospital_department
+	WHERE
+		`name` = #{name} 
+		AND medical_organization_info_id = #{medicalOrganizationInfoId}
+  </select>
+  <!-- 查询某机构的医疗机构科室详情 -->
+  <select id="getOne" parameterType="org.module.organization.configure.domain.HospitalDepartment" resultType="map">
+	SELECT
+		id,
+		medical_organization_info_id medicalOrganizationInfoId,
+		`name`,
+		status,
+		create_date createDate,
+		remark
+	FROM
+		base_hospital_department
+	WHERE
+		id = #{id}
+  </select>
+  
+  <!-- 查询某机构的医疗机构科室列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.HospitalDepartment" resultType="map">
+	SELECT
+		bhd.id,
+		bhd.medical_organization_info_id medicalOrganizationInfoId,
+		bhd.`name`,
+		bhd.status,
+		bhd.create_date createDate,
+		bhd.remark
+	FROM
+		base_hospital_department bhd
+	INNER JOIN  base_medical_organization_info bmoi ON bmoi.id = bhd.medical_organization_info_id and bmoi.organization_id = #{organizationId}
+	<where>
+		<if test="medicalOrganizationInfoId != null">
+			bhd.medical_organization_info_id = #{medicalOrganizationInfoId}
+		</if>
+		<if test="name!=null and name !=''">
+			and	bhd.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="status!=null ">
+			and bhd.status = #{status}
+		</if>
+	</where>
+  </select>
+</mapper>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.BoneStandardGradeMapper">
+ 
+  <!-- R骨标准评级列表 -->
+  <select id="getList" parameterType="org.module.bone.age.domain.BoneStandardGrade" resultType="map">
+	SELECT
+		id,
+		bone_type boneType,
+		bone_grade boneGrade,
+		feature_description featureDescription,
+		create_date createDate,
+		bone_photo bonePhoto
+	FROM
+		base_bone_standard_grade
+    <where>
+    	<if test="boneType != '' and boneType != null">
+    		 bone_type = #{boneType} 
+    	</if>
+    	<if test="boneGrade != '' and boneGrade != null">
+    		AND bone_grade = #{boneGrade} 
+    	</if>
+    </where>
+    ORDER BY bone_type,bone_grade ASC,`order` DESC
+  </select>
+</mapper>

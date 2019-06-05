@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.OrganizationUserMapper">
+
+<!-- 新增机构用户表 -->
+	<insert id="insert" parameterType="org.module.organization.configure.domain.doctor.OrganizationUser" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_organization_user
+			(certificate_type_name,name,birthday,phone,phone_status,photo,status,account,password,is_init_password,create_date,remark,sex,organization_person_type_id,certificate_type,certificate_number,positive,opposite)
+		VALUES 
+			(#{certificateTypeName},#{name},#{birthday},#{phone},#{phoneStatus},#{photo},#{status},#{account},#{password},#{isInitPassword},#{createDate},#{remark},#{sex},#{organizationPersonTypeId},
+			#{certificateType},#{certificateNumber},#{positive},#{opposite})
+	</insert>
+	
+	<!--检查数据是否重复  -->
+	<select id="getRepeat" parameterType="org.module.organization.configure.domain.doctor.OrganizationUser" resultType="map">
+	SELECT
+		bou.id,
+		bou.account,
+		bou.birthday,
+		bou.create_date createDate,
+		bou.is_init_password isInitPassword,
+		bou.`name`,
+		bou.phone,
+		bou.phone_status phoneStatus,
+		bou.photo,
+		bou.remark,
+		bou.sex,
+		bou.`status`,
+		bou.organization_person_type_id organizationPersonTypeId,
+		bou.certificate_type certificateType,
+		bou.certificate_type_name certificateTypeName,
+		bou.certificate_number certificateNumber,
+		bou.positive,
+		bou.opposite
+	FROM
+		base_organization_user bou 
+	<where>
+	   <if test="phone!=null and phone!=''">
+	         bou.phone =#{phone} 
+	   </if>
+	    <if test="account!=null and account!=''">
+	    and  bou.account =#{account}
+	    </if>
+	    </where>
+	</select>
+
+	<resultMap type="map" id="organizationUserMap">
+		<result column="id" property="id"/>
+		<collection property="organizationUserCertificates" column="id" javaType="list" select="getOrganizationUserCertificates"/>
+		<!-- <collection property="organizationPersonTypes" column="id" javaType="list" select="getOrganizationPersonTypes"/> -->
+	</resultMap>
+<!--个人信息详情  -->
+<select id="getOne" parameterType="org.module.organization.configure.domain.doctor.OrganizationUser" resultMap="organizationUserMap">
+SELECT
+	bou.id,
+	bou.account,
+	bou.birthday,
+	TIMESTAMPDIFF(YEAR,bou.birthday, CURDATE()) age, 
+	bou.create_date createDate,
+	bou.is_init_password isInitPassword,
+	bou.`name`,
+	bou.phone,
+	bou.phone_status phoneStatus,
+	bou.photo,
+	bou.remark,
+	bou.sex,
+	bou.`status`,
+	bou.organization_person_type_id organizationPersonTypeId,
+	bou.certificate_type certificateType,
+	bou.certificate_type_name certificateTypeName,
+	bou.certificate_number certificateNumber,
+	bou.positive,
+	bou.opposite,
+	bopt.`name` personTypeName,
+	bdi.id doctorInfoId,
+	bdi.certification,
+	bdi.`name` doctorName,
+	bdi.remark doctorRemark,
+	bdi.school,
+	bdodd.post,
+	bdodd.department_id departmentId,
+	bd.`name` departmentName,
+	bdodd.id doctorOrganizationDepartmentDutyId,
+	bdodd.work_number  workNumber
+FROM
+	base_organization_user bou
+	LEFT JOIN base_organization_person_type bopt ON bou.organization_person_type_id=bopt.id
+LEFT JOIN base_doctor_info bdi ON bou.id = bdi.organization_user_id
+LEFT JOIN base_doctor_organization_department_duty bdodd ON bdodd.organization_user_id = bou.id AND bdodd.organization_id = #{organizationId}
+LEFT JOIN base_department bd ON bd.id = bdodd.department_id
+WHERE 
+    bou.id=#{id}
+</select>
+
+<select id="getOrganizationUserCertificates" parameterType="int" resultType="map">
+SELECT
+	bouc.id,
+	bouc.organization_user_id organizationUserId,
+	bouc.certificate_type certificateType,
+	bouc.certificate_type_name certificateTypeName,
+	bouc.certificate_number certificateNumber,
+	bouc.positive,
+	bouc.opposite,
+	bouc.images,
+	bouc.create_date createDate
+FROM
+	base_organization_user_certificate bouc
+WHERE 
+    bouc.organization_user_id = #{id}	
+</select>
+<!-- 机构用户的类型 -->
+<select id="getOrganizationPersonTypes" parameterType="int" resultType="map">
+SELECT
+	boupt.id organizationUserPersonTypeId,
+	bopt.id organizationPersonTypeId,
+	bopt.`name`,
+	bopt.`code`,
+	bopt.interface_url interfaceUrl,
+	bopt.create_date createDate
+FROM
+	base_organization_user_person_type boupt
+LEFT JOIN base_organization_person_type bopt ON bopt.id = boupt.organization_person_type_id
+WHERE
+	boupt.organization_user_id = #{id}
+</select>
+
+<!--修改机构用户 -->
+	<update id="update"  parameterType="org.module.organization.configure.domain.doctor.OrganizationUser">
+	UPDATE base_organization_user SET id=#{id}
+	  <if test="name !=null and name !=''">
+	   ,`name`=#{name}
+	  </if>
+	   <if test="sex !=null">
+	   ,sex=#{sex}
+	  </if>
+	  <if test="isInitPassword !=null">
+	   ,is_init_password=#{isInitPassword}
+	  </if>
+	   <if test="birthday !=null">
+	   ,birthday=#{birthday}
+	  </if>
+	  <if test="phone!=null and phone !=''">
+	   ,phone=#{phone}
+	  </if>
+	  <if test="photo !=null">
+	   ,photo=#{photo}
+	  </if>	
+	  <if test="account !=null and account !=''">
+	   ,account=#{account}
+	  </if>	  
+	   <if test="status !=null">
+	   ,`status`=#{status}
+	  </if>
+	  <if test="remark !=null">
+	   ,remark=#{remark}
+	  </if>
+	   <if test="password !=null and password !=''">
+	   ,password=#{password}
+	  </if>
+	   <if test="organizationPersonTypeId !=null">
+	   ,organization_person_type_id=#{organizationPersonTypeId}
+	  </if>
+	   <if test="certificateType !=null and certificateType !=''">
+	   ,certificate_type=#{certificateType}
+	  </if>
+	   <if test="certificateTypeName !=null and certificateTypeName !=''">
+	   ,certificate_type_name=#{certificateTypeName}
+	  </if>
+	   <if test="certificateNumber !=null and certificateNumber !=''">
+	   ,certificate_number=#{certificateNumber}
+	  </if>
+	   <if test="positive !=null and positive !=''">
+	   ,positive=#{positive}
+	  </if>
+	   <if test="opposite !=null and opposite !=''">
+	   ,opposite=#{opposite}
+	  </if>
+	WHERE id=#{id}
+	</update>
+
+</mapper>

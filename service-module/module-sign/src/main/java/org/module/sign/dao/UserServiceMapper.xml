@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.sign.dao.UserServiceMapper">
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from base_user_service
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="org.module.sign.domain.UserService">
+    insert into base_user_service (id, user_id, user_service_package_order_id, 
+      service_type_id, times, lock_times, 
+      use_times, create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{userServicePackageOrderId,jdbcType=INTEGER}, 
+      #{serviceTypeId,jdbcType=INTEGER}, #{times,jdbcType=INTEGER}, #{lockTimes,jdbcType=INTEGER}, 
+      #{useTimes,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  
+  <!-- 修改次数 -->
+  <update id="updateLockTime" parameterType="org.module.sign.domain.UserService">
+    UPDATE base_user_service SET 
+      lock_times = lock_times+1
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 查询用户服务详情 -->
+  <select id="getOne" parameterType="org.module.sign.domain.UserService" resultType="map">
+	SELECT
+		bus.id,
+		bus.user_id userId,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bus.service_type_id serviceTypeId,
+		bus.times,
+		bus.lock_times lockTimes,
+		bus.use_times useTimes,
+		bus.times-bus.lock_times-bus.use_times availableTimes,
+		bus.create_time createTime,
+		bus.update_time updateTime,
+		bst.`name` servieTypeName,
+		bu.`name` userName,
+		bu.address address,
+		bu.id_card idCard,
+		bu.is_bind_wechat isBindWeChat,
+		bu.phone,
+		bu.sex,
+		buspo.order_no orderNo,
+		buspo.doctor_team_id doctorTeamId
+	FROM
+		base_user_service bus
+	LEFT JOIN base_service_type bst ON bus.service_type_id = bst.id
+	LEFT JOIN base_user bu ON bus.user_id = bu.id
+	LEFT JOIN base_user_service_package_order buspo ON bus.user_service_package_order_id = buspo.id
+	WHERE bus.id=#{id}
+  </select>
+  
+</mapper>

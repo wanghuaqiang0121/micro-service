@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.bone.age.dao.UserCertificateMapper">
+
+   <!-- 删除用户证件 -->
+  <delete id="delete" parameterType="org.module.bone.age.domain.UserCertificate">
+   DELETE FROM base_user_certificate WHERE id = #{id}
+  </delete>
+  
+  <!--新增用户证件  -->
+  <insert id="insert" parameterType="org.module.bone.age.domain.UserCertificate" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO base_user_certificate (
+		user_id,
+		certificate_type,
+		certificate_number,
+		positive,
+		opposite,
+		images,
+		create_date
+	)
+	VALUES
+		(
+			#{userId}, #{certificateType},
+			#{certificateNumber}, #{positive}, #{opposite},
+			#{images}, #{createDate})
+  </insert>
+  
+  <!--修改用户证件  -->
+  <update id="update" parameterType="org.module.bone.age.domain.UserCertificate">
+    update base_user_certificate set id=#{id}
+      <if test="certificateType !=null and certificateType !=''">
+      ,certificate_type = #{certificateType}
+      </if>
+      <if test="certificateNumber !=null and certificateNumber !=''">
+      ,certificate_number = #{certificateNumber}
+     </if>
+     <if test="positive !=null and positive !=''">
+      ,positive = #{positive}
+      </if>
+      <if test="opposite !=null and opposite !=''">
+      ,opposite = #{opposite}
+      </if>
+      <if test="images !=null and images !=''">
+      ,images = #{images}
+      </if>
+    where id = #{id}
+  </update>
+  
+  <!-- 批量新增证件 -->
+  <insert id="batchInsert" parameterType="list" >
+  	insert into base_user_certificate (user_id, certificate_type, certificate_number, positive, opposite, images, create_date) values
+  	<foreach collection="list"  separator="," item="certificate">
+  			(#{certificate.userId}, #{certificate.certificateType}, #{certificate.certificateNumber}, #{certificate.positive},
+  			 #{certificate.opposite}, #{certificate.images}, #{certificate.createDate})
+	</foreach>
+  </insert>
+  
+  <!-- 查询用户证件是否重复 -->
+  <select id="getRepeat" parameterType="org.module.bone.age.domain.UserCertificate" resultType="map">
+	SELECT
+		buc.id,
+		buc.user_id userId,
+		buc.certificate_type certificateType,
+		buc.certificate_number certificateNumber,
+		buc.positive,
+		buc.opposite,
+		buc.images,
+		buc.create_date createDate
+	FROM
+		base_user_certificate buc
+	WHERE
+		buc.certificate_type=#{certificateType} and buc.certificate_number=#{certificateNumber}
+  </select>
+  
+  <!-- 判断已有用户是否已经存在该类型证件 -->
+  <select id="getRepeatByType" parameterType="org.module.bone.age.domain.UserCertificate" resultType="map">
+	SELECT
+		buc.id,
+		buc.user_id userId,
+		buc.certificate_type certificateType,
+		buc.certificate_number certificateNumber,
+		buc.positive,
+		buc.opposite,
+		buc.images,
+		buc.create_date createDate
+	FROM
+		base_user_certificate buc
+	WHERE
+		buc.user_id=#{userId} and buc.certificate_type=#{certificateType} 
+  </select>
+  
+  <!--查询用户证件详情  -->
+  <select id="getOne" parameterType="org.module.bone.age.domain.UserCertificate" resultType="map">
+    SELECT
+		buc.id,
+		buc.user_id userId,
+		buc.certificate_type certificateType,
+		fn_print_system_code_result (buc.certificate_type, ';', 'zjlx') certificateTypeName,
+		buc.certificate_number certificateNumber,
+		buc.positive,
+		buc.opposite,
+		buc.images,
+		buc.create_date createDate
+	FROM
+		base_user_certificate buc
+	WHERE
+		buc.id = #{id}
+  </select>
+  
+  <!--查询用户证件列表  -->
+  <select id="getList" parameterType="org.module.bone.age.domain.UserCertificate" resultType="map">
+   SELECT
+		buc.id,
+		buc.user_id userId,
+		buc.certificate_type certificateType,
+		fn_print_system_code_result (buc.certificate_type, ';', 'zjlx') certificateTypeName,
+		buc.certificate_number certificateNumber,
+		buc.positive,
+		buc.opposite,
+		buc.images,
+		buc.create_date createDate
+	FROM
+		base_user_certificate buc
+    <where>
+    	<if test="userId !=null">
+    	   buc.user_id = #{userId}
+    	</if>
+    </where>
+  </select>
+</mapper>

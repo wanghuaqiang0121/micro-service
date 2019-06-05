@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationServiceTypeMapper">
+  
+ <!--新增机构服务类型  -->
+  <insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationServiceType" useGeneratedKeys="true" keyProperty="id">
+    insert into base_organization_service_type (organization_id, service_type_id
+      )
+    values ( #{organizationId}, #{serviceTypeId}
+      )
+  </insert>
+  <!--删除机构服务类型  -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationServiceType">
+  	DELETE FROM base_organization_service_type WHERE organization_id = #{organizationId} AND service_type_id=#{serviceTypeId}
+  </delete>
+  <!--查询删除机构服务类型重复  -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationServiceType" resultType="map">
+		SELECT
+			id,
+			organization_id organizationId,
+			service_type_id serviceTypeId
+		FROM
+			base_organization_service_type
+		WHERE
+			organization_id = #{organizationId}
+		AND service_type_id = #{serviceTypeId}
+  </select>
+  
+  <!--机构服务类型列表  -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationServiceType" resultType="map">
+		    SELECT
+			ost.id,
+			ost.organization_id organizationId,
+			ost.service_type_id serviceTypeId,
+			st.`name` serviceTypeName,
+			o.`name` organizationName
+		FROM
+			base_organization_service_type ost
+		LEFT JOIN base_service_type st ON st.id = ost.service_type_id
+		LEFT JOIN base_organization o ON o.id = ost.organization_id
+		<where>
+			<if test="organizationId !=null">
+				ost.organization_id=#{organizationId}
+			</if>
+			<if test="serviceTypeId !=null">
+			    AND ost.service_type_id=#{serviceTypeId}
+			</if>
+			<if test="name != null and name != ''">
+		    	AND	st.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		    </if>
+		</where>
+  </select>
+  <!-- 机构没有的服务类型 -->
+  <select id="getOrganizationIsNullServiceTypeList" parameterType="org.module.organization.configure.domain.OrganizationServiceType" resultType="map">
+		SELECT
+			bst.id,
+			bst.`name`,
+			bst.`code`,
+			bst.`status`,
+			bost.id organizationServiceTypeId,
+			bost.organization_id organizationId
+		FROM
+			base_service_type bst
+		LEFT JOIN base_organization_service_type bost ON bost.service_type_id = bst.id AND bost.organization_id = #{organizationId}
+		WHERE ISNULL(bost.id) AND bst.`status` = 0
+			<if test="name != null and name != ''">
+		    	AND	bst.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		    </if>
+  </select>
+  
+  <!-- 查询机构拥有和未拥有的服务类型 -->
+  <select id="getOrganizationServiceTypeIsChoose" parameterType="org.module.organization.configure.domain.OrganizationServiceType" resultType="map">
+	SELECT
+		bst.id,
+		bst.`name`,
+		bst.`code`,
+		bst.`status`,
+		bst.`explain`,
+		bst.create_date createDate,
+	IF (
+		bost.service_type_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_organization_service_type bost
+	RIGHT JOIN base_service_type bst ON bst.id = bost.service_type_id
+	AND bost.organization_id = #{organizationId}
+	WHERE bst.`status`=0
+	     <if test="name!=null and name!=''">
+	      AND  bst.`name`  like CONCAT(CONCAT('%', #{name}), '%')
+	     </if>
+	
+  </select>
+  
+  
+  
+  
+  
+</mapper>

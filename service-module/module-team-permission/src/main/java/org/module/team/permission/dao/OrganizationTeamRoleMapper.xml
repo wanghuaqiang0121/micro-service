@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.team.permission.dao.OrganizationTeamRoleMapper">
+  <!-- 删除团队角色 -->
+  <delete id="delete" parameterType="org.module.team.permission.domain.OrganizationTeamRole">
+    DELETE FROM base_organization_team_role
+    WHERE id = #{id}
+  </delete>
+  
+  <!-- 添加团队角色 -->
+  <insert id="insert" parameterType="org.module.team.permission.domain.OrganizationTeamRole" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO base_organization_team_role (service_type_id, name, 
+      code, is_used, create_date, 
+      remark)
+    VALUES (#{serviceTypeId}, #{name}, 
+      #{code}, #{isUsed}, #{createDate}, 
+      #{remark})
+  </insert>
+  
+  <!-- 修改团队角色 -->
+  <update id="update" parameterType="org.module.team.permission.domain.OrganizationTeamRole">
+    UPDATE base_organization_team_role
+    SET id = #{id}
+    	<if test="serviceTypeId!=null">
+	    	,service_type_id = #{serviceTypeId}
+    	</if>
+    	<if test="name!=null and name!=''">
+			,name = #{name}
+    	</if>
+		<if test="code!=null and code!=''">
+			,code = #{code}
+    	</if>
+		<if test="isUsed!=null">
+			,is_used = #{isUsed}
+    	</if>
+		
+		<if test="createDate!=null">
+			,create_date = #{createDate}
+    	</if>
+		<if test="remark!=null and remark!=''">
+			,remark = #{remark}
+    	</if>
+    WHERE id = #{id}
+  </update>
+  
+  <!-- 判断数据是否重复 -->
+  <select id="getRepeat" parameterType="org.module.team.permission.domain.OrganizationTeamRole" resultType="map">
+    SELECT id, service_type_id serviceTypeId, name, code, is_used isUsed, create_date createDate, remark
+    FROM base_organization_team_role
+    WHERE code = #{code}
+  </select>
+  
+  <!-- 查看团队角色详情 -->
+  <select id="getOne" parameterType="org.module.team.permission.domain.OrganizationTeamRole" resultType="map">
+    SELECT id, service_type_id serviceTypeId, name, code, is_used isUsed, create_date createDate, remark
+    FROM base_organization_team_role
+    WHERE id = #{id}
+  </select>
+  
+  <!-- 团队角色列表 -->
+  <select id="getList"  parameterType="org.module.team.permission.domain.OrganizationTeamRole" resultType="map">
+    SELECT id, service_type_id serviceTypeId, name, code, is_used isUsed, create_date createDate, remark
+    FROM base_organization_team_role
+    <where>
+	    <if test="name!=null and name!=''">
+	    	`name` like CONCAT(CONCAT('%', #{name}), '%')
+	    </if>
+    </where>
+  </select>
+</mapper>

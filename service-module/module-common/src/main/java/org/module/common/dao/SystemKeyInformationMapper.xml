@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.common.dao.SystemKeyInformationMapper">
+ 
+ 
+	<!-- 查询系统秘钥详情 -->
+   <select id="getOne"  parameterType="org.module.common.domain.SystemKeyInformation" resultType="map">
+	SELECT
+		id,
+		username,
+		`password`,
+		expire,
+		platform,
+		url,
+		create_date createDate,
+		remark,
+		private_key privateKey,
+		public_key publicKey
+	FROM
+		base_system_key_information
+	WHERE
+		platform = #{platform}		
+   </select>
+</mapper>

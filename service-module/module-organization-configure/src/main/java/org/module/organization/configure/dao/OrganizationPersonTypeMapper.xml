@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationPersonTypeMapper">
+
+ <!--查询机构人员类型列表  -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationPersonType" resultType="map">
+	SELECT
+		id,
+		`name`,
+		`code`,
+		 role,
+		create_date createDate
+	FROM
+		base_organization_person_type
+    <where>
+    	<if test="name!=null and name!=''">
+		    name like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+    	<if test="code!=null and code!=''">
+		    and code like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+    </where>
+  </select>
+</mapper>

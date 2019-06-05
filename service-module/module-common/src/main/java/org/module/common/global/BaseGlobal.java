@@ -1,0 +1,46 @@
+package org.module.common.global;
+
+public final class BaseGlobal  {
+
+	public static final String CACHE_ORGANIZATION_USER = "organization_user:login_cache";
+	public static final String TOKEN_FLAG = "token";
+	/**
+	 * 验证码缓存名
+	 */
+	public static final String CACHE_CODE = "cache_code";
+	public static final String IP_VOLId = "ip_volid";
+	
+	/**
+	 *@Fields <font color="blue">DOCTOR_TEAM_ID</font>
+	 *@description 医生团队ID
+	 */
+	public static final String ORGANIZATION_TEAM_ID = "organizationTeamId";
+	
+	/**
+	 *@Fields <font color="blue">ORGANIZATION_ID</font>
+	 *@description 机构ID
+	 */
+	public static final String ORGANIZATION_ID = "organizationId";
+
+	/**
+	 *@Fields <font color="blue">MODULE_ID</font>
+	 *@description 模块ID
+	 */
+	public static final String MODULE_ID = "moduleId";
+	
+	
+	/**
+	 *@Fields <font color="blue">TEMPID</font>
+	 *@description 短信模板id
+	 */
+	public static final Integer TEMPID = 1;
+	
+	
+	/**
+	 *@Fields <font color="blue">TIME</font>
+	 *@description 短信延时时间
+	 */
+	public static final Long TIME = 0L;
+	
+	
+}

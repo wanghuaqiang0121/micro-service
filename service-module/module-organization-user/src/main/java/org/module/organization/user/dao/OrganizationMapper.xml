@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.user.dao.OrganizationMapper">
+
+
+  <!-- 检查机构详情 -->
+  <select id="getSmsInfo" parameterType="org.module.organization.user.domain.Organization" resultType="map">
+		SELECT
+			bo.id,
+			bo.`name`,
+			bosi.total_frequency totalFrequency,
+			bosi.use_frequency useFrequency
+		FROM
+			base_organization bo
+		LEFT JOIN base_organization_sms_info bosi ON bosi.organization_id = bo.id
+		WHERE
+			bo.id = #{id}
+  </select>
+   
+</mapper>

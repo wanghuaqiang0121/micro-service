@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.user.dao.UserOrganizationTeamMapper">
+
+  <resultMap type="map" id="userTeamRelations">
+  	<collection property="packages" column="{userId=userId,organizationTeamId=organizationTeamId}" javaType="list" select="getPackages"></collection>
+  </resultMap>
+  <!-- 用户团队关系列表 -->
+  <select id="getList" parameterType="org.module.user.domain.UserOrganizationTeam" resultMap="userTeamRelations">
+    SELECT
+		buot.id,
+		buot.user_id userId,
+		buot.organization_team_id organizationTeamId,
+	  	bot.`name` organizationTeamName,
+		bou.`name` organizationTeamManager,
+		bot.logo organizationTeamLogo,
+		bo.id organizationId,
+		bo.`name` organizationName,
+		buot.is_sign isSign,
+		buot.is_increment_service isIncrementService,
+		buot.is_single_service isSingleService
+	FROM
+		base_user_organization_team buot
+	INNER JOIN base_organization_team bot ON bot.id = buot.organization_team_id
+	INNER JOIN base_organization bo ON bo.id = bot.organization_id
+	INNER JOIN base_organization_user_team  bout ON bout.organization_team_id = bot.id AND bout.is_manager = TRUE
+	INNER JOIN base_organization_user bou ON bou.id = bout.organization_user_id
+	WHERE buot.user_id = #{userId}
+	ORDER BY buot.id DESC
+  </select>
+  
+   <!-- 用户服务包列表  -->
+  <select id="getPackages" parameterType="java.util.Map" resultType="map">
+	SELECT
+		bus.id userServiceId,
+		bus.user_service_package_order_id userServicePackageOrderId,
+		bst.id serviceTypeId,
+		bst.`name` serviceTypeName,
+		bus.times - bus.lock_times - bus.use_times availableTimes,
+		buspo.expire_date expireDate,
+		bot.id organizationTeamId,
+		bot.`name` organizationTeamName,
+		bosp.id organizationServicePackageId,
+		bo.id organizationId,
+		bo.`name` organizationName,
+		bosp.`name` organizationServicePackageName
+	FROM base_user_service bus
+	INNER JOIN base_service_type bst ON bst.id = bus.service_type_id
+	INNER JOIN base_user_service_package_order buspo ON buspo.id = bus.user_service_package_order_id 
+		AND buspo.expire_date &gt; NOW() AND buspo.doctor_team_id = #{organizationTeamId} AND buspo.`status` = 2
+	INNER JOIN base_organization_service_package bosp ON bosp.id = buspo.organization_service_package_id
+	INNER JOIN base_organization bo ON bo.id = bosp.organization_id AND bo.`status` = 0
+	INNER JOIN base_organization_team bot ON bot.id = buspo.doctor_team_id
+	WHERE
+		bus.user_id = #{userId}
+	GROUP BY bosp.id
+	ORDER BY buspo.id DESC
+  </select>
+</mapper>

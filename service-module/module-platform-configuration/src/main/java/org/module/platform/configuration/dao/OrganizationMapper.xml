@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.platform.configuration.dao.OrganizationMapper">
+
+  <delete id="delete" parameterType="org.module.platform.configuration.domain.Organization">
+    delete from base_organization
+    where id = #{id}
+  </delete>
+  
+  <!-- 添加机构 -->
+  <insert id="insert" parameterType="org.module.platform.configuration.domain.Organization" keyProperty="id" useGeneratedKeys="true">
+    insert into base_organization ( code, pid, 
+      organization_type_id, name, area_code, 
+      contract_number_prefix, is_support_referral, status, 
+      phone, logo, picture, 
+      province, city, area, 
+      street, community, address, 
+      lng, lat, create_date, 
+      remark,pers_code,judicial_bone_age_organization_id,judicial_bone_age_organization_team_id)
+    values ( #{code}, #{pid}, 
+      #{organizationTypeId}, #{name}, #{areaCode}, 
+      #{contractNumberPrefix}, #{isSupportReferral}, #{status}, 
+      #{phone}, #{logo}, #{picture}, 
+      #{province}, #{city}, #{area}, 
+      #{street}, #{community}, #{address}, 
+      #{lng}, #{lat}, #{createDate}, 
+      #{remark},#{persCode},#{judicialBoneAgeOrganizationId},#{judicialBoneAgeOrganizationTeamId})
+  </insert>
+  
+  <!-- 修改机构 -->
+  <update id="update" parameterType="org.module.platform.configuration.domain.Organization">
+	update base_organization SET id=#{id}
+		<if test="code!=null and code!=''">
+			,code = #{code}
+		</if>
+		<if test="pid!=null ">
+			,pid = #{pid}
+		</if>
+		<if test="organizationTypeId !=null">
+			,organization_type_id = #{organizationTypeId}
+		</if>
+		<if test="name!=null and name!=''">
+			,name = #{name}
+		</if>
+		<if test="areaCode!=null and areaCode!=''">
+			,area_code = #{areaCode}
+		</if>
+		<if test="contractNumberPrefix !=null and contractNumberPrefix !=''">
+			,contract_number_prefix = #{contractNumberPrefix}
+		</if>
+		<if test="isSupportReferral !=null">
+			,is_support_referral = #{isSupportReferral}
+		</if>
+		<if test="status !=null ">
+			,status = #{status}
+		</if>
+		<if test="phone!=null ">
+			,phone = #{phone}
+		</if>
+		<if test="logo!=null and logo!=''">
+			,logo = #{logo}
+		</if>
+		<if test="picture!=null and picture!=''">
+			,picture = #{picture}
+		</if>
+		<if test="province!=null and province!=''">
+			,province = #{province}
+		</if>
+		<if test="city!=null and city!=''">
+			,city = #{city}
+		</if>
+		<if test="area!=null and area!=''">
+			,area = #{area}
+		</if>
+		<if test="persCode!=null and persCode!=''">
+			,pers_code = #{persCode}
+		</if>
+		<if test="street!=null and street!=''">
+			,street = #{street}
+		</if>
+		<if test="community!=null and community!=''">
+			,community = #{community}
+		</if>
+		<if test="address!=null and address!=''">
+			,address = #{address}
+		</if>
+		<if test="lng!=null ">
+			,lng = #{lng}
+		</if>
+		<if test="lat!=null ">
+			,lat = #{lat}
+		</if>
+		<if test="remark!=null ">
+			,remark = #{remark}
+		</if>
+		<if test="judicialBoneAgeOrganizationId!=null ">
+			,judicial_bone_age_organization_id = #{judicialBoneAgeOrganizationId}
+		</if>
+		<if test="judicialBoneAgeOrganizationTeamId!=null ">
+			,judicial_bone_age_organization_team_id = #{judicialBoneAgeOrganizationTeamId}
+		</if>
+	where id = #{id}
+  </update>
+  
+   <!-- 定义查询机构详情结果集-->
+  <resultMap type="map" id="organizationMap">
+	<result column="id" property="id"/>
+	<collection property="organizationManager" column="id" javaType="list" select="getOrganizationManager"/>
+  </resultMap>
+  <select id="getOrganizationManager" parameterType="int" resultType="map">
+	SELECT
+		bdodd.id doctorOrganizationDepartmentDutyId,
+		bdodd.post,
+		bdodd.authorize_aptitude authorizeAptitude,
+		bdodd.department_id departmentId,
+		bou.id organizationUserId,
+		bou.account,
+		bou.birthday,
+		bou.`name`,
+		bou.phone,
+		bou.sex,
+		bou.photo
+	FROM
+		base_doctor_organization_department_duty bdodd
+	LEFT JOIN base_organization_user bou ON bou.id = bdodd.organization_user_id
+	WHERE
+		bdodd.is_manager = TRUE
+	AND bdodd.organization_id = #{id}
+  </select>
+  
+  <!-- 查询机构详情 -->
+  <select id="getOne" parameterType="org.module.platform.configuration.domain.Organization" resultMap="organizationMap">
+		SELECT
+			bo.id,
+			bo.`code`,
+			bo.pid,
+			bo.organization_type_id organizationTypeId,
+			bo.`name`,
+			bo.area_code areaCode,
+			bo.contract_number_prefix contractNumberPrefix,
+			bo.is_support_referral isSupportReferral,
+			bo.`status`,
+			bo.phone,
+			bo.logo,
+			bo.picture,
+			bo.province,
+			bo.city,
+			bo.area,
+			bo.street,
+			bo.community,
+			bo.address,
+			bo.lng,
+			bo.lat,
+			bo.create_date createDate,
+			bo.remark,
+			bo.pers_code persCode,
+			bo.judicial_bone_age_organization_id judicialBoneAgeOrganizationId,
+			bor.`name` judicialBoneAgeOrganizationName,
+			bo.judicial_bone_age_organization_team_id judicialBoneAgeOrganizationTeamId,
+			bote.`name` judicialBoneAgeOrganizationTeamName,
+			o.`name` pName,
+			bot.`name` organizationTypeName,
+			bowi.id organizationWechatInfoId,
+			bowi.wechat_name wechatName,
+			bowi.merchant_number merchantNumber,
+			bowi.pay_key payKey,
+			bowi.wechat_id wechatId,
+			bowi.wechat_key wechatKey,
+			bpoi.id pensionOrganizationInfoId,
+			bpoi.aptitude,
+			bpoi.response_time responseTime,
+			bpoi.service_area serviceArea,
+			bpoi.service_city serviceCity,
+			bpoi.service_province serviceProvince,
+			bmoi.id medicalOrganizationInfoId,
+			bmoi.administrative_organization_id administrativeOrganizationId,
+			bmoi.contract_protocol_prefix contractProtocolPrefix,
+			bmoi.is_administrative isAdministrative,
+			bmoi.medical_organization_type_id medicalOrganizationTypeId,
+			bmoi.nature,
+			bmoi.organization_grade_id organizationGradeId,
+			bmoi.organization_id organizationId,
+			bmot.`name` medicalOrganizationTypeName,
+			bog.`name` organizationGradeName
+		FROM
+			base_organization bo
+		LEFT JOIN base_organization o ON o.id = bo.pid
+		LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+		LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+		LEFT JOIN base_pension_organization_info bpoi ON bpoi.organization_id = bo.id
+		LEFT JOIN base_medical_organization_info bmoi ON bmoi.organization_id = bo.id
+		LEFT JOIN base_medical_organization_type bmot ON bmot.id = bmoi.medical_organization_type_id
+		LEFT JOIN base_organization_grade bog ON bog.id = bmoi.organization_grade_id
+		LEFT JOIN base_organization bor ON bo.judicial_bone_age_organization_id = bor.id
+		LEFT JOIN base_organization_team bote ON bo.judicial_bone_age_organization_team_id = bote.id
+		WHERE
+			bo.id = #{id}
+  </select>
+  
+  <!-- 查询机构列表 -->
+  <select id="getList" parameterType="org.module.platform.configuration.domain.Organization" resultType="map">
+	  SELECT
+		bo.id,
+		bo.`code`,
+		bo.pid,
+		bo.organization_type_id organizationTypeId,
+		bo.`name`,
+		bo.area_code areaCode,
+		bo.contract_number_prefix contractNumberPrefix,
+		bo.is_support_referral isSupportReferral, 
+		bo.`status`,
+		bo.phone,
+		bo.logo,
+		bo.picture,
+		bo.province,
+		bo.city,
+		bo.area,
+		bo.street,
+		bo.community,
+		bo.address,
+		bo.lng,
+		bo.lat,
+		bo.create_date createDate,
+		bo.remark,
+		bo.pers_code persCode,
+		o.`name` pName,
+		bot.`name` organizationTypeName,
+		bowi.id organizationWechatInfoId,
+		bowi.merchant_number merchantNumber,
+		bowi.pay_key payKey,
+		bowi.wechat_id wechatId,
+		bowi.wechat_key wechatKey,
+		bpoi.id pensionOrganizationInfoId,
+		bpoi.aptitude,
+		bpoi.response_time responseTime,
+		bpoi.service_area serviceArea,
+		bpoi.service_city serviceCity,
+		bpoi.service_province serviceProvince,
+		bmoi.id medicalOrganizationInfoId,
+		bmoi.administrative_organization_id administrativeOrganizationId,
+		bmoi.contract_protocol_prefix contractProtocolPrefix,
+		bmoi.is_administrative isAdministrative,
+		bmoi.medical_organization_type_id medicalOrganizationTypeId,
+		bmoi.nature,
+		bmoi.organization_grade_id organizationGradeId,
+		bmoi.organization_id organizationId,
+		bmot.`name` medicalOrganizationTypeName,
+		bog.`name` organizationGradeName,
+	    bou.`name` organizationUserName,
+	    bou.phone  organizationUserPhone
+	FROM
+		base_organization bo
+	LEFT JOIN base_organization o ON o.id = bo.pid
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	LEFT JOIN base_organization_wechat_info bowi ON bowi.organization_id = bo.id
+	LEFT JOIN base_pension_organization_info bpoi ON bpoi.organization_id = bo.id
+	LEFT JOIN base_medical_organization_info bmoi ON bmoi.organization_id = bo.id
+	LEFT JOIN base_medical_organization_type bmot ON bmot.id = bmoi.medical_organization_type_id
+	LEFT JOIN base_organization_grade bog ON bog.id = bmoi.organization_grade_id
+	LEFT JOIN base_doctor_organization_department_duty bdodd ON bdodd.organization_id=bo.id
+	LEFT JOIN base_organization_user bou ON bou.id=bdodd.organization_user_id
+	<where>
+	  	<if test="name!=null and name!=''">
+	      	and   bo.name  like CONCAT(CONCAT('%', #{name}), '%')
+	  	</if>
+	  	<if test="code!=null and code!=''">
+	   	 	and   bo.code  like CONCAT(CONCAT('%', #{code}), '%')
+	 	</if>
+	  	<if test="phone!=null and phone!=''">
+	   		and   bo.phone  like CONCAT(CONCAT('%', #{phone}), '%')
+	  	</if>
+	  	<if test="province!=null and province!=''">
+	   		and  bo.province = #{province}
+	  	</if>
+	  	<if test=" city!=null and city!=''">
+	   		and  bo.city = #{city}
+	  	</if>
+	  	<if test="area!=null and area!=''">
+	  		and  bo.area = #{area}
+	  	</if>
+	  	<if test="street!=null and street!=''">
+	   		and  bo.street = #{street}
+	  	</if>
+	  	<if test="community!=null and community!=''">
+	   		and  bo.community = #{community}
+	  	</if>
+	  	<if test="organizationTypeId !=null">
+	   		and  bo.organization_type_id = #{organizationTypeId}
+	  	</if>
+	  	<if test="status !=null">
+	   		and  bo.status = #{status}
+	  	</if>
+	  	<if test="role !=null and role!=''">
+	   		and  bot.role = #{role}
+	  	</if>
+	  	<if test="isAdministrative !=null">
+	   		and  bmoi.is_administrative = #{isAdministrative}
+	  	</if>
+	</where>
+	GROUP BY bo.id 
+	ORDER BY bo.create_date DESC
+  </select>
+  
+  <!-- 查询是否重复 -->
+  <select id="getRepeat" parameterType="org.module.platform.configuration.domain.Organization" resultType="map">
+	SELECT
+		bo.id,
+		bo.`code`,
+		bo.pid,
+		bo.organization_type_id
+		organizationTypeId,
+		bo.`name`,
+		bo.area_code areaCode,
+		bo.contract_number_prefix contractNumberPrefix,
+		bo.is_support_referral
+		isSupportReferral,
+		bo.`status`,
+		bo.phone,
+		bo.logo,
+		bo.picture,
+		bo.province,
+		bo.city,
+		bo.area,
+		bo.street,
+		bo.community,
+		bo.address,
+		bo.lng,
+		bo.lat,
+		bo.create_date createDate,
+		bo.remark,
+		bo.pers_code persCode,
+		o.`name` pName,
+		bot.`name` organizationTypeName
+	FROM
+		base_organization bo
+	LEFT JOIN base_organization o ON o.id = bo.pid
+	LEFT JOIN base_organization_type bot ON bot.id = bo.organization_type_id
+	WHERE 
+		bo.`name` = #{name} and bo.`code` = #{code}
+  </select>
+  
+  <select id="getTeams" parameterType="org.module.platform.configuration.domain.Organization" resultType="map">
+	SELECT
+		bot.id,
+		bot.`name`,
+		bot.phone,
+		bot.picture,
+		bot.protocol,
+		bot.remark
+	FROM
+		base_organization_team bot
+	WHERE
+		bot.organization_id =#{id}
+		<if test="name!=null and name!=''">
+			and   bot.name  like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+  </select>
+</mapper>

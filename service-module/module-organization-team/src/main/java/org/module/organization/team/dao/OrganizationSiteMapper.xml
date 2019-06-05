@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.team.dao.OrganizationSiteMapper">
+ 
+  <select id="getList" parameterType="org.module.organization.team.domain.OrganizationSite" resultType="map">
+	SELECT
+		bos.id,
+		bos.organization_id organizationId,
+		bos.`name`,
+		bos.picture,
+		bos.province,
+		bos.city,
+		bos.area,
+		bos.street,
+		bos.address,
+		bos.lng,
+		bos.lat,
+		bos.create_date createDate,
+		bos.remark,
+		bo.`name` organizationName,
+		bo.`code` organizationCode,
+		bo.phone organizationPhone,
+		bo.organization_type_id organizationTypeId,
+		bo.pid,
+		fn_print_distance(#{lng},#{lat},bos.lng,bos.lat) distance
+	FROM
+		base_organization_site bos
+	LEFT JOIN base_organization bo ON bo.id = bos.organization_id
+    <where>
+    	<if test="organizationId != null">
+    		bos.organization_id = #{organizationId}
+    	</if>
+    	<if test="name != null and name != ''">
+    		and bos.`name` like CONCAT(CONCAT('%', #{name}), '%')
+    	</if>
+    	<if test="code !=null and code !='' ">
+				and bo.`code`=#{code}
+			</if>
+			<if test="province !=null and province!=''">
+				and bo.province=#{province}
+			</if>
+			<if test="city !=null and city!=''">
+				and bo.city=#{city}
+			</if>
+			<if test="area !=null and area!=''">
+				and bo.area=#{area}
+			</if>
+    	<if test="rectangle !=null">
+	    	and (
+		    	bos.lng BETWEEN #{rectangle.minX} and #{rectangle.maxX})  
+		    	or (bos.lat BETWEEN  #{rectangle.minY} and #{rectangle.maxY}
+	    	)
+	    </if>
+    </where>
+    GROUP BY bos.id 
+    <if test="lng!=null and lat!=null">
+		<choose>
+			<when test="maxRaidus !=null and minRaidus !=null ">
+				HAVING distance &lt;= #{maxRaidus} and  distance &gt;= #{minRaidus}
+			</when>
+			<otherwise>
+				<if test="maxRaidus !=null">
+			     	HAVING distance &lt;= #{maxRaidus}
+			    </if>     
+			    <if test="minRaidus !=null">
+			    	HAVING distance &gt;= #{minRaidus}
+			    </if>   
+			</otherwise>
+		</choose>
+	</if>
+	ORDER BY distance ASC
+  </select>
+</mapper>

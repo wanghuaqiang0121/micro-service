@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.OrganizationUserTypeMapper">
+
+<!-- 新增机构用户标签  -->
+<insert id="insert" parameterType="org.module.organization.configure.domain.OrganizationUserType" keyProperty="id" useGeneratedKeys="true">
+ insert into base_organization_user_type (organization_id, user_type_id) values (#{organizationId}, #{userTypeId})
+</insert>
+
+ <!-- 删除机构用户标签 -->
+ <!--  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationUserType">
+    delete from base_organization_user_type where id=#{id}
+  </delete> -->
+  
+   <!-- 删除机构用户标签 -->
+  <delete id="delete" parameterType="org.module.organization.configure.domain.OrganizationUserType">
+    delete from base_organization_user_type  where organization_id = #{organizationId} and user_type_id=#{userTypeId}
+  </delete>
+    
+  
+   <!-- 批量新增机构用户标签 -->
+  <insert id="batchInsert" parameterType="list" >
+  	INSERT INTO base_organization_user_type (organization_id,user_type_id) VALUES
+  	<foreach collection="list"  separator="," item="userType">
+  			(#{userType.organizationId}, #{userType.userTypeId})
+	</foreach>
+  </insert>
+  
+   <!-- 查询机构用户标签类型是否重复 -->
+  <select id="getRepeat" parameterType="org.module.organization.configure.domain.OrganizationUserType" resultType="map">
+	SELECT
+		bout.id,
+		bout.organization_id,
+		bout.user_type_id
+	FROM
+		base_organization_user_type bout
+	WHERE
+		bout.organization_id = #{organizationId}
+	AND bout.user_type_id =#{userTypeId}
+  </select>
+  
+ <!-- 查询机构用户标签列表 -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.OrganizationUserType" resultType="map">
+	SELECT
+		bout.id,
+		bout.organization_id organizationId,
+		bout.user_type_id userTypeId,
+		bo.`code`,
+		bo.logo,
+		bo.`name` organizationName,
+		bo.phone,
+		bo.picture,
+		bo.pid,
+		bo.remark organizationRemark,
+		bo.`status`,
+		but.apply_type applyType,
+		but.is_used isUsed,
+		but.`name` userTypeName,
+		but.remark userTypeRemark
+	FROM
+		base_organization_user_type bout
+	INNER JOIN base_organization bo ON bout.organization_id = bo.id
+	INNER JOIN base_user_type but ON bout.user_type_id = but.id
+	<where>
+		<if test="organizationId !=null">
+			bout.organization_id=#{organizationId}
+		</if>
+		<if test="userTypeId !=null">
+			and bout.user_type_id=#{userTypeId}
+		</if>
+		<if test="name !=null and name !=''">
+			and but.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="applyType !=null">
+			and but.apply_type=#{applyType}
+		</if>
+		
+	</where>
+  </select>
+ <!-- 查询机构没有的人群标签 -->
+  <select id="getOrganizationUserTypeIsNull" parameterType="org.module.organization.configure.domain.OrganizationUserType" resultType="map">
+	SELECT
+		but.id ,
+		but.`name`,
+		but.apply_type applyType,
+		but.remark,
+		but.create_date createDate,
+		but.is_used isUsed,
+		bout.id organizationUserTypeId,
+		bout.organization_id organizationUserTypeOrganizationId
+	FROM
+		base_user_type but
+	LEFT JOIN base_organization_user_type bout ON bout.user_type_id = but.id AND bout.organization_id = #{organizationId}
+	WHERE
+		but.is_used = TRUE AND ISNULL(bout.id)
+  </select>
+  <!-- 机构拥有和未拥有的人群类型 -->
+  <select id="getOrganizationUserTypehaveAndNotHaveList" parameterType="org.module.organization.configure.domain.OrganizationUserType" resultType="map">
+	SELECT
+			but.id ,
+			but.`name`,
+			but.apply_type applyType,
+			but.remark,
+			but.create_date createDate,
+			but.is_used isUsed,
+			bout.id organizationUserTypeId,
+			bout.organization_id organizationUserTypeOrganizationId,
+			IF(
+			bout.id IS NULL,
+			FALSE,
+			TRUE
+			)isChoose
+		FROM
+			base_user_type but
+		LEFT JOIN base_organization_user_type bout ON bout.user_type_id = but.id AND bout.organization_id = #{organizationId}
+		WHERE
+			but.is_used = TRUE
+		<if test="name !=null and name !=''">
+			and but.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+		<if test="applyType !=null">
+			and but.apply_type=#{applyType}
+		</if>
+  </select>
+ 
+</mapper>

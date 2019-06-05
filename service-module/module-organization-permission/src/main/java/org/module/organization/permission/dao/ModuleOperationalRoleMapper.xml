@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.permission.dao.ModuleOperationalRoleMapper">
+
+<!--查询模块角色关联表重复数据  -->
+<select id="getRepeat" parameterType="org.module.organization.permission.domain.ModuleOperationalRole" resultType="map">
+	SELECT 
+		id,
+		name
+	FROM base_module_operational_role 
+	WHERE system_module_id = #{systemModuleId} 
+		AND operational_role_id = #{operationalRoleId}
+</select>
+
+<!--新增模块角色关联表  -->
+<insert id="insert"  parameterType="org.module.organization.permission.domain.ModuleOperationalRole" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_module_operational_role(`name`,system_module_id,operational_role_id) VALUES (#{name},#{systemModuleId},#{operationalRoleId})
+</insert>
+
+<!--删除模块角色关联表  -->
+<delete id="delete" parameterType="org.module.organization.permission.domain.ModuleOperationalRole">
+DELETE FROM base_module_operational_role WHERE system_module_id=#{systemModuleId} AND operational_role_id=#{operationalRoleId}
+</delete>
+
+<!--查询该模块拥有和未拥有的角色  -->
+<select id="getModuleRoleIsChoose" parameterType="org.module.organization.permission.domain.ModuleOperationalRole" resultType="map">
+	SELECT
+		bor.id,
+		bor.`code`,
+		bor.`name`,
+		bor.remark,
+		bor.is_used isUsed,
+	IF (
+		bmor.operational_role_id IS NULL,
+		FALSE,
+		TRUE
+	) isChoose
+	FROM
+		base_module_operational_role bmor
+	RIGHT JOIN base_operational_role bor ON bor.id = bmor.operational_role_id AND bmor.system_module_id = #{systemModuleId}  
+	LEFT JOIN base_system_module bsm ON bsm.id = bmor.system_module_id	
+	WHERE bor.is_used = 1
+	   	<if test="name!=null and name!=''">
+		   AND bor.`name` like CONCAT(CONCAT('%', #{name}), '%')
+		</if>
+	   	<if test="code!=null and code!=''">
+		    and bor.`code` like CONCAT(CONCAT('%', #{code}), '%')
+		</if>
+</select> 
+ </mapper>

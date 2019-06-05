@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.user.dao.DoctorOrganizationDepartmentDutyMapper">
+
+<!-- 新增  -->
+<insert id="insert" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty" keyProperty="id" useGeneratedKeys="true">
+INSERT INTO base_doctor_organization_department_duty(organization_user_id,department_id,organization_id,post,remark) VALUES (#{organizationUserId},#{departmentId},#{organizationId},#{post},#{remark})
+</insert>
+
+<!-- 检查数据重复 -->
+<select id="getRepeat" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty" resultType="map">
+SELECT id ,is_manager isManager,organization_user_id organizationUserId,department_id departmentId,post,remark FROM base_doctor_organization_department_duty WHERE organization_user_id=#{organizationUserId} and organization_id=#{organizationId} 
+</select>
+
+<!-- 修改 -->
+<update id="update" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty">
+ UPDATE base_doctor_organization_department_duty SET id=#{id}
+    <if test="organizationId !=null ">
+      ,organization_id=#{organizationId}
+    </if>
+    <if test="departmentId !=null ">
+      ,department_id=#{departmentId}
+    </if>
+     <if test="organizationUserId !=null ">
+      ,organization_user_id=#{organizationUserId}
+    </if>
+    <if test="post !=null ">
+      ,post=#{post}
+    </if>
+    <if test="remark !=null ">
+      ,remark=#{remark}
+    </if>
+  WHERE id=#{id}
+</update>
+
+<!-- 列表 -->
+<select id="getList" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty" resultType="map">
+	SELECT
+		bdodtd.id,
+		bdodtd.organization_user_id organizationUserId,
+		bdodtd.department_id departmentId,
+		bdodtd.organization_id organizationId,
+		bdodtd.post,
+		bdodtd.remark,
+		bou.`name` organizationUserName,
+		bou.phone organizationUserPhone,
+	    bou.sex,
+	     TIMESTAMPDIFF(YEAR,bou.birthday, CURDATE()) age, 
+	     bde.`name` departmentName,
+	    bou.account,
+	    bou.birthday,
+	    bou.photo,
+	    bou.`status` organizationUserStatus,
+	    bou.remark organizationUserRemark,
+	    bo.`name` organizationName,
+	    bo.`code` organizationCode,
+	    bo.logo organizationLogo,
+	    bo.phone organizationPhone,
+	    bo.picture organizationPicture,
+	    bo.`status` organizationStatus
+	FROM
+		base_doctor_organization_department_duty bdodtd
+	LEFT JOIN base_organization_user bou ON bdodtd.organization_user_id = bou.id
+	LEFT JOIN base_department bde ON bdodtd.department_id = bde.id
+	LEFT JOIN base_organization bo ON bdodtd.organization_id=bo.id
+	<where>
+	    <if test="departmentId !=null">
+	    	and bdodtd.department_id =#{departmentId}
+	    </if>
+	    <if test="post!=null and post!=''">
+	    	and bdodtd.post like CONCAT(CONCAT('%', #{post}), '%')
+	    </if>
+	    <if test="organizationId!=null">
+	        and bdodtd.organization_id =#{organizationId}
+	    </if>
+	    <if test="organizationUserId!=null">
+	        and bdodtd.organization_user_id =#{organizationUserId}
+	    </if>
+		<if test="organizationUser!=null">
+		   	<if test="organizationUser.name!=null and organizationUser.name!=''">
+		   		and bou.name like CONCAT(CONCAT('%', #{organizationUser.name}), '%')
+		   	</if>
+		   	<if test="organizationUser.account!=null and organizationUser.account!=''">
+		   		and bou.account like CONCAT(CONCAT('%', #{organizationUser.account}), '%')
+		  	 </if>
+		   	<if test="organizationUser.phone!=null and organizationUser.phone!=''">
+		    	and bou.phone like CONCAT(CONCAT('%', #{organizationUser.phone}), '%')
+		   	</if>
+		   	<if test="organizationUser.sex!=null">
+		    	and bou.sex=#{organizationUser.sex}
+		   </if>
+		</if>
+	</where>
+</select>
+
+<!-- 团队没有的机构成员列表 -->
+<select id="getOrganizationMemberIsNullList" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty" resultType="map">
+	SELECT
+		bdodtd.id,
+		bdodtd.organization_user_id organizationUserId,
+		bdodtd.department_id departmentId,
+		bdodtd.organization_id organizationId,
+		bdodtd.post,
+		bdodtd.remark,
+		bou.`name` organizationUserName,
+		bou.phone organizationUserPhone,
+	    bou.sex,
+	    TIMESTAMPDIFF(YEAR,bou.birthday, CURDATE()) age, 
+	    bde.`name` departmentName,
+	    bou.account,
+	    bou.birthday,
+	    bou.photo,
+	    bou.`status` organizationUserStatus,
+	    bou.remark organizationUserRemark,
+	    bo.`name` organizationName,
+	    bo.`code` organizationCode,
+	    bo.logo organizationLogo,
+	    bo.phone organizationPhone,
+	    bo.picture organizationPicture,
+	    bo.`status` organizationStatus,
+	    bdl.name doctorLevelName,
+	    bdc.name doctorCategoryName
+	    bo.`status` organizationStatus,
+		bdt.id doctorTitleId,
+		bdt.`name` doctorTitleName
+	    bo.`status` organizationStatus
+	FROM
+		base_doctor_organization_department_duty bdodtd
+	LEFT JOIN base_organization_user bou ON bdodtd.organization_user_id = bou.id
+	LEFT JOIN base_department bde ON bdodtd.department_id = bde.id
+	LEFT JOIN base_organization bo ON bdodtd.organization_id=bo.id
+	LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+	LEFT JOIN base_doctor_level bdl ON bdl.id = bdi.doctor_level_id
+	LEFT JOIN base_doctor_category bdc ON bdc.id = bdl.doctor_category_id
+	LEFT JOIN base_doctor_title bdt ON bdt.id = bdi.doctor_title_id
+	WHERE bdodtd.organization_id =#{organizationId} AND bdodtd.organization_user_id NOT in (
+		SELECT boot.organization_user_id
+		FROM base_organization_organization_team boot
+		WHERE boot.organization_team_id = #{organizationTeamId}
+		GROUP BY boot.organization_user_id
+	)
+</select>
+
+<!--删除  -->
+<delete id="delete" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty">
+DELETE FROM base_doctor_organization_department_duty WHERE organization_user_id=#{organizationUserId} and organization_id=#{organizationId} and department_id =#{departmentId}
+</delete>
+
+<!-- 机构下的成员列表 -->
+<select id="getOrganizationMember" parameterType="org.module.organization.user.domain.DoctorOrganizationDepartmentDuty" resultType="map">
+	SELECT
+		bdodtd.id,
+		bdodtd.organization_user_id organizationUserId,
+		bdodtd.department_id departmentId,
+		bdodtd.organization_id organizationId,
+		bdodtd.post,
+		bdodtd.remark,
+		bou.`name` organizationUserName,
+		bou.phone organizationUserPhone,
+	    bou.sex,
+	    TIMESTAMPDIFF(YEAR,bou.birthday, CURDATE()) age, 
+	    bde.`name` departmentName,
+	    bou.account,
+	    bou.birthday,
+	    bou.photo,
+	    bou.`status` organizationUserStatus,
+	    bou.remark organizationUserRemark,
+	    bo.`name` organizationName,
+	    bo.`code` organizationCode,
+	    bo.logo organizationLogo,
+	    bo.phone organizationPhone,
+	    bo.picture organizationPicture,
+	    bo.`status` organizationStatus
+	FROM
+		base_doctor_organization_department_duty bdodtd
+	LEFT JOIN base_organization_user bou ON bdodtd.organization_user_id = bou.id
+	LEFT JOIN base_department bde ON bdodtd.department_id = bde.id
+	LEFT JOIN base_organization bo ON bdodtd.organization_id=bo.id
+	LEFT JOIN base_doctor_info bdi ON bdi.organization_user_id = bou.id
+	<where>
+        <if test="organizationId!=null">
+	         bdodtd.organization_id =#{organizationId}
+	    </if>
+	    <if test="departmentId !=null">
+	    	and bdodtd.department_id =#{departmentId}
+	    </if>
+	    <if test="organizationUserId!=null">
+	        and bdodtd.organization_user_id =#{organizationUserId}
+	    </if>
+	</where>
+</select>
+</mapper>

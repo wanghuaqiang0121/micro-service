@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.organization.configure.dao.doctor.OrganizationTeamRoleMapper">
+<!--查询机构团队角色列表  -->
+  <select id="getList" parameterType="org.module.organization.configure.domain.doctor.OrganizationTeamRole" resultType="map">
+	SELECT
+		id,
+		service_type_id serviceTypeId,
+		`name`,
+		`code`,
+		is_used isUsed,
+		create_date createDate,
+		remark
+	FROM
+		base_organization_team_role
+	WHERE is_used=TRUE
+  </select>
+</mapper>

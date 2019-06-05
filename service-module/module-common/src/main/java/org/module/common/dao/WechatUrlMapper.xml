@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.module.common.dao.WechatUrlMapper">
+  
+ 
+  <select id="getOne" parameterType="org.module.common.domain.WechatUrl" resultType="map">
+	SELECT
+		id,
+		ip,
+		`port`,
+		url,
+		appid,
+		`name`,
+		create_date createDate
+	FROM
+		base_wechat_url
+	WHERE
+		appid = #{appid}
+  </select>
+ 
+</mapper>
